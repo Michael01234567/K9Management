@@ -7,6 +7,7 @@ import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { Dog, Handler, TRAINING_LEVELS } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
+import { useUserRole } from '../../hooks/useUserRole';
 
 interface DogWithHandlers extends Dog {
   handlers?: Handler[];
@@ -19,6 +20,7 @@ interface DogTableProps {
 }
 
 export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTableProps) {
+  const { canCreate } = useUserRole();
   const [dogs, setDogs] = useState<DogWithHandlers[]>([]);
   const [filteredDogs, setFilteredDogs] = useState<DogWithHandlers[]>([]);
   const [loading, setLoading] = useState(true);
@@ -182,10 +184,12 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
             <Download size={18} className="sm:mr-2" />
             <span className="hidden sm:inline">Export</span>
           </Button>
-          <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
-            <Plus size={18} className="sm:mr-2" />
-            <span className="hidden sm:inline">Add Dog</span>
-          </Button>
+          {canCreate('dogs') && (
+            <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
+              <Plus size={18} className="sm:mr-2" />
+              <span className="hidden sm:inline">Add Dog</span>
+            </Button>
+          )}
         </div>
       </div>
 

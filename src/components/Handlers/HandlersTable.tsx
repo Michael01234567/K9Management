@@ -5,6 +5,7 @@ import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { Handler } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
+import { useUserRole } from '../../hooks/useUserRole';
 
 interface HandlersTableProps {
   onAddClick: () => void;
@@ -13,6 +14,7 @@ interface HandlersTableProps {
 }
 
 export function HandlersTable({ onAddClick, onEditClick, refreshTrigger }: HandlersTableProps) {
+  const { canCreate, canEdit } = useUserRole();
   const [handlers, setHandlers] = useState<Handler[]>([]);
   const [handlerDogs, setHandlerDogs] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -75,16 +77,18 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger }: Handl
             <Download size={18} className="sm:mr-2" />
             <span className="hidden sm:inline">Export</span>
           </Button>
-          <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
-            <Plus size={18} className="sm:mr-2" />
-            <span className="hidden sm:inline">Add Handler</span>
-          </Button>
+          {canCreate('handlers') && (
+            <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
+              <Plus size={18} className="sm:mr-2" />
+              <span className="hidden sm:inline">Add Handler</span>
+            </Button>
+          )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {handlers.map((handler) => (
-          <Card key={handler.id} hover onClick={() => onEditClick(handler)}>
+          <Card key={handler.id} hover onClick={canEdit('handlers') ? () => onEditClick(handler) : undefined}>
             <div className="p-6">
               <h3 className="text-xl font-semibold text-stone-900 mb-4">{handler.full_name}</h3>
               <div className="space-y-2 mb-4">
