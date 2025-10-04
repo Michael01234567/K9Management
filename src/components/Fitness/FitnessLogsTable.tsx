@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Plus, TrendingUp } from 'lucide-react';
+import { Plus, TrendingUp, Download } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { FitnessLog, Dog } from '../../types/database';
+import { exportToExcel } from '../../utils/excelExport';
 
 interface FitnessLogWithDog extends FitnessLog {
   dog?: Dog;
@@ -51,6 +52,21 @@ export function FitnessLogsTable({ onAddClick, onEditClick, refreshTrigger }: Fi
     }
   };
 
+  const handleExport = () => {
+    const exportData = logs.map((log) => ({
+      Dog: log.dog?.name || 'Unknown',
+      Breed: log.dog?.breed || 'N/A',
+      Date: new Date(log.log_date).toLocaleDateString(),
+      'Activity Type': log.activity_type,
+      'Duration (min)': log.duration_minutes || 'N/A',
+      'Distance (km)': log.distance_km || 'N/A',
+      'Weight (kg)': log.weight_kg || 'N/A',
+      Notes: log.notes || 'No notes',
+      'Created At': new Date(log.created_at).toLocaleString(),
+    }));
+    exportToExcel(exportData, 'Fitness_Logs_Export', 'Fitness Logs');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -63,10 +79,16 @@ export function FitnessLogsTable({ onAddClick, onEditClick, refreshTrigger }: Fi
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-stone-900">Fitness & Training Logs</h2>
-        <Button onClick={onAddClick}>
-          <Plus size={20} className="mr-2" />
-          Add Log
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExport} variant="outline">
+            <Download size={20} className="mr-2" />
+            Export to Excel
+          </Button>
+          <Button onClick={onAddClick}>
+            <Plus size={20} className="mr-2" />
+            Add Log
+          </Button>
+        </div>
       </div>
 
       <Card>

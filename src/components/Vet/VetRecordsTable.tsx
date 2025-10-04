@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Plus, AlertCircle } from 'lucide-react';
+import { Plus, AlertCircle, Download } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { VetRecord, Dog } from '../../types/database';
+import { exportToExcel } from '../../utils/excelExport';
 
 interface VetRecordWithDog extends VetRecord {
   dog?: Dog;
@@ -58,6 +59,19 @@ export function VetRecordsTable({ onAddClick, onEditClick, refreshTrigger }: Vet
     return visitDate >= today && visitDate <= thirtyDaysFromNow;
   };
 
+  const handleExport = () => {
+    const exportData = records.map((record) => ({
+      Dog: record.dog?.name || 'Unknown',
+      Breed: record.dog?.breed || 'N/A',
+      'Visit Date': new Date(record.visit_date).toLocaleDateString(),
+      'Visit Type': record.visit_type,
+      'Next Visit Date': record.next_visit_date ? new Date(record.next_visit_date).toLocaleDateString() : 'N/A',
+      Notes: record.notes || 'No notes',
+      'Created At': new Date(record.created_at).toLocaleString(),
+    }));
+    exportToExcel(exportData, 'Vet_Records_Export', 'Vet Records');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -70,10 +84,16 @@ export function VetRecordsTable({ onAddClick, onEditClick, refreshTrigger }: Vet
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-stone-900">Veterinary Records</h2>
-        <Button onClick={onAddClick}>
-          <Plus size={20} className="mr-2" />
-          Add Record
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExport} variant="outline">
+            <Download size={20} className="mr-2" />
+            Export to Excel
+          </Button>
+          <Button onClick={onAddClick}>
+            <Plus size={20} className="mr-2" />
+            Add Record
+          </Button>
+        </div>
       </div>
 
       <Card>

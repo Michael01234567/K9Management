@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Search, Plus, MapPin } from 'lucide-react';
+import { Search, Plus, MapPin, Download } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { Select } from '../UI/Select';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { Dog, Handler, TRAINING_LEVELS } from '../../types/database';
+import { exportToExcel } from '../../utils/excelExport';
 
 interface DogWithHandlers extends Dog {
   handlers?: Handler[];
@@ -113,6 +114,22 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
     return years > 0 ? `${years}y ${months}m` : `${months}m`;
   };
 
+  const handleExport = () => {
+    const exportData = filteredDogs.map((dog) => ({
+      Name: dog.name,
+      Age: calculateAge(dog.dob),
+      Breed: dog.breed,
+      Sex: dog.sex,
+      'Microchip Number': dog.microchip_number || 'N/A',
+      'Training Level': dog.training_level,
+      Handlers: dog.handlers && dog.handlers.length > 0 ? dog.handlers.map((h) => h.full_name).join(', ') : 'Unassigned',
+      Location: dog.location || 'N/A',
+      Origin: dog.origin || 'N/A',
+      Note: dog.note || 'N/A',
+    }));
+    exportToExcel(exportData, 'Dogs_Export', 'Dogs');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -153,10 +170,16 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
             ]}
           />
         </div>
-        <Button onClick={onAddClick}>
-          <Plus size={20} className="mr-2" />
-          Add Dog
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExport} variant="outline">
+            <Download size={20} className="mr-2" />
+            Export to Excel
+          </Button>
+          <Button onClick={onAddClick}>
+            <Plus size={20} className="mr-2" />
+            Add Dog
+          </Button>
+        </div>
       </div>
 
       <Card>

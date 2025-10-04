@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Plus, Mail, Phone } from 'lucide-react';
+import { Plus, Mail, Phone, Download } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { Handler } from '../../types/database';
+import { exportToExcel } from '../../utils/excelExport';
 
 interface HandlersTableProps {
   onAddClick: () => void;
@@ -46,6 +47,17 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger }: Handl
     }
   };
 
+  const handleExport = () => {
+    const exportData = handlers.map((handler) => ({
+      'Full Name': handler.full_name,
+      Email: handler.email || 'N/A',
+      Phone: handler.phone || 'N/A',
+      'Assigned Dogs': handlerDogs[handler.id] || 0,
+      'Created At': new Date(handler.created_at).toLocaleString(),
+    }));
+    exportToExcel(exportData, 'Handlers_Export', 'Handlers');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -58,10 +70,16 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger }: Handl
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-stone-900">Handlers</h2>
-        <Button onClick={onAddClick}>
-          <Plus size={20} className="mr-2" />
-          Add Handler
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExport} variant="outline">
+            <Download size={20} className="mr-2" />
+            Export to Excel
+          </Button>
+          <Button onClick={onAddClick}>
+            <Plus size={20} className="mr-2" />
+            Add Handler
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
