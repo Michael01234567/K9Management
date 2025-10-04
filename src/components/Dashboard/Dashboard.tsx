@@ -13,6 +13,8 @@ interface DashboardStats {
   dogsBySpecialization: Record<string, number>;
   dogsByLocation: Record<string, number>;
   dogsByLocationAndSpecialization: Record<string, Record<string, number>>;
+  dogsByOrigin: Record<string, number>;
+  dogsByOriginAndSpecialization: Record<string, Record<string, number>>;
 }
 
 export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }) {
@@ -26,8 +28,11 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
     dogsBySpecialization: {},
     dogsByLocation: {},
     dogsByLocationAndSpecialization: {},
+    dogsByOrigin: {},
+    dogsByOriginAndSpecialization: {},
   });
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [selectedOrigin, setSelectedOrigin] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,6 +59,8 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
       const specializationCounts: Record<string, number> = {};
       const locationCounts: Record<string, number> = {};
       const locationSpecializationCounts: Record<string, Record<string, number>> = {};
+      const originCounts: Record<string, number> = {};
+      const originSpecializationCounts: Record<string, Record<string, number>> = {};
 
       dogs?.forEach((dog) => {
         trainingLevelCounts[dog.training_level] = (trainingLevelCounts[dog.training_level] || 0) + 1;
@@ -75,6 +82,19 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
               (locationSpecializationCounts[dog.location][dog.specialization] || 0) + 1;
           }
         }
+
+        if (dog.origin) {
+          originCounts[dog.origin] = (originCounts[dog.origin] || 0) + 1;
+
+          if (!originSpecializationCounts[dog.origin]) {
+            originSpecializationCounts[dog.origin] = {};
+          }
+
+          if (dog.specialization) {
+            originSpecializationCounts[dog.origin][dog.specialization] =
+              (originSpecializationCounts[dog.origin][dog.specialization] || 0) + 1;
+          }
+        }
       });
 
       setStats({
@@ -87,6 +107,8 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
         dogsBySpecialization: specializationCounts,
         dogsByLocation: locationCounts,
         dogsByLocationAndSpecialization: locationSpecializationCounts,
+        dogsByOrigin: originCounts,
+        dogsByOriginAndSpecialization: originSpecializationCounts,
       });
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -268,6 +290,51 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
                   ))
               ) : (
                 <p className="text-stone-500 text-sm">No locations assigned yet</p>
+              )}
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="p-6">
+            <h3 className="text-xl font-bold text-stone-900 mb-4">Dogs by Origin</h3>
+            <div className="space-y-3">
+              {Object.entries(stats.dogsByOrigin).length > 0 ? (
+                Object.entries(stats.dogsByOrigin)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([origin, count]) => (
+                    <div
+                      key={origin}
+                      className="cursor-pointer hover:bg-stone-50 p-2 rounded-lg transition-colors"
+                      onClick={() => setSelectedOrigin(selectedOrigin === origin ? null : origin)}
+                    >
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-stone-700 font-medium">{origin}</span>
+                        <span className="font-semibold text-stone-900">{count}</span>
+                      </div>
+                      <div className="w-full bg-stone-200 rounded-full h-2">
+                        <div
+                          className="bg-orange-900 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${(count / stats.totalDogs) * 100}%` }}
+                        ></div>
+                      </div>
+                      {selectedOrigin === origin && stats.dogsByOriginAndSpecialization[origin] && (
+                        <div className="mt-3 pl-4 space-y-2">
+                          <p className="text-xs font-semibold text-stone-600 mb-2">Specializations from {origin}:</p>
+                          {Object.entries(stats.dogsByOriginAndSpecialization[origin]).map(
+                            ([spec, specCount]) => (
+                              <div key={spec} className="flex justify-between text-xs">
+                                <span className="text-stone-600">{spec}</span>
+                                <span className="font-medium text-blue-900">{specCount}</span>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))
+              ) : (
+                <p className="text-stone-500 text-sm">No origins assigned yet</p>
               )}
             </div>
           </div>
