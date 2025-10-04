@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Mail, Phone, Download } from 'lucide-react';
+import { Plus, Mail, Phone, Download, User } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
@@ -90,7 +90,20 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger }: Handl
         {handlers.map((handler) => (
           <Card key={handler.id} hover onClick={canEdit('handlers') ? () => onEditClick(handler) : undefined}>
             <div className="p-6">
-              <h3 className="text-xl font-semibold text-stone-900 mb-4">{handler.full_name}</h3>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center overflow-hidden border-2 border-stone-200 flex-shrink-0">
+                  {handler.picture_url ? (
+                    <img
+                      src={handler.picture_url}
+                      alt={handler.full_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User size={32} className="text-stone-400" />
+                  )}
+                </div>
+                <h3 className="text-xl font-semibold text-stone-900">{handler.full_name}</h3>
+              </div>
               <div className="space-y-2 mb-4">
                 {handler.email && (
                   <div className="flex items-center text-sm text-stone-600">

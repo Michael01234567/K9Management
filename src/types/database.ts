@@ -19,6 +19,7 @@ export interface Handler {
   full_name: string;
   email: string | null;
   phone: string | null;
+  picture_url: string | null;
   created_at: string;
   updated_at: string;
 }
