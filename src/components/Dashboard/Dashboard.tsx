@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase';
 
 interface DashboardStats {
   totalDogs: number;
-  activeDogs: number;
+  activeHandlers: number;
   upcomingVetVisits: number;
   recentFitnessLogs: number;
   dogsByTrainingLevel: Record<string, number>;
@@ -20,7 +20,7 @@ interface DashboardStats {
 export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }) {
   const [stats, setStats] = useState<DashboardStats>({
     totalDogs: 0,
-    activeDogs: 0,
+    activeHandlers: 0,
     upcomingVetVisits: 0,
     recentFitnessLogs: 0,
     dogsByTrainingLevel: {},
@@ -42,6 +42,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
   const loadStats = async () => {
     try {
       const { data: dogs } = await supabase.from('dogs').select('*');
+      const { data: handlers } = await supabase.from('handlers').select('id');
       const { data: vetRecords } = await supabase
         .from('vet_records')
         .select('*')
@@ -99,7 +100,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
 
       setStats({
         totalDogs: dogs?.length || 0,
-        activeDogs: dogs?.length || 0,
+        activeHandlers: handlers?.length || 0,
         upcomingVetVisits: vetRecords?.length || 0,
         recentFitnessLogs: fitnessLogs?.length || 0,
         dogsByTrainingLevel: trainingLevelCounts,
@@ -135,7 +136,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
     },
     {
       title: 'Active Handlers',
-      value: stats.activeDogs,
+      value: stats.activeHandlers,
       icon: Users,
       color: 'bg-stone-100 text-stone-900',
       onClick: () => onNavigate('handlers'),
