@@ -46,29 +46,35 @@ export function useUserRole() {
   const canView = () => true;
 
   const canCreate = (resource: 'dogs' | 'handlers' | 'vet_records' | 'fitness_logs') => {
+    if (role === 'Admin') return true;
+
     if (resource === 'dogs' || resource === 'handlers') {
-      return role === 'Admin';
+      return false;
     }
-    return ['Admin', 'Handler', 'Veterinarian'].includes(role);
+    return ['Handler', 'Veterinarian'].includes(role);
   };
 
   const canEdit = (resource: 'dogs' | 'handlers' | 'vet_records' | 'fitness_logs') => {
+    if (role === 'Admin') return true;
+
     if (resource === 'dogs' || resource === 'handlers') {
-      return role === 'Admin';
+      return false;
     }
-    return ['Admin', 'Handler', 'Veterinarian'].includes(role);
+    return ['Handler', 'Veterinarian'].includes(role);
   };
 
   const canDelete = (resource: 'dogs' | 'handlers' | 'vet_records' | 'fitness_logs') => {
+    if (role === 'Admin') return true;
+
     if (resource === 'vet_records') {
-      return role === 'Admin' || role === 'Veterinarian';
+      return role === 'Veterinarian';
     }
-    return role === 'Admin';
+    return false;
   };
 
   const isAdmin = () => role === 'Admin';
-  const isHandler = () => role === 'Handler';
-  const isVeterinarian = () => role === 'Veterinarian';
+  const isHandler = () => role === 'Handler' || role === 'Admin';
+  const isVeterinarian = () => role === 'Veterinarian' || role === 'Admin';
   const isViewer = () => role === 'Viewer';
 
   return {
