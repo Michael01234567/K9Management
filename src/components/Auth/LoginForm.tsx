@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
+import { Select } from '../UI/Select';
+import { USER_ROLES } from '../../types/database';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [role, setRole] = useState('Viewer');
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,7 +22,7 @@ export function LoginForm() {
 
     try {
       if (isSignUp) {
-        await signUp(email, password);
+        await signUp(email, password, fullName, role);
       } else {
         await signIn(email, password);
       }
@@ -43,6 +47,16 @@ export function LoginForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {isSignUp && (
+            <Input
+              label="Full Name"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              placeholder="John Doe"
+            />
+          )}
           <Input
             label="Email"
             type="email"
@@ -59,6 +73,15 @@ export function LoginForm() {
             required
             placeholder="••••••••"
           />
+          {isSignUp && (
+            <Select
+              label="Role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              options={USER_ROLES.map((r) => ({ value: r, label: r }))}
+              required
+            />
+          )}
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
@@ -82,3 +105,6 @@ export function LoginForm() {
     </div>
   );
 }
+
+
+export { LoginForm }

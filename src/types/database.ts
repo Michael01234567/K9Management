@@ -51,9 +51,25 @@ export interface FitnessLog {
   created_at: string;
 }
 
+export interface User {
+  id: string;
+  email: string;
+  full_name: string | null;
+  role: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DogWithHandlers extends Dog {
   handlers?: Handler[];
 }
+
+export const USER_ROLES = [
+  'Admin',
+  'Handler',
+  'Veterinarian',
+  'Viewer',
+] as const;
 
 export const TRAINING_LEVELS = [
   'Phase 1',
