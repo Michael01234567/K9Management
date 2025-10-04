@@ -5,7 +5,6 @@ import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { FitnessLog, Dog } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
-import { useUserRole } from '../../hooks/useUserRole';
 
 interface FitnessLogWithDog extends FitnessLog {
   dog?: Dog;
@@ -18,7 +17,6 @@ interface FitnessLogsTableProps {
 }
 
 export function FitnessLogsTable({ onAddClick, onEditClick, refreshTrigger }: FitnessLogsTableProps) {
-  const { canCreate } = useUserRole();
   const [logs, setLogs] = useState<FitnessLogWithDog[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -86,12 +84,10 @@ export function FitnessLogsTable({ onAddClick, onEditClick, refreshTrigger }: Fi
             <Download size={18} className="sm:mr-2" />
             <span className="hidden sm:inline">Export</span>
           </Button>
-          {canCreate('fitness_logs') && (
-            <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
-              <Plus size={18} className="sm:mr-2" />
-              <span className="hidden sm:inline">Add Log</span>
-            </Button>
-          )}
+          <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
+            <Plus size={18} className="sm:mr-2" />
+            <span className="hidden sm:inline">Add Log</span>
+          </Button>
         </div>
       </div>
 

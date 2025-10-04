@@ -5,7 +5,6 @@ import { CreditCard as Edit, Trash2, Calendar, Activity } from 'lucide-react';
 import { Dog, Handler, VetRecord, FitnessLog } from '../../types/database';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../UI/Card';
-import { useUserRole } from '../../hooks/useUserRole';
 
 interface DogWithHandlers extends Dog {
   handlers?: Handler[];
@@ -20,7 +19,6 @@ interface DogDetailsModalProps {
 }
 
 export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogDetailsModalProps) {
-  const { canEdit, canDelete } = useUserRole();
   const [activeTab, setActiveTab] = useState<'info' | 'handlers' | 'vet' | 'fitness'>('info');
   const [vetRecords, setVetRecords] = useState<VetRecord[]>([]);
   const [fitnessLogs, setFitnessLogs] = useState<FitnessLog[]>([]);
@@ -79,22 +77,16 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={dog.name} size="xl">
-      {(canEdit('dogs') || canDelete('dogs')) && (
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4 sm:mb-6">
-          {canEdit('dogs') && (
-            <Button onClick={() => onEdit(dog)} size="sm" fullWidth className="sm:w-auto">
-              <Edit size={16} className="mr-2" />
-              Edit
-            </Button>
-          )}
-          {canDelete('dogs') && (
-            <Button onClick={handleDelete} variant="danger" size="sm" fullWidth className="sm:w-auto">
-              <Trash2 size={16} className="mr-2" />
-              Delete
-            </Button>
-          )}
-        </div>
-      )}
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4 sm:mb-6">
+        <Button onClick={() => onEdit(dog)} size="sm" fullWidth className="sm:w-auto">
+          <Edit size={16} className="mr-2" />
+          Edit
+        </Button>
+        <Button onClick={handleDelete} variant="danger" size="sm" fullWidth className="sm:w-auto">
+          <Trash2 size={16} className="mr-2" />
+          Delete
+        </Button>
+      </div>
 
       <div className="border-b border-stone-200 mb-4 sm:mb-6 overflow-x-auto">
         <div className="flex space-x-1 min-w-max">

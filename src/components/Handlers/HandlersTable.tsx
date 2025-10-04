@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Plus, Mail, Phone, Download, User } from 'lucide-react';
+import { Plus, Mail, Phone, Download } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { Handler } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
-import { useUserRole } from '../../hooks/useUserRole';
 
 interface HandlersTableProps {
   onAddClick: () => void;
@@ -14,7 +13,6 @@ interface HandlersTableProps {
 }
 
 export function HandlersTable({ onAddClick, onEditClick, refreshTrigger }: HandlersTableProps) {
-  const { canCreate, canEdit } = useUserRole();
   const [handlers, setHandlers] = useState<Handler[]>([]);
   const [handlerDogs, setHandlerDogs] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -77,33 +75,18 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger }: Handl
             <Download size={18} className="sm:mr-2" />
             <span className="hidden sm:inline">Export</span>
           </Button>
-          {canCreate('handlers') && (
-            <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
-              <Plus size={18} className="sm:mr-2" />
-              <span className="hidden sm:inline">Add Handler</span>
-            </Button>
-          )}
+          <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
+            <Plus size={18} className="sm:mr-2" />
+            <span className="hidden sm:inline">Add Handler</span>
+          </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {handlers.map((handler) => (
-          <Card key={handler.id} hover onClick={canEdit('handlers') ? () => onEditClick(handler) : undefined}>
+          <Card key={handler.id} hover onClick={() => onEditClick(handler)}>
             <div className="p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center overflow-hidden border-2 border-stone-200 flex-shrink-0">
-                  {handler.picture_url ? (
-                    <img
-                      src={handler.picture_url}
-                      alt={handler.full_name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User size={32} className="text-stone-400" />
-                  )}
-                </div>
-                <h3 className="text-xl font-semibold text-stone-900">{handler.full_name}</h3>
-              </div>
+              <h3 className="text-xl font-semibold text-stone-900 mb-4">{handler.full_name}</h3>
               <div className="space-y-2 mb-4">
                 {handler.email && (
                   <div className="flex items-center text-sm text-stone-600">

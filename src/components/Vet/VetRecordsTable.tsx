@@ -5,7 +5,6 @@ import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { VetRecord, Dog } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
-import { useUserRole } from '../../hooks/useUserRole';
 
 interface VetRecordWithDog extends VetRecord {
   dog?: Dog;
@@ -18,7 +17,6 @@ interface VetRecordsTableProps {
 }
 
 export function VetRecordsTable({ onAddClick, onEditClick, refreshTrigger }: VetRecordsTableProps) {
-  const { canCreate } = useUserRole();
   const [records, setRecords] = useState<VetRecordWithDog[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -91,12 +89,10 @@ export function VetRecordsTable({ onAddClick, onEditClick, refreshTrigger }: Vet
             <Download size={18} className="sm:mr-2" />
             <span className="hidden sm:inline">Export</span>
           </Button>
-          {canCreate('vet_records') && (
-            <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
-              <Plus size={18} className="sm:mr-2" />
-              <span className="hidden sm:inline">Add Record</span>
-            </Button>
-          )}
+          <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
+            <Plus size={18} className="sm:mr-2" />
+            <span className="hidden sm:inline">Add Record</span>
+          </Button>
         </div>
       </div>
 

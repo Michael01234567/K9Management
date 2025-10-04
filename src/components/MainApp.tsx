@@ -13,7 +13,6 @@ import { FitnessLogsTable } from './Fitness/FitnessLogsTable';
 import { FitnessLogForm } from './Fitness/FitnessLogForm';
 import { Dog, Handler, VetRecord, FitnessLog } from '../types/database';
 import { supabase } from '../lib/supabase';
-import { useUserRole } from '../hooks/useUserRole';
 
 interface DogWithHandlers extends Dog {
   handlers?: Handler[];
@@ -28,7 +27,6 @@ interface FitnessLogWithDog extends FitnessLog {
 }
 
 export function MainApp() {
-  const { role, canCreate, canEdit, canDelete } = useUserRole();
   const [activeView, setActiveView] = useState('dashboard');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);

@@ -1,6 +1,5 @@
-import { LogOut, Menu, Shield } from 'lucide-react';
+import { LogOut, Menu } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useUserRole } from '../../hooks/useUserRole';
 import { Button } from '../UI/Button';
 
 interface NavbarProps {
@@ -9,7 +8,6 @@ interface NavbarProps {
 
 export function Navbar({ onMenuClick }: NavbarProps) {
   const { user, signOut } = useAuth();
-  const { role } = useUserRole();
 
   return (
     <nav className="bg-amber-900 text-white shadow-lg">
@@ -34,11 +32,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             </div>
           </div>
           <div className="flex items-center space-x-2 md:space-x-4 flex-shrink-0">
-            <div className="hidden sm:flex items-center space-x-2">
-              <Shield size={16} className="text-amber-200" />
-              <span className="text-xs md:text-sm text-amber-100">{role}</span>
-            </div>
-            <span className="text-xs md:text-sm text-amber-100 hidden lg:inline truncate max-w-[150px]">{user?.email}</span>
+            <span className="text-xs md:text-sm text-amber-100 hidden md:inline truncate max-w-[150px]">{user?.email}</span>
             <Button
               variant="ghost"
               size="sm"
