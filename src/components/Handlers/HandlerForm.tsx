@@ -117,9 +117,30 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
 
       onSave();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving handler:', error);
-      alert('Error saving handler. Please try again.');
+      const errorMessage = error?.message || 'Unknown error occurred';
+      const errorDetails = error?.details || '';
+      const errorHint = error?.hint || '';
+
+      let displayMessage = 'Error saving handler. ';
+
+      if (errorMessage.includes('permission') || errorMessage.includes('policy')) {
+        displayMessage += 'You do not have permission to perform this action. Please contact an administrator.';
+      } else if (errorMessage.includes('storage')) {
+        displayMessage += 'Failed to upload profile picture. ' + errorMessage;
+      } else {
+        displayMessage += errorMessage;
+      }
+
+      if (errorDetails) {
+        console.error('Error details:', errorDetails);
+      }
+      if (errorHint) {
+        console.error('Error hint:', errorHint);
+      }
+
+      alert(displayMessage);
     } finally {
       setLoading(false);
     }
@@ -137,9 +158,18 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
       if (error) throw error;
       onSave();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting handler:', error);
-      alert('Error deleting handler. Please try again.');
+      const errorMessage = error?.message || 'Unknown error occurred';
+      let displayMessage = 'Error deleting handler. ';
+
+      if (errorMessage.includes('permission') || errorMessage.includes('policy')) {
+        displayMessage += 'You do not have permission to perform this action. Please contact an administrator.';
+      } else {
+        displayMessage += errorMessage;
+      }
+
+      alert(displayMessage);
     } finally {
       setLoading(false);
     }
