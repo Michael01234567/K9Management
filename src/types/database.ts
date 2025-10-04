@@ -6,6 +6,7 @@ export interface Dog {
   microchip_number: string | null;
   dob: string;
   training_level: string;
+  specialization: string | null;
   location: string | null;
   origin: string | null;
   note: string | null;
@@ -97,4 +98,12 @@ export const ACTIVITY_TYPES = [
   'Agility',
   'Search & Rescue',
   'Rest Day',
+] as const;
+
+export const SPECIALIZATION_TYPES = [
+  'Explosive',
+  'Narcotic',
+  'Tobacco',
+  'RAS Cargo',
+  'Currency',
 ] as const;

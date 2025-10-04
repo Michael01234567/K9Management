@@ -142,6 +142,18 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
               </p>
             </div>
             <div>
+              <label className="text-sm font-medium text-stone-700">Specialization</label>
+              <p className="mt-1">
+                {dog.specialization ? (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-900">
+                    {dog.specialization}
+                  </span>
+                ) : (
+                  <span className="text-stone-400">N/A</span>
+                )}
+              </p>
+            </div>
+            <div>
               <label className="text-sm font-medium text-stone-700">Location</label>
               <p className="mt-1 text-stone-900">{dog.location || 'N/A'}</p>
             </div>

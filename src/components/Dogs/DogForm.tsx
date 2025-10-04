@@ -5,7 +5,7 @@ import { Input } from '../UI/Input';
 import { Select } from '../UI/Select';
 import { Textarea } from '../UI/Textarea';
 import { supabase } from '../../lib/supabase';
-import { Dog, Handler, TRAINING_LEVELS, SEX_OPTIONS } from '../../types/database';
+import { Dog, Handler, TRAINING_LEVELS, SEX_OPTIONS, SPECIALIZATION_TYPES } from '../../types/database';
 
 interface DogFormProps {
   isOpen: boolean;
@@ -25,6 +25,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
     microchip_number: '',
     dob: '',
     training_level: 'Phase 1',
+    specialization: '',
     location: '',
     origin: '',
     note: '',
@@ -43,6 +44,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
         microchip_number: dog.microchip_number || '',
         dob: dog.dob,
         training_level: dog.training_level,
+        specialization: dog.specialization || '',
         location: dog.location || '',
         origin: dog.origin || '',
         note: dog.note || '',
@@ -56,6 +58,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
         microchip_number: '',
         dob: '',
         training_level: 'Phase 1',
+        specialization: '',
         location: '',
         origin: '',
         note: '',
@@ -170,6 +173,15 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
             onChange={(e) => setFormData({ ...formData, training_level: e.target.value })}
             options={TRAINING_LEVELS.map((level) => ({ value: level, label: level }))}
             required
+          />
+          <Select
+            label="Specialization"
+            value={formData.specialization}
+            onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+            options={[
+              { value: '', label: 'Select Specialization' },
+              ...SPECIALIZATION_TYPES.map((spec) => ({ value: spec, label: spec })),
+            ]}
           />
           <Input
             label="Location"

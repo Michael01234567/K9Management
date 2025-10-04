@@ -122,6 +122,7 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
       Sex: dog.sex,
       'Microchip Number': dog.microchip_number || 'N/A',
       'Training Level': dog.training_level,
+      Specialization: dog.specialization || 'N/A',
       Handlers: dog.handlers && dog.handlers.length > 0 ? dog.handlers.map((h) => h.full_name).join(', ') : 'Unassigned',
       Location: dog.location || 'N/A',
       Origin: dog.origin || 'N/A',
@@ -192,6 +193,7 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
                 <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Breed</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Sex</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Training Level</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Specialization</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Handlers</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Location</th>
               </tr>
@@ -216,6 +218,15 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-900">
                       {dog.training_level}
                     </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    {dog.specialization ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-900">
+                        {dog.specialization}
+                      </span>
+                    ) : (
+                      <span className="text-stone-400 text-sm">N/A</span>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-stone-700">
