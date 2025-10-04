@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, AlertCircle, Download } from 'lucide-react';
+import { Plus, AlertCircle, Download, Calendar } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
@@ -81,80 +81,127 @@ export function VetRecordsTable({ onAddClick, onEditClick, refreshTrigger }: Vet
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-stone-900">Veterinary Records</h2>
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between sm:items-center">
+        <h2 className="text-xl md:text-2xl font-bold text-stone-900">Veterinary Records</h2>
         <div className="flex gap-2">
-          <Button onClick={handleExport} variant="outline">
-            <Download size={20} className="mr-2" />
-            Export to Excel
+          <Button onClick={handleExport} variant="outline" className="flex-1 sm:flex-none" size="sm">
+            <Download size={18} className="sm:mr-2" />
+            <span className="hidden sm:inline">Export</span>
           </Button>
-          <Button onClick={onAddClick}>
-            <Plus size={20} className="mr-2" />
-            Add Record
+          <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
+            <Plus size={18} className="sm:mr-2" />
+            <span className="hidden sm:inline">Add Record</span>
           </Button>
         </div>
       </div>
 
-      <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-stone-50 border-b border-stone-200">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Dog</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Visit Date</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Visit Type</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Next Visit</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Notes</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-200">
-              {records.map((record) => (
-                <tr
-                  key={record.id}
-                  onClick={() => onEditClick(record)}
-                  className="hover:bg-amber-50 cursor-pointer transition-colors"
-                >
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-stone-900">{record.dog?.name || 'Unknown'}</div>
-                    <div className="text-xs text-stone-500">{record.dog?.breed}</div>
-                  </td>
-                  <td className="px-6 py-4 text-stone-700">
-                    {new Date(record.visit_date).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-900">
-                      {record.visit_type}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    {record.next_visit_date ? (
-                      <div className="flex items-center">
-                        {isUpcoming(record.next_visit_date) && (
-                          <AlertCircle size={16} className="text-red-600 mr-2" />
-                        )}
-                        <span className={isUpcoming(record.next_visit_date) ? 'text-red-600 font-medium' : 'text-stone-700'}>
-                          {new Date(record.next_visit_date).toLocaleDateString()}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-stone-400">N/A</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-stone-700 max-w-xs truncate">
-                    {record.notes || 'No notes'}
-                  </td>
+      <div className="hidden md:block">
+        <Card>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-stone-50 border-b border-stone-200">
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Dog</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Visit Date</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Visit Type</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Next Visit</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Notes</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {records.length === 0 && (
+              </thead>
+              <tbody className="divide-y divide-stone-200">
+                {records.map((record) => (
+                  <tr
+                    key={record.id}
+                    onClick={() => onEditClick(record)}
+                    className="hover:bg-amber-50 cursor-pointer transition-colors"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="font-medium text-stone-900">{record.dog?.name || 'Unknown'}</div>
+                      <div className="text-xs text-stone-500">{record.dog?.breed}</div>
+                    </td>
+                    <td className="px-6 py-4 text-stone-700">
+                      {new Date(record.visit_date).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-900">
+                        {record.visit_type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {record.next_visit_date ? (
+                        <div className="flex items-center">
+                          {isUpcoming(record.next_visit_date) && (
+                            <AlertCircle size={16} className="text-red-600 mr-2" />
+                          )}
+                          <span className={isUpcoming(record.next_visit_date) ? 'text-red-600 font-medium' : 'text-stone-700'}>
+                            {new Date(record.next_visit_date).toLocaleDateString()}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-stone-400">N/A</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-stone-700 max-w-xs truncate">
+                      {record.notes || 'No notes'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {records.length === 0 && (
+              <div className="text-center py-12 text-stone-500">
+                No vet records found. Click "Add Record" to create your first entry.
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
+
+      <div className="md:hidden space-y-3">
+        {records.map((record) => (
+          <Card key={record.id} hover onClick={() => onEditClick(record)}>
+            <div className="p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-stone-900 text-lg truncate">{record.dog?.name || 'Unknown'}</h3>
+                  <p className="text-sm text-stone-600">{record.dog?.breed}</p>
+                </div>
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-900 ml-2">
+                  {record.visit_type}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center text-stone-700">
+                  <Calendar size={14} className="mr-2 flex-shrink-0" />
+                  <span>Visit: {new Date(record.visit_date).toLocaleDateString()}</span>
+                </div>
+                {record.next_visit_date && (
+                  <div className="flex items-center">
+                    <AlertCircle size={14} className={`mr-2 flex-shrink-0 ${isUpcoming(record.next_visit_date) ? 'text-red-600' : 'text-stone-400'}`} />
+                    <span className={isUpcoming(record.next_visit_date) ? 'text-red-600 font-medium' : 'text-stone-700'}>
+                      Next: {new Date(record.next_visit_date).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+                {record.notes && (
+                  <div className="pt-2 border-t border-stone-200">
+                    <p className="text-stone-600 text-xs line-clamp-2">{record.notes}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+        ))}
+        {records.length === 0 && (
+          <Card>
             <div className="text-center py-12 text-stone-500">
               No vet records found. Click "Add Record" to create your first entry.
             </div>
-          )}
-        </div>
-      </Card>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

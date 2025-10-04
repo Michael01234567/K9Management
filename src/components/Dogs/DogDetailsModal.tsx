@@ -77,19 +77,19 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={dog.name} size="xl">
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <Button onClick={() => onEdit(dog)} size="sm">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4 sm:mb-6">
+        <Button onClick={() => onEdit(dog)} size="sm" fullWidth className="sm:w-auto">
           <Edit size={16} className="mr-2" />
           Edit
         </Button>
-        <Button onClick={handleDelete} variant="danger" size="sm">
+        <Button onClick={handleDelete} variant="danger" size="sm" fullWidth className="sm:w-auto">
           <Trash2 size={16} className="mr-2" />
           Delete
         </Button>
       </div>
 
-      <div className="border-b border-stone-200 mb-6">
-        <div className="flex space-x-1">
+      <div className="border-b border-stone-200 mb-4 sm:mb-6 overflow-x-auto">
+        <div className="flex space-x-1 min-w-max">
           {tabs.map((tab) => (
             <button
               key={tab.id}

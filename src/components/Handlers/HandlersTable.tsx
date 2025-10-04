@@ -67,22 +67,22 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger }: Handl
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-stone-900">Handlers</h2>
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between sm:items-center">
+        <h2 className="text-xl md:text-2xl font-bold text-stone-900">Handlers</h2>
         <div className="flex gap-2">
-          <Button onClick={handleExport} variant="outline">
-            <Download size={20} className="mr-2" />
-            Export to Excel
+          <Button onClick={handleExport} variant="outline" className="flex-1 sm:flex-none" size="sm">
+            <Download size={18} className="sm:mr-2" />
+            <span className="hidden sm:inline">Export</span>
           </Button>
-          <Button onClick={onAddClick}>
-            <Plus size={20} className="mr-2" />
-            Add Handler
+          <Button onClick={onAddClick} className="flex-1 sm:flex-none" size="sm">
+            <Plus size={18} className="sm:mr-2" />
+            <span className="hidden sm:inline">Add Handler</span>
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {handlers.map((handler) => (
           <Card key={handler.id} hover onClick={() => onEditClick(handler)}>
             <div className="p-6">

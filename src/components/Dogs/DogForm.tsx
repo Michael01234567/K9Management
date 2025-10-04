@@ -226,11 +226,11 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
           placeholder="Additional information about the dog..."
         />
 
-        <div className="flex gap-4 justify-end">
-          <Button type="button" variant="secondary" onClick={onClose}>
+        <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-4 sm:justify-end">
+          <Button type="button" variant="secondary" onClick={onClose} fullWidth className="sm:w-auto">
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading} fullWidth className="sm:w-auto">
             {loading ? 'Saving...' : dog ? 'Update Dog' : 'Add Dog'}
           </Button>
         </div>

@@ -29,6 +29,7 @@ interface FitnessLogWithDog extends FitnessLog {
 export function MainApp() {
   const [activeView, setActiveView] = useState('dashboard');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [showDogForm, setShowDogForm] = useState(false);
   const [showDogDetails, setShowDogDetails] = useState(false);
@@ -120,10 +121,15 @@ export function MainApp() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <Navbar />
+      <Navbar onMenuClick={() => setSidebarOpen(true)} />
       <div className="flex">
-        <Sidebar activeView={activeView} onNavigate={setActiveView} />
-        <main className="flex-1 p-8">
+        <Sidebar
+          activeView={activeView}
+          onNavigate={setActiveView}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
+        <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
           {activeView === 'dashboard' && <Dashboard onNavigate={setActiveView} />}
 
           {activeView === 'dogs' && (

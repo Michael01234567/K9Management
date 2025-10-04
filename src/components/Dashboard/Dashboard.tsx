@@ -158,27 +158,27 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
   ];
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="space-y-6 md:space-y-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {statCards.map((card) => (
           <Card key={card.title} hover onClick={card.onClick}>
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-lg ${card.color}`}>
-                  <card.icon size={24} />
+            <div className="p-4 md:p-6">
+              <div className="flex items-center justify-between mb-3 md:mb-4">
+                <div className={`p-2 md:p-3 rounded-lg ${card.color}`}>
+                  <card.icon size={20} className="md:w-6 md:h-6" />
                 </div>
               </div>
-              <div className="text-3xl font-bold text-stone-900 mb-1">{card.value}</div>
-              <div className="text-sm text-stone-600">{card.title}</div>
+              <div className="text-2xl md:text-3xl font-bold text-stone-900 mb-1">{card.value}</div>
+              <div className="text-xs md:text-sm text-stone-600">{card.title}</div>
             </div>
           </Card>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <Card>
-          <div className="p-6">
-            <h3 className="text-xl font-bold text-stone-900 mb-4">Dogs by Training Level</h3>
+          <div className="p-4 md:p-6">
+            <h3 className="text-lg md:text-xl font-bold text-stone-900 mb-3 md:mb-4">Dogs by Training Level</h3>
             <div className="space-y-3">
               {Object.entries(stats.dogsByTrainingLevel).map(([level, count]) => (
                 <div key={level}>
@@ -199,8 +199,8 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
         </Card>
 
         <Card>
-          <div className="p-6">
-            <h3 className="text-xl font-bold text-stone-900 mb-4">Dogs by Breed</h3>
+          <div className="p-4 md:p-6">
+            <h3 className="text-lg md:text-xl font-bold text-stone-900 mb-3 md:mb-4">Dogs by Breed</h3>
             <div className="space-y-3">
               {Object.entries(stats.dogsByBreed)
                 .sort((a, b) => b[1] - a[1])
@@ -224,8 +224,8 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
         </Card>
 
         <Card>
-          <div className="p-6">
-            <h3 className="text-xl font-bold text-stone-900 mb-4">Dogs by Specialization</h3>
+          <div className="p-4 md:p-6">
+            <h3 className="text-lg md:text-xl font-bold text-stone-900 mb-3 md:mb-4">Dogs by Specialization</h3>
             <div className="space-y-3">
               {Object.entries(stats.dogsBySpecialization).length > 0 ? (
                 Object.entries(stats.dogsBySpecialization)
@@ -252,8 +252,8 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
         </Card>
 
         <Card>
-          <div className="p-6">
-            <h3 className="text-xl font-bold text-stone-900 mb-4">Dogs by Location</h3>
+          <div className="p-4 md:p-6">
+            <h3 className="text-lg md:text-xl font-bold text-stone-900 mb-3 md:mb-4">Dogs by Location</h3>
             <div className="space-y-3">
               {Object.entries(stats.dogsByLocation).length > 0 ? (
                 Object.entries(stats.dogsByLocation)
@@ -297,8 +297,8 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
         </Card>
 
         <Card>
-          <div className="p-6">
-            <h3 className="text-xl font-bold text-stone-900 mb-4">Dogs by Origin</h3>
+          <div className="p-4 md:p-6">
+            <h3 className="text-lg md:text-xl font-bold text-stone-900 mb-3 md:mb-4">Dogs by Origin</h3>
             <div className="space-y-3">
               {Object.entries(stats.dogsByOrigin).length > 0 ? (
                 Object.entries(stats.dogsByOrigin)
