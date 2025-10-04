@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Mail, Phone, Download } from 'lucide-react';
+import { Plus, Mail, Phone, Download, User } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
@@ -86,17 +86,32 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger }: Handl
         {handlers.map((handler) => (
           <Card key={handler.id} hover onClick={() => onEditClick(handler)}>
             <div className="p-6">
-              <h3 className="text-xl font-semibold text-stone-900 mb-4">{handler.full_name}</h3>
+              <div className="flex items-start gap-4 mb-4">
+                {handler.picture_url ? (
+                  <img
+                    src={handler.picture_url}
+                    alt={handler.full_name}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-amber-200 flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center border-2 border-stone-200 flex-shrink-0">
+                    <User size={28} className="text-stone-400" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl font-semibold text-stone-900 truncate">{handler.full_name}</h3>
+                </div>
+              </div>
               <div className="space-y-2 mb-4">
                 {handler.email && (
                   <div className="flex items-center text-sm text-stone-600">
-                    <Mail size={16} className="mr-2" />
-                    {handler.email}
+                    <Mail size={16} className="mr-2 flex-shrink-0" />
+                    <span className="truncate">{handler.email}</span>
                   </div>
                 )}
                 {handler.phone && (
                   <div className="flex items-center text-sm text-stone-600">
-                    <Phone size={16} className="mr-2" />
+                    <Phone size={16} className="mr-2 flex-shrink-0" />
                     {handler.phone}
                   </div>
                 )}
