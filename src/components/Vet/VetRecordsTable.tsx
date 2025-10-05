@@ -84,7 +84,7 @@ export function VetRecordsTable({ onAddClick, onEditClick, refreshTrigger, onRet
   return (
     <div className="space-y-4 md:space-y-6">
       {onReturn && (
-        <Button onClick={onReturn} variant="outline" size="sm" className="w-fit">
+        <Button onClick={onReturn} variant="outline" size="sm" className="w-fit lg:hidden">
           <ArrowLeft size={18} className="mr-2" />
           Back to Dashboard
         </Button>

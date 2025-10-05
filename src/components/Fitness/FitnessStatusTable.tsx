@@ -132,7 +132,7 @@ export function FitnessStatusTable({ onReturn }: FitnessStatusTableProps = {}) {
   return (
     <>
       {onReturn && (
-        <Button onClick={onReturn} variant="outline" size="sm" className="w-fit mb-4">
+        <Button onClick={onReturn} variant="outline" size="sm" className="w-fit mb-4 lg:hidden">
           <ArrowLeft size={18} className="mr-2" />
           Back to Dashboard
         </Button>
