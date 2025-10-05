@@ -116,6 +116,7 @@ export function MainApp() {
               onDogClick={handleDogClick}
               onAddClick={handleAddDog}
               refreshTrigger={refreshTrigger}
+              onReturn={() => setActiveView('dashboard')}
             />
           )}
 
@@ -124,6 +125,7 @@ export function MainApp() {
               onAddClick={handleAddHandler}
               onEditClick={handleEditHandler}
               refreshTrigger={refreshTrigger}
+              onReturn={() => setActiveView('dashboard')}
             />
           )}
 
@@ -132,10 +134,11 @@ export function MainApp() {
               onAddClick={handleAddVetRecord}
               onEditClick={handleEditVetRecord}
               refreshTrigger={refreshTrigger}
+              onReturn={() => setActiveView('dashboard')}
             />
           )}
 
-          {activeView === 'fitness' && <FitnessStatusTable />}
+          {activeView === 'fitness' && <FitnessStatusTable onReturn={() => setActiveView('dashboard')} />}
         </main>
       </div>
 

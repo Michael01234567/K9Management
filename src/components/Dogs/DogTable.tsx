@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, Plus, MapPin, Download, Users } from 'lucide-react';
+import { Search, Plus, MapPin, Download, Users, ArrowLeft } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { Select } from '../UI/Select';
@@ -18,9 +18,10 @@ interface DogTableProps {
   onDogClick: (dog: DogWithHandlers) => void;
   onAddClick: () => void;
   refreshTrigger?: number;
+  onReturn?: () => void;
 }
 
-export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTableProps) {
+export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: DogTableProps) {
   const [dogs, setDogs] = useState<DogWithHandlers[]>([]);
   const [filteredDogs, setFilteredDogs] = useState<DogWithHandlers[]>([]);
   const [loading, setLoading] = useState(true);
@@ -150,6 +151,12 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
 
   return (
     <div className="space-y-4 md:space-y-6">
+      {onReturn && (
+        <Button onClick={onReturn} variant="outline" size="sm" className="w-fit">
+          <ArrowLeft size={18} className="mr-2" />
+          Back to Dashboard
+        </Button>
+      )}
       <div className="flex flex-col gap-3 md:gap-4">
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <div className="relative flex-1">

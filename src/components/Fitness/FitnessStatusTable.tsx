@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Pencil, Trash2, Plus } from 'lucide-react';
+import { Pencil, Trash2, Plus, ArrowLeft } from 'lucide-react';
 import { Card } from '../UI/Card';
 import { Button } from '../UI/Button';
 import { supabase } from '../../lib/supabase';
 import { FitnessStatusWithDetails } from '../../types/database';
 import { FitnessStatusForm } from './FitnessStatusForm';
 
-export function FitnessStatusTable() {
+interface FitnessStatusTableProps {
+  onReturn?: () => void;
+}
+
+export function FitnessStatusTable({ onReturn }: FitnessStatusTableProps = {}) {
   const [fitnessStatuses, setFitnessStatuses] = useState<FitnessStatusWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -127,6 +131,12 @@ export function FitnessStatusTable() {
 
   return (
     <>
+      {onReturn && (
+        <Button onClick={onReturn} variant="outline" size="sm" className="w-fit mb-4">
+          <ArrowLeft size={18} className="mr-2" />
+          Back to Dashboard
+        </Button>
+      )}
       <Card>
         <div className="flex justify-between items-center mb-6">
           <div>

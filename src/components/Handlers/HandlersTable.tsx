@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Mail, Phone, Download, User } from 'lucide-react';
+import { Plus, Mail, Phone, Download, User, ArrowLeft } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
@@ -10,9 +10,10 @@ interface HandlersTableProps {
   onAddClick: () => void;
   onEditClick: (handler: Handler) => void;
   refreshTrigger?: number;
+  onReturn?: () => void;
 }
 
-export function HandlersTable({ onAddClick, onEditClick, refreshTrigger }: HandlersTableProps) {
+export function HandlersTable({ onAddClick, onEditClick, refreshTrigger, onReturn }: HandlersTableProps) {
   const [handlers, setHandlers] = useState<Handler[]>([]);
   const [handlerDogs, setHandlerDogs] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -68,6 +69,12 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger }: Handl
 
   return (
     <div className="space-y-4 md:space-y-6">
+      {onReturn && (
+        <Button onClick={onReturn} variant="outline" size="sm" className="w-fit">
+          <ArrowLeft size={18} className="mr-2" />
+          Back to Dashboard
+        </Button>
+      )}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between sm:items-center">
         <h2 className="text-xl md:text-2xl font-bold text-stone-900">Handlers</h2>
         <div className="flex gap-2">
