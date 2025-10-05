@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal } from '../UI/Modal';
 import { Button } from '../UI/Button';
 import { CreditCard as Edit, Trash2, Calendar, Activity } from 'lucide-react';
-import { DogWithHandlers, VetRecord, FitnessLog } from '../../types/database';
+import { DogWithHandlers, VetRecord, FitnessLog, FitnessStatus, Handler } from '../../types/database';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../UI/Card';
 import { FitnessStatusBadge } from '../UI/FitnessStatusBadge';
@@ -19,11 +19,14 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
   const [activeTab, setActiveTab] = useState<'info' | 'handlers' | 'vet' | 'fitness'>('info');
   const [vetRecords, setVetRecords] = useState<VetRecord[]>([]);
   const [fitnessLogs, setFitnessLogs] = useState<FitnessLog[]>([]);
+  const [fitnessStatus, setFitnessStatus] = useState<FitnessStatus | null>(null);
+  const [fitnessHandler, setFitnessHandler] = useState<Handler | null>(null);
 
   useEffect(() => {
     if (dog && isOpen) {
       loadVetRecords();
       loadFitnessLogs();
+      loadFitnessStatus();
     }
   }, [dog, isOpen]);
 
@@ -46,6 +49,28 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
       .order('log_date', { ascending: false })
       .limit(10);
     setFitnessLogs(data || []);
+  };
+
+  const loadFitnessStatus = async () => {
+    if (!dog) return;
+    const { data: statusData } = await supabase
+      .from('fitness_status')
+      .select('*')
+      .eq('dog_id', dog.id)
+      .maybeSingle();
+
+    setFitnessStatus(statusData || null);
+
+    if (statusData?.handler_id) {
+      const { data: handlerData } = await supabase
+        .from('handlers')
+        .select('*')
+        .eq('id', statusData.handler_id)
+        .maybeSingle();
+      setFitnessHandler(handlerData || null);
+    } else {
+      setFitnessHandler(null);
+    }
   };
 
   const handleDelete = async () => {
@@ -226,34 +251,95 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
         )}
 
         {activeTab === 'fitness' && (
-          <div>
-            {fitnessLogs.length > 0 ? (
-              <div className="space-y-4">
-                {fitnessLogs.map((log) => (
-                  <Card key={log.id}>
-                    <div className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-semibold text-stone-900">{log.activity_type}</h4>
-                          <p className="text-sm text-stone-600">
-                            {new Date(log.log_date).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <Activity size={20} className="text-stone-400" />
+          <div className="space-y-6">
+            {fitnessStatus ? (
+              <Card>
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-stone-900 mb-4">Current Fitness Status</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-stone-700">Status</label>
+                      <div className="mt-1">
+                        <FitnessStatusBadge status={fitnessStatus.status} />
                       </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        {log.duration_minutes && <p>Duration: {log.duration_minutes} min</p>}
-                        {log.distance_km && <p>Distance: {log.distance_km} km</p>}
-                        {log.weight_kg && <p>Weight: {log.weight_kg} kg</p>}
-                      </div>
-                      {log.notes && <p className="text-sm text-stone-700 mt-2">{log.notes}</p>}
                     </div>
-                  </Card>
-                ))}
-              </div>
+                    <div>
+                      <label className="text-sm font-medium text-stone-700">Handler</label>
+                      <p className="mt-1 text-stone-900">{fitnessHandler?.full_name || 'Unassigned'}</p>
+                    </div>
+                    {fitnessStatus.weight_kg && (
+                      <div>
+                        <label className="text-sm font-medium text-stone-700">Weight</label>
+                        <p className="mt-1 text-stone-900">{fitnessStatus.weight_kg} kg</p>
+                      </div>
+                    )}
+                    {(fitnessStatus.duration_start || fitnessStatus.duration_end) && (
+                      <div>
+                        <label className="text-sm font-medium text-stone-700">Duration</label>
+                        <p className="mt-1 text-stone-900">
+                          {fitnessStatus.duration_start && new Date(fitnessStatus.duration_start).toLocaleDateString()}
+                          {fitnessStatus.duration_start && fitnessStatus.duration_end && ' - '}
+                          {fitnessStatus.duration_end && new Date(fitnessStatus.duration_end).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
+                    {fitnessStatus.notes && (
+                      <div className="md:col-span-2">
+                        <label className="text-sm font-medium text-stone-700">Notes</label>
+                        <p className="mt-1 text-stone-900 whitespace-pre-wrap">{fitnessStatus.notes}</p>
+                      </div>
+                    )}
+                    <div className="md:col-span-2">
+                      <label className="text-sm font-medium text-stone-700">Last Updated</label>
+                      <p className="mt-1 text-stone-600 text-sm">
+                        {new Date(fitnessStatus.updated_at).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
             ) : (
-              <p className="text-stone-500 text-center py-8">No fitness logs</p>
+              <Card>
+                <div className="p-6 text-center text-stone-500">
+                  <p>No fitness status recorded</p>
+                </div>
+              </Card>
             )}
+
+            <div>
+              <h3 className="text-lg font-semibold text-stone-900 mb-4">Recent Fitness Logs</h3>
+              {fitnessLogs.length > 0 ? (
+                <div className="space-y-4">
+                  {fitnessLogs.map((log) => (
+                    <Card key={log.id}>
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <h4 className="font-semibold text-stone-900">{log.activity_type}</h4>
+                            <p className="text-sm text-stone-600">
+                              {new Date(log.log_date).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <Activity size={20} className="text-stone-400" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          {log.duration_minutes && <p>Duration: {log.duration_minutes} min</p>}
+                          {log.distance_km && <p>Distance: {log.distance_km} km</p>}
+                          {log.weight_kg && <p>Weight: {log.weight_kg} kg</p>}
+                        </div>
+                        {log.notes && <p className="text-sm text-stone-700 mt-2">{log.notes}</p>}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card>
+                  <div className="p-6 text-center text-stone-500">
+                    <p>No fitness logs recorded</p>
+                  </div>
+                </Card>
+              )}
+            </div>
           </div>
         )}
       </div>
