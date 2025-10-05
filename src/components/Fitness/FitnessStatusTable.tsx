@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Pencil, Trash2, Plus, ArrowLeft } from 'lucide-react';
+import { Pencil, Trash2, Plus, ArrowLeft, User, Calendar } from 'lucide-react';
 import { Card } from '../UI/Card';
 import { Button } from '../UI/Button';
 import { supabase } from '../../lib/supabase';
@@ -137,111 +137,182 @@ export function FitnessStatusTable({ onReturn }: FitnessStatusTableProps = {}) {
           Back to Dashboard
         </Button>
       )}
-      <Card>
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-stone-900">Dog Fitness Status</h2>
-            <p className="text-stone-600 mt-1">Track and manage dog fitness conditions</p>
-          </div>
-          <Button onClick={() => setIsFormOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Fitness Status
-          </Button>
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between sm:items-center mb-4 md:mb-6">
+        <div>
+          <h2 className="text-xl md:text-2xl font-bold text-stone-900">Dog Fitness Status</h2>
+          <p className="text-stone-600 mt-1 text-sm">Track and manage dog fitness conditions</p>
         </div>
+        <Button onClick={() => setIsFormOpen(true)} className="flex-1 sm:flex-none" size="sm">
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Add Fitness Status</span>
+        </Button>
+      </div>
 
-        {fitnessStatuses.length === 0 ? (
-          <div className="text-center py-12 text-stone-500">
-            <p className="text-lg">No fitness status records found.</p>
-            <p className="mt-2">Click the button above to add the first fitness status record.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-stone-200">
-              <thead className="bg-stone-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
-                    Dog Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
-                    Handler
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
-                    Date of Birth
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
-                    Weight (kg)
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
-                    Duration
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
-                    Notes
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-stone-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-stone-200">
-                {fitnessStatuses.map((status) => (
-                  <tr key={status.id} className="hover:bg-stone-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-stone-900">{status.dog?.name || 'N/A'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-stone-900">{status.handler?.full_name || 'Unassigned'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-stone-900">{formatDate(status.dog?.dob || null)}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-stone-900">{status.weight_kg || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(status.status)}`}>
-                        {status.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-stone-900">
-                        {status.duration_start && status.duration_end
-                          ? `${formatDate(status.duration_start)} - ${formatDate(status.duration_end)}`
-                          : '-'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-stone-600 max-w-xs truncate">
-                        {status.notes || '-'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => handleEdit(status)}
-                          className="text-amber-900 hover:text-amber-700 transition-colors"
-                          title="Edit"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(status.id)}
-                          className="text-red-600 hover:text-red-800 transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
+      <div className="hidden md:block">
+        <Card>
+          {fitnessStatuses.length === 0 ? (
+            <div className="text-center py-12 text-stone-500">
+              <p className="text-lg">No fitness status records found.</p>
+              <p className="mt-2">Click the button above to add the first fitness status record.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-stone-200">
+                <thead className="bg-stone-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                      Dog Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                      Handler
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                      Date of Birth
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                      Weight (kg)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                      Duration
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                      Notes
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-stone-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-stone-200">
+                  {fitnessStatuses.map((status) => (
+                    <tr key={status.id} className="hover:bg-stone-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-stone-900">{status.dog?.name || 'N/A'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-stone-900">{status.handler?.full_name || 'Unassigned'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-stone-900">{formatDate(status.dog?.dob || null)}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-stone-900">{status.weight_kg || '-'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(status.status)}`}>
+                          {status.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-stone-900">
+                          {status.duration_start && status.duration_end
+                            ? `${formatDate(status.duration_start)} - ${formatDate(status.duration_end)}`
+                            : '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-stone-600 max-w-xs truncate">
+                          {status.notes || '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleEdit(status)}
+                            className="text-amber-900 hover:text-amber-700 transition-colors"
+                            title="Edit"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(status.id)}
+                            className="text-red-600 hover:text-red-800 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+      </div>
+
+      <div className="md:hidden space-y-3">
+        {fitnessStatuses.map((status) => (
+          <Card key={status.id} hover>
+            <div className="p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-stone-900 text-lg truncate">{status.dog?.name || 'N/A'}</h3>
+                  <p className="text-sm text-stone-600">{status.dog?.breed || 'Unknown breed'}</p>
+                </div>
+                <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ml-2 ${getStatusColor(status.status)}`}>
+                  {status.status}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center text-stone-700">
+                  <User size={14} className="mr-2 flex-shrink-0" />
+                  <span>Handler: {status.handler?.full_name || 'Unassigned'}</span>
+                </div>
+                {status.weight_kg && (
+                  <div className="flex items-center text-stone-700">
+                    <Calendar size={14} className="mr-2 flex-shrink-0" />
+                    <span>Weight: {status.weight_kg} kg</span>
+                  </div>
+                )}
+                {status.duration_start && status.duration_end && (
+                  <div className="flex items-center text-stone-700">
+                    <Calendar size={14} className="mr-2 flex-shrink-0" />
+                    <span>
+                      {formatDate(status.duration_start)} - {formatDate(status.duration_end)}
+                    </span>
+                  </div>
+                )}
+                {status.notes && (
+                  <div className="pt-2 border-t border-stone-200">
+                    <p className="text-stone-600 text-xs line-clamp-2">{status.notes}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-stone-200">
+                <button
+                  onClick={() => handleEdit(status)}
+                  className="text-amber-900 hover:text-amber-700 transition-colors p-2"
+                  title="Edit"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(status.id)}
+                  className="text-red-600 hover:text-red-800 transition-colors p-2"
+                  title="Delete"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </Card>
+        ))}
+        {fitnessStatuses.length === 0 && (
+          <Card>
+            <div className="text-center py-12 text-stone-500">
+              <p className="text-lg">No fitness status records found.</p>
+              <p className="mt-2">Click the button above to add the first fitness status record.</p>
+            </div>
+          </Card>
         )}
-      </Card>
+      </div>
 
       <FitnessStatusForm
         isOpen={isFormOpen}
