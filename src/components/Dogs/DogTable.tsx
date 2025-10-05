@@ -53,15 +53,28 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
 
           const handlerIds = dogHandlers?.map((dh) => dh.handler_id) || [];
 
+          let handlers = [];
           if (handlerIds.length > 0) {
-            const { data: handlers } = await supabase
+            const { data: handlersData } = await supabase
               .from('handlers')
               .select('*')
               .in('id', handlerIds);
-            return { ...dog, handlers: handlers || [] };
+            handlers = handlersData || [];
           }
 
-          return { ...dog, handlers: [] };
+          const { data: fitnessStatus } = await supabase
+            .from('fitness_status')
+            .select('*')
+            .eq('dog_id', dog.id)
+            .order('updated_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          return {
+            ...dog,
+            handlers,
+            current_fitness_status: fitnessStatus || undefined
+          };
         })
       );
 
@@ -114,6 +127,23 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
     return years > 0 ? `${years}y ${months}m` : `${months}m`;
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Fit':
+        return 'bg-green-100 text-green-800';
+      case 'Training Only':
+        return 'bg-blue-100 text-blue-800';
+      case 'Sick':
+        return 'bg-red-100 text-red-800';
+      case 'Estrus':
+        return 'bg-pink-100 text-pink-800';
+      case 'After Care':
+        return 'bg-amber-100 text-amber-800';
+      default:
+        return 'bg-stone-100 text-stone-800';
+    }
+  };
+
   const handleExport = () => {
     const exportData = filteredDogs.map((dog) => ({
       Name: dog.name,
@@ -123,6 +153,7 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
       'Microchip Number': dog.microchip_number || 'N/A',
       'Training Level': dog.training_level,
       Specialization: dog.specialization || 'N/A',
+      'Fitness Status': dog.current_fitness_status?.status || 'N/A',
       Handlers: dog.handlers && dog.handlers.length > 0 ? dog.handlers.map((h) => h.full_name).join(', ') : 'Unassigned',
       Location: dog.location || 'N/A',
       Origin: dog.origin || 'N/A',
@@ -201,6 +232,7 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Sex</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Training Level</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Specialization</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Fitness</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Handlers</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Location</th>
                 </tr>
@@ -230,6 +262,15 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
                       {dog.specialization ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-900">
                           {dog.specialization}
+                        </span>
+                      ) : (
+                        <span className="text-stone-400 text-sm">N/A</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      {dog.current_fitness_status ? (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(dog.current_fitness_status.status)}`}>
+                          {dog.current_fitness_status.status}
                         </span>
                       ) : (
                         <span className="text-stone-400 text-sm">N/A</span>
@@ -295,6 +336,11 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
                 {dog.specialization && (
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-900">
                     {dog.specialization}
+                  </span>
+                )}
+                {dog.current_fitness_status && (
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(dog.current_fitness_status.status)}`}>
+                    {dog.current_fitness_status.status}
                   </span>
                 )}
               </div>

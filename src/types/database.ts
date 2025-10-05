@@ -82,6 +82,7 @@ export interface User {
 
 export interface DogWithHandlers extends Dog {
   handlers?: Handler[];
+  current_fitness_status?: FitnessStatus;
 }
 
 export const USER_ROLES = [
