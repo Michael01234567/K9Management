@@ -27,7 +27,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
               </svg>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-base md:text-xl font-bold truncate">K9 Management System</h1>
+              <h1 className="text-base md:text-xl font-bold truncate">Michael K9 Management</h1>
               <p className="text-xs text-amber-100 hidden sm:block">Dog Inventory & Care</p>
             </div>
           </div>

@@ -72,17 +72,16 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
 
     const fileExt = pictureFile.name.split('.').pop();
     const fileName = `${handlerId}-${Date.now()}.${fileExt}`;
-    const filePath = `handler-pictures/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('handler-pictures')
-      .upload(filePath, pictureFile, { upsert: true });
+      .upload(fileName, pictureFile, { upsert: true });
 
     if (uploadError) throw uploadError;
 
     const { data: { publicUrl } } = supabase.storage
       .from('handler-pictures')
-      .getPublicUrl(filePath);
+      .getPublicUrl(fileName);
 
     return publicUrl;
   };
