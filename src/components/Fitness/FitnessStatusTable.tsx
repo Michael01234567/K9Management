@@ -6,11 +6,7 @@ import { supabase } from '../../lib/supabase';
 import { FitnessStatusWithDetails } from '../../types/database';
 import { FitnessStatusForm } from './FitnessStatusForm';
 
-interface FitnessStatusTableProps {
-  userRole: string;
-}
-
-export function FitnessStatusTable({ userRole }: FitnessStatusTableProps) {
+export function FitnessStatusTable() {
   const [fitnessStatuses, setFitnessStatuses] = useState<FitnessStatusWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -94,8 +90,6 @@ export function FitnessStatusTable({ userRole }: FitnessStatusTableProps) {
     handleFormClose();
   };
 
-  const canEdit = ['Admin', 'Handler', 'Veterinarian'].includes(userRole);
-  const canDelete = userRole === 'Admin';
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -139,20 +133,16 @@ export function FitnessStatusTable({ userRole }: FitnessStatusTableProps) {
             <h2 className="text-2xl font-bold text-stone-900">Dog Fitness Status</h2>
             <p className="text-stone-600 mt-1">Track and manage dog fitness conditions</p>
           </div>
-          {canEdit && (
-            <Button onClick={() => setIsFormOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Fitness Status
-            </Button>
-          )}
+          <Button onClick={() => setIsFormOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Fitness Status
+          </Button>
         </div>
 
         {fitnessStatuses.length === 0 ? (
           <div className="text-center py-12 text-stone-500">
             <p className="text-lg">No fitness status records found.</p>
-            {canEdit && (
-              <p className="mt-2">Click the button above to add the first fitness status record.</p>
-            )}
+            <p className="mt-2">Click the button above to add the first fitness status record.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -180,11 +170,9 @@ export function FitnessStatusTable({ userRole }: FitnessStatusTableProps) {
                   <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
                     Notes
                   </th>
-                  {(canEdit || canDelete) && (
-                    <th className="px-6 py-3 text-right text-xs font-medium text-stone-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  )}
+                  <th className="px-6 py-3 text-right text-xs font-medium text-stone-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-stone-200">
@@ -219,30 +207,24 @@ export function FitnessStatusTable({ userRole }: FitnessStatusTableProps) {
                         {status.notes || '-'}
                       </div>
                     </td>
-                    {(canEdit || canDelete) && (
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end gap-2">
-                          {canEdit && (
-                            <button
-                              onClick={() => handleEdit(status)}
-                              className="text-amber-900 hover:text-amber-700 transition-colors"
-                              title="Edit"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </button>
-                          )}
-                          {canDelete && (
-                            <button
-                              onClick={() => handleDelete(status.id)}
-                              className="text-red-600 hover:text-red-800 transition-colors"
-                              title="Delete"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    )}
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => handleEdit(status)}
+                          className="text-amber-900 hover:text-amber-700 transition-colors"
+                          title="Edit"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(status.id)}
+                          className="text-red-600 hover:text-red-800 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

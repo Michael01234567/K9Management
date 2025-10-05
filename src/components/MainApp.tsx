@@ -12,7 +12,6 @@ import { VetRecordForm } from './Vet/VetRecordForm';
 import { FitnessStatusTable } from './Fitness/FitnessStatusTable';
 import { Dog, Handler, VetRecord } from '../types/database';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
 
 interface DogWithHandlers extends Dog {
   handlers?: Handler[];
@@ -23,7 +22,6 @@ interface VetRecordWithDog extends VetRecord {
 }
 
 export function MainApp() {
-  const { userRole } = useAuth();
   const [activeView, setActiveView] = useState('dashboard');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -137,7 +135,7 @@ export function MainApp() {
             />
           )}
 
-          {activeView === 'fitness' && <FitnessStatusTable userRole={userRole || 'Viewer'} />}
+          {activeView === 'fitness' && <FitnessStatusTable />}
         </main>
       </div>
 
