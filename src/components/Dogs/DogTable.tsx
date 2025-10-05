@@ -4,12 +4,14 @@ import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { Select } from '../UI/Select';
 import { Card } from '../UI/Card';
+import { FitnessStatusBadge } from '../UI/FitnessStatusBadge';
 import { supabase } from '../../lib/supabase';
 import { Dog, Handler, TRAINING_LEVELS } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
 
 interface DogWithHandlers extends Dog {
   handlers?: Handler[];
+  fitness_status?: string | null;
 }
 
 interface DogTableProps {
@@ -53,15 +55,21 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
 
           const handlerIds = dogHandlers?.map((dh) => dh.handler_id) || [];
 
+          const { data: fitnessData } = await supabase
+            .from('fitness_status')
+            .select('status')
+            .eq('dog_id', dog.id)
+            .maybeSingle();
+
           if (handlerIds.length > 0) {
             const { data: handlers } = await supabase
               .from('handlers')
               .select('*')
               .in('id', handlerIds);
-            return { ...dog, handlers: handlers || [] };
+            return { ...dog, handlers: handlers || [], fitness_status: fitnessData?.status || null };
           }
 
-          return { ...dog, handlers: [] };
+          return { ...dog, handlers: [], fitness_status: fitnessData?.status || null };
         })
       );
 
@@ -123,6 +131,7 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
       'Microchip Number': dog.microchip_number || 'N/A',
       'Training Level': dog.training_level,
       Specialization: dog.specialization || 'N/A',
+      'Fitness Status': dog.fitness_status || 'N/A',
       Handlers: dog.handlers && dog.handlers.length > 0 ? dog.handlers.map((h) => h.full_name).join(', ') : 'Unassigned',
       Location: dog.location || 'N/A',
       Origin: dog.origin || 'N/A',
@@ -201,6 +210,7 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Sex</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Training Level</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Specialization</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Fitness Status</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Handlers</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Location</th>
                 </tr>
@@ -234,6 +244,9 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
                       ) : (
                         <span className="text-stone-400 text-sm">N/A</span>
                       )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <FitnessStatusBadge status={dog.fitness_status} />
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-stone-700">
@@ -297,6 +310,7 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger }: DogTablePro
                     {dog.specialization}
                   </span>
                 )}
+                <FitnessStatusBadge status={dog.fitness_status} size="sm" />
               </div>
 
               <div className="space-y-2 text-sm">

@@ -2,13 +2,10 @@ import { useState, useEffect } from 'react';
 import { Modal } from '../UI/Modal';
 import { Button } from '../UI/Button';
 import { CreditCard as Edit, Trash2, Calendar, Activity } from 'lucide-react';
-import { Dog, Handler, VetRecord, FitnessLog } from '../../types/database';
+import { DogWithHandlers, VetRecord, FitnessLog } from '../../types/database';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../UI/Card';
-
-interface DogWithHandlers extends Dog {
-  handlers?: Handler[];
-}
+import { FitnessStatusBadge } from '../UI/FitnessStatusBadge';
 
 interface DogDetailsModalProps {
   isOpen: boolean;
@@ -151,6 +148,12 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
                 ) : (
                   <span className="text-stone-400">N/A</span>
                 )}
+              </p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-stone-700">Fitness Status</label>
+              <p className="mt-1">
+                <FitnessStatusBadge status={dog.fitness_status} />
               </p>
             </div>
             <div>
