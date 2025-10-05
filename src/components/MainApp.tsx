@@ -9,10 +9,10 @@ import { HandlersTable } from './Handlers/HandlersTable';
 import { HandlerForm } from './Handlers/HandlerForm';
 import { VetRecordsTable } from './Vet/VetRecordsTable';
 import { VetRecordForm } from './Vet/VetRecordForm';
-import { FitnessLogsTable } from './Fitness/FitnessLogsTable';
-import { FitnessLogForm } from './Fitness/FitnessLogForm';
-import { Dog, Handler, VetRecord, FitnessLog } from '../types/database';
+import { FitnessStatusTable } from './Fitness/FitnessStatusTable';
+import { Dog, Handler, VetRecord } from '../types/database';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 interface DogWithHandlers extends Dog {
   handlers?: Handler[];
@@ -22,11 +22,8 @@ interface VetRecordWithDog extends VetRecord {
   dog?: Dog;
 }
 
-interface FitnessLogWithDog extends FitnessLog {
-  dog?: Dog;
-}
-
 export function MainApp() {
+  const { userRole } = useAuth();
   const [activeView, setActiveView] = useState('dashboard');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -41,8 +38,6 @@ export function MainApp() {
   const [showVetForm, setShowVetForm] = useState(false);
   const [selectedVetRecord, setSelectedVetRecord] = useState<VetRecord | null>(null);
 
-  const [showFitnessForm, setShowFitnessForm] = useState(false);
-  const [selectedFitnessLog, setSelectedFitnessLog] = useState<FitnessLog | null>(null);
 
   const handleRefresh = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -105,20 +100,6 @@ export function MainApp() {
     handleRefresh();
   };
 
-  const handleEditFitnessLog = (log: FitnessLogWithDog) => {
-    setSelectedFitnessLog(log);
-    setShowFitnessForm(true);
-  };
-
-  const handleAddFitnessLog = () => {
-    setSelectedFitnessLog(null);
-    setShowFitnessForm(true);
-  };
-
-  const handleSaveFitnessLog = () => {
-    handleRefresh();
-  };
-
   return (
     <div className="min-h-screen bg-stone-50">
       <Navbar onMenuClick={() => setSidebarOpen(true)} />
@@ -156,13 +137,7 @@ export function MainApp() {
             />
           )}
 
-          {activeView === 'fitness' && (
-            <FitnessLogsTable
-              onAddClick={handleAddFitnessLog}
-              onEditClick={handleEditFitnessLog}
-              refreshTrigger={refreshTrigger}
-            />
-          )}
+          {activeView === 'fitness' && <FitnessStatusTable userRole={userRole || 'Viewer'} />}
         </main>
       </div>
 
@@ -202,16 +177,6 @@ export function MainApp() {
         }}
         onSave={handleSaveVetRecord}
         record={selectedVetRecord}
-      />
-
-      <FitnessLogForm
-        isOpen={showFitnessForm}
-        onClose={() => {
-          setShowFitnessForm(false);
-          setSelectedFitnessLog(null);
-        }}
-        onSave={handleSaveFitnessLog}
-        log={selectedFitnessLog}
       />
     </div>
   );

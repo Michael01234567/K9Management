@@ -53,6 +53,24 @@ export interface FitnessLog {
   created_at: string;
 }
 
+export interface FitnessStatus {
+  id: string;
+  dog_id: string;
+  handler_id: string | null;
+  weight_kg: number | null;
+  status: string;
+  duration_start: string | null;
+  duration_end: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FitnessStatusWithDetails extends FitnessStatus {
+  dog?: Dog;
+  handler?: Handler;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -107,4 +125,13 @@ export const SPECIALIZATION_TYPES = [
   'Tobacco',
   'RAS Cargo',
   'Currency',
+  'Kong',
+] as const;
+
+export const FITNESS_STATUS_OPTIONS = [
+  'Fit',
+  'Training Only',
+  'Sick',
+  'Estrus',
+  'After Care',
 ] as const;
