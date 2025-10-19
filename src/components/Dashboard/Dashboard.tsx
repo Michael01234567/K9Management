@@ -49,15 +49,15 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
         .gte('next_visit_date', new Date().toISOString().split('T')[0])
         .lte('next_visit_date', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
 
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      const { data: fitnessLogs } = await supabase
-        .from('fitness_logs')
-        .select('*')
-        .gte('log_date', thirtyDaysAgo);
+      const today = new Date().toISOString().split('T')[0];
+      const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-      const { data: fitnessStatus } = await supabase
+      const { data: fitnessStatusDue } = await supabase
         .from('fitness_status')
-        .select('*');
+        .select('*')
+        .not('duration_end', 'is', null)
+        .gte('duration_end', today)
+        .lte('duration_end', thirtyDaysFromNow);
 
       const trainingLevelCounts: Record<string, number> = {};
       const breedCounts: Record<string, number> = {};
@@ -102,13 +102,11 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
         }
       });
 
-      const totalFitnessRecords = (fitnessLogs?.length || 0) + (fitnessStatus?.length || 0);
-
       setStats({
         totalDogs: dogs?.length || 0,
         activeHandlers: handlers?.length || 0,
         upcomingVetVisits: vetRecords?.length || 0,
-        recentFitnessLogs: totalFitnessRecords,
+        recentFitnessLogs: fitnessStatusDue?.length || 0,
         dogsByTrainingLevel: trainingLevelCounts,
         dogsByBreed: breedCounts,
         dogsBySpecialization: specializationCounts,
@@ -155,7 +153,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
       onClick: () => onNavigate('vet'),
     },
     {
-      title: 'Fitness Records',
+      title: 'Fitness Due (30d)',
       value: stats.recentFitnessLogs,
       icon: Activity,
       color: 'bg-green-100 text-green-900',
