@@ -55,6 +55,10 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
         .select('*')
         .gte('log_date', thirtyDaysAgo);
 
+      const { data: fitnessStatus } = await supabase
+        .from('fitness_status')
+        .select('*');
+
       const trainingLevelCounts: Record<string, number> = {};
       const breedCounts: Record<string, number> = {};
       const specializationCounts: Record<string, number> = {};
@@ -98,11 +102,13 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
         }
       });
 
+      const totalFitnessRecords = (fitnessLogs?.length || 0) + (fitnessStatus?.length || 0);
+
       setStats({
         totalDogs: dogs?.length || 0,
         activeHandlers: handlers?.length || 0,
         upcomingVetVisits: vetRecords?.length || 0,
-        recentFitnessLogs: fitnessLogs?.length || 0,
+        recentFitnessLogs: totalFitnessRecords,
         dogsByTrainingLevel: trainingLevelCounts,
         dogsByBreed: breedCounts,
         dogsBySpecialization: specializationCounts,
@@ -149,7 +155,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
       onClick: () => onNavigate('vet'),
     },
     {
-      title: 'Fitness Logs (30d)',
+      title: 'Fitness Records',
       value: stats.recentFitnessLogs,
       icon: Activity,
       color: 'bg-green-100 text-green-900',
