@@ -5,7 +5,7 @@ import { Input } from '../UI/Input';
 import { Select } from '../UI/Select';
 import { Textarea } from '../UI/Textarea';
 import { supabase } from '../../lib/supabase';
-import { Dog, Handler, TRAINING_LEVELS, SEX_OPTIONS, SPECIALIZATION_TYPES } from '../../types/database';
+import { Dog, Handler, Location, TRAINING_LEVELS, SEX_OPTIONS, SPECIALIZATION_TYPES } from '../../types/database';
 
 interface DogFormProps {
   isOpen: boolean;
@@ -17,6 +17,7 @@ interface DogFormProps {
 export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
   const [loading, setLoading] = useState(false);
   const [handlers, setHandlers] = useState<Handler[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
   const [selectedHandlers, setSelectedHandlers] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: '',
@@ -33,6 +34,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
 
   useEffect(() => {
     loadHandlers();
+    loadLocations();
   }, []);
 
   useEffect(() => {
@@ -70,6 +72,11 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
   const loadHandlers = async () => {
     const { data } = await supabase.from('handlers').select('*').order('full_name');
     setHandlers(data || []);
+  };
+
+  const loadLocations = async () => {
+    const { data } = await supabase.from('locations').select('*').order('name');
+    setLocations(data || []);
   };
 
   const loadDogHandlers = async (dogId: string) => {
@@ -183,11 +190,14 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
               ...SPECIALIZATION_TYPES.map((spec) => ({ value: spec, label: spec })),
             ]}
           />
-          <Input
+          <Select
             label="Location"
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            placeholder="Base location or kennel"
+            options={[
+              { value: '', label: 'Select Location' },
+              ...locations.map((loc) => ({ value: loc.name, label: loc.name })),
+            ]}
           />
           <Input
             label="Origin"

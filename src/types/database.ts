@@ -71,6 +71,17 @@ export interface FitnessStatusWithDetails extends FitnessStatus {
   handler?: Handler;
 }
 
+export interface Location {
+  id: string;
+  name: string;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface User {
   id: string;
   email: string;

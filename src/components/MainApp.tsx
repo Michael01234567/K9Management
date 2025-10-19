@@ -10,6 +10,7 @@ import { HandlerForm } from './Handlers/HandlerForm';
 import { VetRecordsTable } from './Vet/VetRecordsTable';
 import { VetRecordForm } from './Vet/VetRecordForm';
 import { FitnessStatusTable } from './Fitness/FitnessStatusTable';
+import Locations from './Locations/Locations';
 import { Dog, Handler, VetRecord } from '../types/database';
 import { supabase } from '../lib/supabase';
 
@@ -139,6 +140,8 @@ export function MainApp() {
           )}
 
           {activeView === 'fitness' && <FitnessStatusTable onReturn={() => setActiveView('dashboard')} />}
+
+          {activeView === 'locations' && <Locations />}
         </main>
       </div>
 
