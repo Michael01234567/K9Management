@@ -1,4 +1,4 @@
-import { LayoutDashboard, Dog, Users, Calendar, Activity, MapPin, X } from 'lucide-react';
+import { LayoutDashboard, Dog, Users, Calendar, Activity, MapPin, Target, X } from 'lucide-react';
 
 interface SidebarProps {
   activeView: string;
@@ -15,6 +15,7 @@ export function Sidebar({ activeView, onNavigate, isOpen, onClose }: SidebarProp
     { id: 'vet', label: 'Vet Records', icon: Calendar },
     { id: 'fitness', label: 'Fitness', icon: Activity },
     { id: 'locations', label: 'Locations', icon: MapPin },
+    { id: 'mission-locations', label: 'Mission Locations', icon: Target },
   ];
 
   const handleNavigate = (view: string) => {

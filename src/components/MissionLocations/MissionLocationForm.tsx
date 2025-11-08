@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Location } from '../../types/database';
+import { MissionLocation } from '../../types/database';
 import { Input } from '../UI/Input';
 import { Textarea } from '../UI/Textarea';
 import { Button } from '../UI/Button';
 import { MapPin, Navigation } from 'lucide-react';
 
-interface LocationFormProps {
-  location?: Location;
+interface MissionLocationFormProps {
+  location?: MissionLocation;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCancel }) => {
+const MissionLocationForm: React.FC<MissionLocationFormProps> = ({ location, onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -42,7 +42,7 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
   }, [formData.latitude, formData.longitude]);
 
   const initializeMap = () => {
-    const mapContainer = document.getElementById('location-map');
+    const mapContainer = document.getElementById('mission-location-map');
     if (!mapContainer) return;
 
     const lat = formData.latitude ? parseFloat(formData.latitude) : 0;
@@ -127,14 +127,14 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
 
       if (location) {
         const { error: updateError } = await supabase
-          .from('locations')
+          .from('mission_locations')
           .update(dataToSave)
           .eq('id', location.id);
 
         if (updateError) throw updateError;
       } else {
         const { error: insertError } = await supabase
-          .from('locations')
+          .from('mission_locations')
           .insert([dataToSave]);
 
         if (insertError) throw insertError;
@@ -164,11 +164,11 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
       )}
 
       <Input
-        label="Location Name"
+        label="Mission Location Name"
         required
         value={formData.name}
         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-        placeholder="e.g., Airport Terminal A"
+        placeholder="e.g., Operation Point Alpha"
       />
 
       <Input
@@ -242,7 +242,7 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
               </Button>
             </div>
             <div
-              id="location-map"
+              id="mission-location-map"
               className="w-full rounded-lg overflow-hidden cursor-pointer"
               onClick={handleMapClick}
               title="Click to set coordinates manually"
@@ -258,7 +258,7 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
         label="Description"
         value={formData.description}
         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-        placeholder="Additional details about this location"
+        placeholder="Additional details about this mission location"
         rows={3}
       />
 
@@ -267,11 +267,11 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
           Cancel
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : location ? 'Update Location' : 'Add Location'}
+          {loading ? 'Saving...' : location ? 'Update Mission Location' : 'Add Mission Location'}
         </Button>
       </div>
     </form>
   );
 };
 
-export default LocationForm;
+export default MissionLocationForm;
