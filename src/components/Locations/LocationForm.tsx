@@ -23,7 +23,6 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [gettingLocation, setGettingLocation] = useState(false);
-  const [mapInitialized, setMapInitialized] = useState(false);
 
   useEffect(() => {
     if (location) {
@@ -62,7 +61,6 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
         style="border: 1px solid #ccc; border-radius: 8px;">
       </iframe>
     `;
-    setMapInitialized(true);
   };
 
   const getGeolocationErrorMessage = (error: GeolocationPositionError): string => {
