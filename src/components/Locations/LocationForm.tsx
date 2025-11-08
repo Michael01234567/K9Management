@@ -65,14 +65,59 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
     setMapInitialized(true);
   };
 
-  const handleGetCurrentLocation = () => {
+  const getGeolocationErrorMessage = (error: GeolocationPositionError): string => {
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        return 'Location access denied. Please enable location permissions in your browser settings and try again.';
+      case error.POSITION_UNAVAILABLE:
+        return 'Location information is unavailable. Please check your device settings or enter coordinates manually.';
+      case error.TIMEOUT:
+        return 'Location request timed out. Please try again or enter coordinates manually.';
+      default:
+        return 'Unable to retrieve location. Please enter coordinates manually.';
+    }
+  };
+
+  const checkSecureContext = (): boolean => {
+    if (window.isSecureContext) {
+      return true;
+    }
+    const isLocalhost = window.location.hostname === 'localhost' ||
+                       window.location.hostname === '127.0.0.1' ||
+                       window.location.hostname === '[::1]';
+    return isLocalhost;
+  };
+
+  const handleGetCurrentLocation = async () => {
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser');
+      setError('Geolocation is not supported by your browser. Please enter coordinates manually.');
+      return;
+    }
+
+    if (!checkSecureContext()) {
+      setError('Geolocation requires a secure connection (HTTPS). Please enter coordinates manually or use HTTPS.');
       return;
     }
 
     setGettingLocation(true);
     setError('');
+
+    try {
+      const permissionStatus = await navigator.permissions?.query({ name: 'geolocation' as PermissionName });
+      if (permissionStatus && permissionStatus.state === 'denied') {
+        setError('Location permission is blocked. Please enable it in your browser settings and reload the page.');
+        setGettingLocation(false);
+        return;
+      }
+    } catch (err) {
+      console.log('Permission API not available, proceeding with geolocation request');
+    }
+
+    const options: PositionOptions = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    };
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -82,11 +127,14 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
           longitude: position.coords.longitude.toFixed(8),
         }));
         setGettingLocation(false);
+        setError('');
       },
       (err) => {
-        setError('Unable to retrieve your location: ' + err.message);
+        const errorMessage = getGeolocationErrorMessage(err);
+        setError(errorMessage);
         setGettingLocation(false);
-      }
+      },
+      options
     );
   };
 
