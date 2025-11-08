@@ -110,7 +110,7 @@ export function MainApp() {
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 w-full">
           {activeView === 'dashboard' && <Dashboard onNavigate={setActiveView} />}
 
           {activeView === 'dogs' && (

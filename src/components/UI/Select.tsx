@@ -15,7 +15,7 @@ export function Select({ label, error, options, className = '', ...props }: Sele
         </label>
       )}
       <select
-        className={`w-full px-4 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-white ${
+        className={`w-full px-4 py-3 text-base border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-white min-h-[48px] ${
           error ? 'border-red-500' : ''
         } ${className}`}
         {...props}
