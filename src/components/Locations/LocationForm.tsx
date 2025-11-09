@@ -36,86 +36,14 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
     }
   }, [location]);
 
-  useEffect(() => {
-    initializeMap();
-  }, [formData.latitude, formData.longitude]);
-
-  const initializeMap = () => {
-    const mapContainer = document.getElementById('location-map');
-    if (!mapContainer) return;
-
-    const lat = formData.latitude ? parseFloat(formData.latitude) : 0;
-    const lng = formData.longitude ? parseFloat(formData.longitude) : 0;
-
-    const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.01},${lat - 0.01},${lng + 0.01},${lat + 0.01}&layer=mapnik&marker=${lat},${lng}`;
-
-    mapContainer.innerHTML = `
-      <iframe
-        width="100%"
-        height="300"
-        frameborder="0"
-        scrolling="no"
-        marginheight="0"
-        marginwidth="0"
-        src="${mapUrl}"
-        style="border: 1px solid #ccc; border-radius: 8px;">
-      </iframe>
-    `;
-  };
-
-  const getGeolocationErrorMessage = (error: GeolocationPositionError): string => {
-    switch (error.code) {
-      case error.PERMISSION_DENIED:
-        return 'Location access denied. Please enable location permissions in your browser settings and try again.';
-      case error.POSITION_UNAVAILABLE:
-        return 'Location information is unavailable. Please check your device settings or enter coordinates manually.';
-      case error.TIMEOUT:
-        return 'Location request timed out. Please try again or enter coordinates manually.';
-      default:
-        return 'Unable to retrieve location. Please enter coordinates manually.';
-    }
-  };
-
-  const checkSecureContext = (): boolean => {
-    if (window.isSecureContext) {
-      return true;
-    }
-    const isLocalhost = window.location.hostname === 'localhost' ||
-                       window.location.hostname === '127.0.0.1' ||
-                       window.location.hostname === '[::1]';
-    return isLocalhost;
-  };
-
-  const handleGetCurrentLocation = async () => {
+  const handleGetCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser. Please enter coordinates manually.');
-      return;
-    }
-
-    if (!checkSecureContext()) {
-      setError('Geolocation requires a secure connection (HTTPS). Please enter coordinates manually or use HTTPS.');
+      setError('Geolocation is not supported by your browser');
       return;
     }
 
     setGettingLocation(true);
     setError('');
-
-    try {
-      const permissionStatus = await navigator.permissions?.query({ name: 'geolocation' as PermissionName });
-      if (permissionStatus && permissionStatus.state === 'denied') {
-        setError('Location permission is blocked. Please enable it in your browser settings and reload the page.');
-        setGettingLocation(false);
-        return;
-      }
-    } catch (err) {
-      console.log('Permission API not available, proceeding with geolocation request');
-    }
-
-    const options: PositionOptions = {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0
-    };
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -125,35 +53,12 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
           longitude: position.coords.longitude.toFixed(8),
         }));
         setGettingLocation(false);
-        setError('');
       },
       (err) => {
-        const errorMessage = getGeolocationErrorMessage(err);
-        setError(errorMessage);
+        setError('Unable to retrieve your location: ' + err.message);
         setGettingLocation(false);
-      },
-      options
-    );
-  };
-
-  const handleMapClick = () => {
-    const lat = prompt('Enter latitude:');
-    const lng = prompt('Enter longitude:');
-
-    if (lat && lng) {
-      const latNum = parseFloat(lat);
-      const lngNum = parseFloat(lng);
-
-      if (!isNaN(latNum) && !isNaN(lngNum)) {
-        setFormData((prev) => ({
-          ...prev,
-          latitude: latNum.toFixed(8),
-          longitude: lngNum.toFixed(8),
-        }));
-      } else {
-        setError('Invalid coordinates entered');
       }
-    }
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -271,33 +176,6 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
             </Button>
           )}
         </div>
-
-        {formData.latitude && formData.longitude && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium text-gray-700">
-                Interactive Map
-              </label>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={handleMapClick}
-              >
-                Set Coordinates
-              </Button>
-            </div>
-            <div
-              id="location-map"
-              className="w-full rounded-lg overflow-hidden cursor-pointer"
-              onClick={handleMapClick}
-              title="Click to set coordinates manually"
-            ></div>
-            <p className="text-xs text-gray-500">
-              Click the map or "Set Coordinates" button to manually enter coordinates
-            </p>
-          </div>
-        )}
       </div>
 
       <Textarea

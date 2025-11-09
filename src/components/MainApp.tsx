@@ -11,7 +11,6 @@ import { VetRecordsTable } from './Vet/VetRecordsTable';
 import { VetRecordForm } from './Vet/VetRecordForm';
 import { FitnessStatusTable } from './Fitness/FitnessStatusTable';
 import Locations from './Locations/Locations';
-import MissionLocations from './MissionLocations/MissionLocations';
 import { Dog, Handler, VetRecord } from '../types/database';
 import { supabase } from '../lib/supabase';
 
@@ -110,7 +109,7 @@ export function MainApp() {
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
-        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 w-full">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
           {activeView === 'dashboard' && <Dashboard onNavigate={setActiveView} />}
 
           {activeView === 'dogs' && (
@@ -143,8 +142,6 @@ export function MainApp() {
           {activeView === 'fitness' && <FitnessStatusTable onReturn={() => setActiveView('dashboard')} />}
 
           {activeView === 'locations' && <Locations />}
-
-          {activeView === 'mission-locations' && <MissionLocations />}
         </main>
       </div>
 

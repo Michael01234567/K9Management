@@ -96,8 +96,7 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
 
       if (handler) {
         if (pictureFile) {
-          const uploadedUrl = await uploadPicture(handler.id);
-          pictureUrl = uploadedUrl || '';
+          pictureUrl = await uploadPicture(handler.id) || '';
         }
         const { error } = await supabase
           .from('handlers')
@@ -111,13 +110,10 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
           .select()
           .single();
         if (insertError) throw insertError;
-
-        if (!newHandler) throw new Error('Failed to create handler');
         handlerId = newHandler.id;
 
-        if (pictureFile && handlerId) {
-          const uploadedUrl = await uploadPicture(handlerId);
-          pictureUrl = uploadedUrl || '';
+        if (pictureFile) {
+          pictureUrl = await uploadPicture(handlerId) || '';
           const { error: updateError } = await supabase
             .from('handlers')
             .update({ picture_url: pictureUrl })

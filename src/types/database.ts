@@ -82,17 +82,6 @@ export interface Location {
   updated_at: string;
 }
 
-export interface MissionLocation {
-  id: string;
-  name: string;
-  address: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  description: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface User {
   id: string;
   email: string;
