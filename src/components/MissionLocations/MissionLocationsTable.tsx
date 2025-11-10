@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Location } from '../../types/database';
+import { MissionLocation } from '../../types/database';
 import { Button } from '../UI/Button';
 import { Edit2, Trash2, MapPin, Plus } from 'lucide-react';
 import { Modal } from '../UI/Modal';
-import LocationForm from './LocationForm';
+import MissionLocationForm from './MissionLocationForm';
 
-const LocationsTable: React.FC = () => {
-  const [locations, setLocations] = useState<Location[]>([]);
+const MissionLocationsTable: React.FC = () => {
+  const [missionLocations, setMissionLocations] = useState<MissionLocation[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editingLocation, setEditingLocation] = useState<Location | undefined>();
+  const [editingMissionLocation, setEditingMissionLocation] = useState<MissionLocation | undefined>();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    fetchLocations();
+    fetchMissionLocations();
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -24,53 +24,53 @@ const LocationsTable: React.FC = () => {
     setIsMobile(window.innerWidth < 768);
   };
 
-  const fetchLocations = async () => {
+  const fetchMissionLocations = async () => {
     try {
       const { data, error } = await supabase
-        .from('locations')
+        .from('mission_locations')
         .select('*')
         .order('name', { ascending: true });
 
       if (error) throw error;
-      setLocations(data || []);
+      setMissionLocations(data || []);
     } catch (error) {
-      console.error('Error fetching locations:', error);
+      console.error('Error fetching mission locations:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleAdd = () => {
-    setEditingLocation(undefined);
+    setEditingMissionLocation(undefined);
     setShowModal(true);
   };
 
-  const handleEdit = (location: Location) => {
-    setEditingLocation(location);
+  const handleEdit = (missionLocation: MissionLocation) => {
+    setEditingMissionLocation(missionLocation);
     setShowModal(true);
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this location?')) return;
+    if (!confirm('Are you sure you want to delete this mission location?')) return;
 
     try {
       const { error } = await supabase
-        .from('locations')
+        .from('mission_locations')
         .delete()
         .eq('id', id);
 
       if (error) throw error;
-      fetchLocations();
+      fetchMissionLocations();
     } catch (error) {
-      console.error('Error deleting location:', error);
-      alert('Error deleting location. It may be in use by dogs.');
+      console.error('Error deleting mission location:', error);
+      alert('Error deleting mission location.');
     }
   };
 
   const handleSuccess = () => {
     setShowModal(false);
-    setEditingLocation(undefined);
-    fetchLocations();
+    setEditingMissionLocation(undefined);
+    fetchMissionLocations();
   };
 
   const openInMaps = (latitude: number, longitude: number) => {
@@ -79,57 +79,57 @@ const LocationsTable: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading locations...</div>;
+    return <div className="text-center py-8">Loading mission locations...</div>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Locations</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Mission Locations</h2>
         <Button onClick={handleAdd}>
           <Plus className="w-4 h-4 mr-2" />
-          Add Location
+          Add Mission Location
         </Button>
       </div>
 
       {isMobile ? (
         <div className="grid gap-4">
-          {locations.length === 0 ? (
+          {missionLocations.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
-              No locations found. Add your first location to get started.
+              No mission locations found. Add your first mission location to get started.
             </div>
           ) : (
-            locations.map((location) => (
-              <div key={location.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+            missionLocations.map((missionLocation) => (
+              <div key={missionLocation.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="p-4 space-y-3">
                   <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-semibold text-gray-900">{location.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{missionLocation.name}</h3>
                   </div>
 
-                  {location.address && (
+                  {missionLocation.address && (
                     <div>
                       <p className="text-xs font-medium text-gray-500 uppercase">Address</p>
-                      <p className="text-sm text-gray-700">{location.address}</p>
+                      <p className="text-sm text-gray-700">{missionLocation.address}</p>
                     </div>
                   )}
 
-                  {location.latitude && location.longitude && (
+                  {missionLocation.latitude && missionLocation.longitude && (
                     <div>
                       <p className="text-xs font-medium text-gray-500 uppercase">Coordinates</p>
                       <button
-                        onClick={() => openInMaps(location.latitude!, location.longitude!)}
+                        onClick={() => openInMaps(missionLocation.latitude!, missionLocation.longitude!)}
                         className="flex items-center text-sm text-blue-600 hover:text-blue-800"
                       >
                         <MapPin className="w-4 h-4 mr-1" />
-                        {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+                        {missionLocation.latitude.toFixed(4)}, {missionLocation.longitude.toFixed(4)}
                       </button>
                     </div>
                   )}
 
-                  {location.description && (
+                  {missionLocation.description && (
                     <div>
                       <p className="text-xs font-medium text-gray-500 uppercase">Description</p>
-                      <p className="text-sm text-gray-700">{location.description}</p>
+                      <p className="text-sm text-gray-700">{missionLocation.description}</p>
                     </div>
                   )}
 
@@ -137,7 +137,7 @@ const LocationsTable: React.FC = () => {
                     <Button
                       variant="secondary"
                       size="sm"
-                      onClick={() => handleEdit(location)}
+                      onClick={() => handleEdit(missionLocation)}
                       className="flex-1"
                     >
                       <Edit2 className="w-4 h-4 mr-2" />
@@ -146,7 +146,7 @@ const LocationsTable: React.FC = () => {
                     <Button
                       variant="danger"
                       size="sm"
-                      onClick={() => handleDelete(location.id)}
+                      onClick={() => handleDelete(missionLocation.id)}
                       className="flex-1"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
@@ -182,31 +182,31 @@ const LocationsTable: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {locations.length === 0 ? (
+                {missionLocations.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                      No locations found. Add your first location to get started.
+                      No mission locations found. Add your first mission location to get started.
                     </td>
                   </tr>
                 ) : (
-                  locations.map((location) => (
-                    <tr key={location.id} className="hover:bg-gray-50">
+                  missionLocations.map((missionLocation) => (
+                    <tr key={missionLocation.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{location.name}</div>
+                        <div className="text-sm font-medium text-gray-900">{missionLocation.name}</div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-700">
-                          {location.address || '-'}
+                          {missionLocation.address || '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {location.latitude && location.longitude ? (
+                        {missionLocation.latitude && missionLocation.longitude ? (
                           <button
-                            onClick={() => openInMaps(location.latitude!, location.longitude!)}
+                            onClick={() => openInMaps(missionLocation.latitude!, missionLocation.longitude!)}
                             className="flex items-center text-sm text-blue-600 hover:text-blue-800"
                           >
                             <MapPin className="w-4 h-4 mr-1" />
-                            {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+                            {missionLocation.latitude.toFixed(4)}, {missionLocation.longitude.toFixed(4)}
                           </button>
                         ) : (
                           <span className="text-sm text-gray-500">-</span>
@@ -214,7 +214,7 @@ const LocationsTable: React.FC = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-700 max-w-xs truncate">
-                          {location.description || '-'}
+                          {missionLocation.description || '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -222,14 +222,14 @@ const LocationsTable: React.FC = () => {
                           <Button
                             variant="secondary"
                             size="sm"
-                            onClick={() => handleEdit(location)}
+                            onClick={() => handleEdit(missionLocation)}
                           >
                             <Edit2 className="w-4 h-4" />
                           </Button>
                           <Button
                             variant="danger"
                             size="sm"
-                            onClick={() => handleDelete(location.id)}
+                            onClick={() => handleDelete(missionLocation.id)}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -248,16 +248,16 @@ const LocationsTable: React.FC = () => {
         isOpen={showModal}
         onClose={() => {
           setShowModal(false);
-          setEditingLocation(undefined);
+          setEditingMissionLocation(undefined);
         }}
-        title={editingLocation ? 'Edit Location' : 'Add New Location'}
+        title={editingMissionLocation ? 'Edit Mission Location' : 'Add New Mission Location'}
       >
-        <LocationForm
-          location={editingLocation}
+        <MissionLocationForm
+          missionLocation={editingMissionLocation}
           onSuccess={handleSuccess}
           onCancel={() => {
             setShowModal(false);
-            setEditingLocation(undefined);
+            setEditingMissionLocation(undefined);
           }}
         />
       </Modal>
@@ -265,4 +265,4 @@ const LocationsTable: React.FC = () => {
   );
 };
 
-export default LocationsTable;
+export default MissionLocationsTable;
