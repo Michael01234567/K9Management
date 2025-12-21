@@ -26,6 +26,17 @@ export interface Handler {
   updated_at: string;
 }
 
+export interface MissionOfficer {
+  id: string;
+  employee_id: string;
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  picture_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DogHandler {
   id: string;
   dog_id: string;

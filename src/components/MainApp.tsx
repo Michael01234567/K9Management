@@ -7,12 +7,14 @@ import { DogDetailsModal } from './Dogs/DogDetailsModal';
 import { DogForm } from './Dogs/DogForm';
 import { HandlersTable } from './Handlers/HandlersTable';
 import { HandlerForm } from './Handlers/HandlerForm';
+import { MissionOfficersTable } from './MissionOfficers/MissionOfficersTable';
+import { MissionOfficerForm } from './MissionOfficers/MissionOfficerForm';
 import { VetRecordsTable } from './Vet/VetRecordsTable';
 import { VetRecordForm } from './Vet/VetRecordForm';
 import { FitnessStatusTable } from './Fitness/FitnessStatusTable';
 import Locations from './Locations/Locations';
 import MissionLocations from './MissionLocations/MissionLocations';
-import { Dog, Handler, VetRecord } from '../types/database';
+import { Dog, Handler, MissionOfficer, VetRecord } from '../types/database';
 import { supabase } from '../lib/supabase';
 
 interface DogWithHandlers extends Dog {
@@ -34,6 +36,9 @@ export function MainApp() {
 
   const [showHandlerForm, setShowHandlerForm] = useState(false);
   const [selectedHandler, setSelectedHandler] = useState<Handler | null>(null);
+
+  const [showMissionOfficerForm, setShowMissionOfficerForm] = useState(false);
+  const [selectedMissionOfficer, setSelectedMissionOfficer] = useState<MissionOfficer | null>(null);
 
   const [showVetForm, setShowVetForm] = useState(false);
   const [selectedVetRecord, setSelectedVetRecord] = useState<VetRecord | null>(null);
@@ -86,6 +91,20 @@ export function MainApp() {
     handleRefresh();
   };
 
+  const handleEditMissionOfficer = (officer: MissionOfficer) => {
+    setSelectedMissionOfficer(officer);
+    setShowMissionOfficerForm(true);
+  };
+
+  const handleAddMissionOfficer = () => {
+    setSelectedMissionOfficer(null);
+    setShowMissionOfficerForm(true);
+  };
+
+  const handleSaveMissionOfficer = () => {
+    handleRefresh();
+  };
+
   const handleEditVetRecord = (record: VetRecordWithDog) => {
     setSelectedVetRecord(record);
     setShowVetForm(true);
@@ -126,6 +145,15 @@ export function MainApp() {
             <HandlersTable
               onAddClick={handleAddHandler}
               onEditClick={handleEditHandler}
+              refreshTrigger={refreshTrigger}
+              onReturn={() => setActiveView('dashboard')}
+            />
+          )}
+
+          {activeView === 'mission-officers' && (
+            <MissionOfficersTable
+              onAddClick={handleAddMissionOfficer}
+              onEditClick={handleEditMissionOfficer}
               refreshTrigger={refreshTrigger}
               onReturn={() => setActiveView('dashboard')}
             />
@@ -174,6 +202,16 @@ export function MainApp() {
         }}
         onSave={handleSaveHandler}
         handler={selectedHandler}
+      />
+
+      <MissionOfficerForm
+        isOpen={showMissionOfficerForm}
+        onClose={() => {
+          setShowMissionOfficerForm(false);
+          setSelectedMissionOfficer(null);
+        }}
+        onSave={handleSaveMissionOfficer}
+        officer={selectedMissionOfficer}
       />
 
       <VetRecordForm
