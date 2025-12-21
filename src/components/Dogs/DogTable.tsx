@@ -28,6 +28,9 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [trainingFilter, setTrainingFilter] = useState('all');
+  const [breedFilter, setBreedFilter] = useState('all');
+  const [sexFilter, setSexFilter] = useState('all');
+  const [specializationFilter, setSpecializationFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'name' | 'age' | 'breed'>('name');
 
   useEffect(() => {
@@ -36,7 +39,7 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
 
   useEffect(() => {
     filterAndSortDogs();
-  }, [dogs, searchTerm, trainingFilter, sortBy]);
+  }, [dogs, searchTerm, trainingFilter, breedFilter, sexFilter, specializationFilter, sortBy]);
 
   const loadDogs = async () => {
     try {
@@ -118,6 +121,22 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
       result = result.filter((dog) => dog.training_level === trainingFilter);
     }
 
+    if (breedFilter !== 'all') {
+      result = result.filter((dog) => dog.breed === breedFilter);
+    }
+
+    if (sexFilter !== 'all') {
+      result = result.filter((dog) => dog.sex === sexFilter);
+    }
+
+    if (specializationFilter !== 'all') {
+      if (specializationFilter === 'none') {
+        result = result.filter((dog) => !dog.specialization);
+      } else {
+        result = result.filter((dog) => dog.specialization === specializationFilter);
+      }
+    }
+
     result.sort((a, b) => {
       if (sortBy === 'name') {
         return a.name.localeCompare(b.name);
@@ -130,6 +149,16 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
     });
 
     setFilteredDogs(result);
+  };
+
+  const getUniqueBreeds = () => {
+    const breeds = [...new Set(dogs.map((dog) => dog.breed))].sort();
+    return breeds;
+  };
+
+  const getUniqueSpecializations = () => {
+    const specializations = [...new Set(dogs.map((dog) => dog.specialization).filter(Boolean))].sort();
+    return specializations;
   };
 
   const calculateAge = (dob: string) => {
@@ -210,6 +239,40 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
                 ]}
               />
             </div>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <div className="flex-1 min-w-[140px] sm:flex-none sm:w-40">
+            <Select
+              value={breedFilter}
+              onChange={(e) => setBreedFilter(e.target.value)}
+              options={[
+                { value: 'all', label: 'All Breeds' },
+                ...getUniqueBreeds().map((breed) => ({ value: breed, label: breed })),
+              ]}
+            />
+          </div>
+          <div className="flex-1 min-w-[140px] sm:flex-none sm:w-40">
+            <Select
+              value={sexFilter}
+              onChange={(e) => setSexFilter(e.target.value)}
+              options={[
+                { value: 'all', label: 'All Sexes' },
+                { value: 'Male', label: 'Male' },
+                { value: 'Female', label: 'Female' },
+              ]}
+            />
+          </div>
+          <div className="flex-1 min-w-[140px] sm:flex-none sm:w-44">
+            <Select
+              value={specializationFilter}
+              onChange={(e) => setSpecializationFilter(e.target.value)}
+              options={[
+                { value: 'all', label: 'All Specializations' },
+                { value: 'none', label: 'No Specialization' },
+                ...getUniqueSpecializations().map((spec) => ({ value: spec, label: spec })),
+              ]}
+            />
           </div>
         </div>
         <div className="flex gap-2">
