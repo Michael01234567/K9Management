@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Mail, Phone, Download, User, ArrowLeft } from 'lucide-react';
+import { Plus, Mail, Phone, Download, User, ArrowLeft, Search } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
@@ -16,6 +16,7 @@ interface MissionOfficersTableProps {
 export function MissionOfficersTable({ onAddClick, onEditClick, refreshTrigger, onReturn }: MissionOfficersTableProps) {
   const [officers, setOfficers] = useState<MissionOfficer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     loadOfficers();
@@ -48,6 +49,16 @@ export function MissionOfficersTable({ onAddClick, onEditClick, refreshTrigger, 
     exportToExcel(exportData, 'Mission_Officers_Export', 'Mission_Officers');
   };
 
+  const filteredOfficers = officers.filter((officer) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      officer.full_name.toLowerCase().includes(search) ||
+      officer.employee_id.toLowerCase().includes(search) ||
+      officer.email?.toLowerCase().includes(search) ||
+      officer.phone?.toLowerCase().includes(search)
+    );
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -78,8 +89,19 @@ export function MissionOfficersTable({ onAddClick, onEditClick, refreshTrigger, 
         </div>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400" size={20} />
+        <input
+          type="text"
+          placeholder="Search by name, ID, email, or phone..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all"
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {officers.map((officer) => (
+        {filteredOfficers.map((officer) => (
           <Card key={officer.id} hover onClick={() => onEditClick(officer)}>
             <div className="p-6">
               <div className="flex items-start gap-4 mb-4">
@@ -118,10 +140,12 @@ export function MissionOfficersTable({ onAddClick, onEditClick, refreshTrigger, 
         ))}
       </div>
 
-      {officers.length === 0 && (
+      {filteredOfficers.length === 0 && (
         <Card>
           <div className="text-center py-12 text-stone-500">
-            No mission officers found. Click "Add Officer" to create your first mission officer.
+            {searchTerm
+              ? 'No mission officers match your search criteria.'
+              : 'No mission officers found. Click "Add Officer" to create your first mission officer.'}
           </div>
         </Card>
       )}

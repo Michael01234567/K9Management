@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Mail, Phone, Download, User, ArrowLeft, Shield, Car } from 'lucide-react';
+import { Plus, Mail, Phone, Download, User, ArrowLeft, Shield, Car, Search } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
@@ -17,6 +17,7 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger, onRetur
   const [handlers, setHandlers] = useState<Handler[]>([]);
   const [handlerDogs, setHandlerDogs] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     loadHandlers();
@@ -62,6 +63,16 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger, onRetur
     exportToExcel(exportData, 'Handlers_Export', 'Handlers');
   };
 
+  const filteredHandlers = handlers.filter((handler) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      handler.full_name.toLowerCase().includes(search) ||
+      handler.employee_id.toLowerCase().includes(search) ||
+      handler.email?.toLowerCase().includes(search) ||
+      handler.phone?.toLowerCase().includes(search)
+    );
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -92,8 +103,19 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger, onRetur
         </div>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400" size={20} />
+        <input
+          type="text"
+          placeholder="Search by name, ID, email, or phone..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all"
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {handlers.map((handler) => (
+        {filteredHandlers.map((handler) => (
           <Card key={handler.id} hover onClick={() => onEditClick(handler)}>
             <div className="p-6">
               <div className="flex items-start gap-4 mb-4">
@@ -153,10 +175,12 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger, onRetur
         ))}
       </div>
 
-      {handlers.length === 0 && (
+      {filteredHandlers.length === 0 && (
         <Card>
           <div className="text-center py-12 text-stone-500">
-            No handlers found. Click "Add Handler" to create your first handler.
+            {searchTerm
+              ? 'No handlers match your search criteria.'
+              : 'No handlers found. Click "Add Handler" to create your first handler.'}
           </div>
         </Card>
       )}
