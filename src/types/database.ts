@@ -22,6 +22,8 @@ export interface Handler {
   email: string | null;
   phone: string | null;
   picture_url: string | null;
+  team_leader: boolean;
+  driver: boolean;
   created_at: string;
   updated_at: string;
 }

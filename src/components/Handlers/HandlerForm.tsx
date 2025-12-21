@@ -21,6 +21,8 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
     email: '',
     phone: '',
     picture_url: '',
+    team_leader: false,
+    driver: false,
   });
   const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [picturePreview, setPicturePreview] = useState<string | null>(null);
@@ -33,6 +35,8 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
         email: handler.email || '',
         phone: handler.phone || '',
         picture_url: handler.picture_url || '',
+        team_leader: handler.team_leader || false,
+        driver: handler.driver || false,
       });
       setPicturePreview(handler.picture_url);
     } else {
@@ -43,6 +47,8 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
         email: '',
         phone: '',
         picture_url: '',
+        team_leader: false,
+        driver: false,
       });
       setPicturePreview(null);
     }
@@ -249,6 +255,30 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
           placeholder="+1 (555) 123-4567"
         />
+
+        <div className="space-y-4">
+          <label className="block text-sm font-medium text-stone-700 mb-2">Roles</label>
+          <div className="flex flex-col gap-3">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.team_leader}
+                onChange={(e) => setFormData({ ...formData, team_leader: e.target.checked })}
+                className="w-4 h-4 text-amber-600 bg-stone-100 border-stone-300 rounded focus:ring-amber-500 focus:ring-2"
+              />
+              <span className="text-sm text-stone-700">Team Leader</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.driver}
+                onChange={(e) => setFormData({ ...formData, driver: e.target.checked })}
+                className="w-4 h-4 text-amber-600 bg-stone-100 border-stone-300 rounded focus:ring-amber-500 focus:ring-2"
+              />
+              <span className="text-sm text-stone-700">Driver</span>
+            </label>
+          </div>
+        </div>
 
         <div className="flex gap-4 justify-between">
           <div>

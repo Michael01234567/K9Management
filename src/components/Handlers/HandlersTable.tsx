@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Mail, Phone, Download, User, ArrowLeft } from 'lucide-react';
+import { Plus, Mail, Phone, Download, User, ArrowLeft, Shield, Car } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
@@ -54,6 +54,8 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger, onRetur
       'Full Name': handler.full_name,
       Email: handler.email || 'N/A',
       Phone: handler.phone || 'N/A',
+      'Team Leader': handler.team_leader ? 'Yes' : 'No',
+      'Driver': handler.driver ? 'Yes' : 'No',
       'Assigned Dogs': handlerDogs[handler.id] || 0,
       'Created At': new Date(handler.created_at).toLocaleString(),
     }));
@@ -125,10 +127,26 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger, onRetur
                   </div>
                 )}
               </div>
-              <div className="pt-4 border-t border-stone-200">
+              <div className="pt-4 border-t border-stone-200 space-y-3">
                 <span className="text-sm text-stone-600">
                   Assigned Dogs: <span className="font-semibold text-amber-900">{handlerDogs[handler.id] || 0}</span>
                 </span>
+                {(handler.team_leader || handler.driver) && (
+                  <div className="flex flex-wrap gap-2">
+                    {handler.team_leader && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                        <Shield size={12} />
+                        Team Leader
+                      </span>
+                    )}
+                    {handler.driver && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <Car size={12} />
+                        Driver
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </Card>
