@@ -5,7 +5,7 @@ import { Input } from '../UI/Input';
 import { Select } from '../UI/Select';
 import { Textarea } from '../UI/Textarea';
 import { supabase } from '../../lib/supabase';
-import { Dog, Handler, Location, TRAINING_LEVELS, SEX_OPTIONS, SPECIALIZATION_TYPES } from '../../types/database';
+import { Dog, Handler, MissionOfficer, Location, TRAINING_LEVELS, SEX_OPTIONS, SPECIALIZATION_TYPES } from '../../types/database';
 
 interface DogFormProps {
   isOpen: boolean;
@@ -17,8 +17,10 @@ interface DogFormProps {
 export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
   const [loading, setLoading] = useState(false);
   const [handlers, setHandlers] = useState<Handler[]>([]);
+  const [officers, setOfficers] = useState<MissionOfficer[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [selectedHandlers, setSelectedHandlers] = useState<string[]>([]);
+  const [selectedOfficers, setSelectedOfficers] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     breed: '',
@@ -35,6 +37,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
 
   useEffect(() => {
     loadHandlers();
+    loadOfficers();
     loadLocations();
   }, []);
 
@@ -54,6 +57,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
         note: dog.note || '',
       });
       loadDogHandlers(dog.id);
+      loadDogOfficers(dog.id);
     } else {
       setFormData({
         name: '',
@@ -69,12 +73,18 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
         note: '',
       });
       setSelectedHandlers([]);
+      setSelectedOfficers([]);
     }
   }, [dog, isOpen]);
 
   const loadHandlers = async () => {
     const { data } = await supabase.from('handlers').select('*').order('full_name');
     setHandlers(data || []);
+  };
+
+  const loadOfficers = async () => {
+    const { data } = await supabase.from('mission_officers').select('*').order('full_name');
+    setOfficers(data || []);
   };
 
   const loadLocations = async () => {
@@ -85,6 +95,11 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
   const loadDogHandlers = async (dogId: string) => {
     const { data } = await supabase.from('dog_handler').select('handler_id').eq('dog_id', dogId);
     setSelectedHandlers(data?.map((dh) => dh.handler_id) || []);
+  };
+
+  const loadDogOfficers = async (dogId: string) => {
+    const { data } = await supabase.from('dog_officer').select('officer_id').eq('dog_id', dogId);
+    setSelectedOfficers(data?.map((dh) => dh.officer_id) || []);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,6 +117,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
         if (error) throw error;
 
         await supabase.from('dog_handler').delete().eq('dog_id', dog.id);
+        await supabase.from('dog_officer').delete().eq('dog_id', dog.id);
 
         if (selectedHandlers.length > 0) {
           const { error: handlerError } = await supabase.from('dog_handler').insert(
@@ -111,6 +127,16 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
             }))
           );
           if (handlerError) throw handlerError;
+        }
+
+        if (selectedOfficers.length > 0) {
+          const { error: officerError } = await supabase.from('dog_officer').insert(
+            selectedOfficers.map((officerId) => ({
+              dog_id: dog.id,
+              officer_id: officerId,
+            }))
+          );
+          if (officerError) throw officerError;
         }
       } else {
         const { data: newDog, error } = await supabase
@@ -129,6 +155,16 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
           );
           if (handlerError) throw handlerError;
         }
+
+        if (selectedOfficers.length > 0 && newDog) {
+          const { error: officerError } = await supabase.from('dog_officer').insert(
+            selectedOfficers.map((officerId) => ({
+              dog_id: newDog.id,
+              officer_id: officerId,
+            }))
+          );
+          if (officerError) throw officerError;
+        }
       }
 
       onSave();
@@ -144,6 +180,12 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
   const toggleHandler = (handlerId: string) => {
     setSelectedHandlers((prev) =>
       prev.includes(handlerId) ? prev.filter((id) => id !== handlerId) : [...prev, handlerId]
+    );
+  };
+
+  const toggleOfficer = (officerId: string) => {
+    setSelectedOfficers((prev) =>
+      prev.includes(officerId) ? prev.filter((id) => id !== officerId) : [...prev, officerId]
     );
   };
 
@@ -223,24 +265,47 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">Assign Handlers</label>
-          <div className="border border-stone-300 rounded-lg p-4 max-h-48 overflow-y-auto space-y-2">
-            {handlers.length > 0 ? (
-              handlers.map((handler) => (
-                <label key={handler.id} className="flex items-center space-x-3 cursor-pointer hover:bg-stone-50 p-2 rounded">
-                  <input
-                    type="checkbox"
-                    checked={selectedHandlers.includes(handler.id)}
-                    onChange={() => toggleHandler(handler.id)}
-                    className="w-4 h-4 text-amber-900 border-stone-300 rounded focus:ring-amber-500"
-                  />
-                  <span className="text-stone-900">{handler.full_name}</span>
-                </label>
-              ))
-            ) : (
-              <p className="text-stone-500 text-sm">No handlers available. Create handlers first.</p>
-            )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-2">Assign Handlers</label>
+            <div className="border border-stone-300 rounded-lg p-4 max-h-48 overflow-y-auto space-y-2">
+              {handlers.length > 0 ? (
+                handlers.map((handler) => (
+                  <label key={handler.id} className="flex items-center space-x-3 cursor-pointer hover:bg-stone-50 p-2 rounded">
+                    <input
+                      type="checkbox"
+                      checked={selectedHandlers.includes(handler.id)}
+                      onChange={() => toggleHandler(handler.id)}
+                      className="w-4 h-4 text-amber-900 border-stone-300 rounded focus:ring-amber-500"
+                    />
+                    <span className="text-stone-900">{handler.full_name}</span>
+                  </label>
+                ))
+              ) : (
+                <p className="text-stone-500 text-sm">No handlers available.</p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-2">Assign Mission Officers</label>
+            <div className="border border-stone-300 rounded-lg p-4 max-h-48 overflow-y-auto space-y-2">
+              {officers.length > 0 ? (
+                officers.map((officer) => (
+                  <label key={officer.id} className="flex items-center space-x-3 cursor-pointer hover:bg-stone-50 p-2 rounded">
+                    <input
+                      type="checkbox"
+                      checked={selectedOfficers.includes(officer.id)}
+                      onChange={() => toggleOfficer(officer.id)}
+                      className="w-4 h-4 text-amber-900 border-stone-300 rounded focus:ring-amber-500"
+                    />
+                    <span className="text-stone-900">{officer.full_name}</span>
+                  </label>
+                ))
+              ) : (
+                <p className="text-stone-500 text-sm">No officers available.</p>
+              )}
+            </div>
           </div>
         </div>
 

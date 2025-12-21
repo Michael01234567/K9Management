@@ -6,11 +6,12 @@ import { Select } from '../UI/Select';
 import { Card } from '../UI/Card';
 import { FitnessStatusBadge } from '../UI/FitnessStatusBadge';
 import { supabase } from '../../lib/supabase';
-import { Dog, Handler, TRAINING_LEVELS } from '../../types/database';
+import { Dog, Handler, MissionOfficer, TRAINING_LEVELS } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
 
 interface DogWithHandlers extends Dog {
   handlers?: Handler[];
+  officers?: MissionOfficer[];
   fitness_status?: string | null;
 }
 
@@ -54,7 +55,13 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
             .select('handler_id')
             .eq('dog_id', dog.id);
 
+          const { data: dogOfficers } = await supabase
+            .from('dog_officer')
+            .select('officer_id')
+            .eq('dog_id', dog.id);
+
           const handlerIds = dogHandlers?.map((dh) => dh.handler_id) || [];
+          const officerIds = dogOfficers?.map((dh) => dh.officer_id) || [];
 
           const { data: fitnessData } = await supabase
             .from('fitness_status')
@@ -62,15 +69,26 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
             .eq('dog_id', dog.id)
             .maybeSingle();
 
+          let handlers: Handler[] = [];
+          let officers: MissionOfficer[] = [];
+
           if (handlerIds.length > 0) {
-            const { data: handlers } = await supabase
+            const { data: handlersData } = await supabase
               .from('handlers')
               .select('*')
               .in('id', handlerIds);
-            return { ...dog, handlers: handlers || [], fitness_status: fitnessData?.status || null };
+            handlers = handlersData || [];
           }
 
-          return { ...dog, handlers: [], fitness_status: fitnessData?.status || null };
+          if (officerIds.length > 0) {
+            const { data: officersData } = await supabase
+              .from('mission_officers')
+              .select('*')
+              .in('id', officerIds);
+            officers = officersData || [];
+          }
+
+          return { ...dog, handlers, officers, fitness_status: fitnessData?.status || null };
         })
       );
 
@@ -133,7 +151,8 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
       'Training Level': dog.training_level,
       Specialization: dog.specialization || 'N/A',
       'Fitness Status': dog.fitness_status || 'N/A',
-      Handlers: dog.handlers && dog.handlers.length > 0 ? dog.handlers.map((h) => h.full_name).join(', ') : 'Unassigned',
+      Handlers: dog.handlers && dog.handlers.length > 0 ? dog.handlers.map((h) => h.full_name).join(', ') : 'None',
+      Officers: dog.officers && dog.officers.length > 0 ? dog.officers.map((o) => o.full_name).join(', ') : 'None',
       Location: dog.location || 'N/A',
       Origin: dog.origin || 'N/A',
       Note: dog.note || 'N/A',
@@ -218,7 +237,7 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Training Level</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Specialization</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Fitness Status</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Handlers</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Handlers/Officers</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Location</th>
                 </tr>
               </thead>
@@ -256,10 +275,22 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
                       <FitnessStatusBadge status={dog.fitness_status} />
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-stone-700">
-                        {dog.handlers && dog.handlers.length > 0
-                          ? dog.handlers.map((h) => h.full_name).join(', ')
-                          : 'Unassigned'}
+                      <div className="text-sm text-stone-700 space-y-1">
+                        {dog.handlers && dog.handlers.length > 0 && (
+                          <div>
+                            <span className="font-medium text-xs text-stone-500">Handlers: </span>
+                            {dog.handlers.map((h) => h.full_name).join(', ')}
+                          </div>
+                        )}
+                        {dog.officers && dog.officers.length > 0 && (
+                          <div>
+                            <span className="font-medium text-xs text-stone-500">Officers: </span>
+                            {dog.officers.map((o) => o.full_name).join(', ')}
+                          </div>
+                        )}
+                        {(!dog.handlers || dog.handlers.length === 0) && (!dog.officers || dog.officers.length === 0) && (
+                          <span className="text-stone-400">Unassigned</span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -321,13 +352,27 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
               </div>
 
               <div className="space-y-2 text-sm">
-                <div className="flex items-center text-stone-700">
-                  <Users size={14} className="mr-2 flex-shrink-0" />
-                  <span className="truncate">
-                    {dog.handlers && dog.handlers.length > 0
-                      ? dog.handlers.map((h) => h.full_name).join(', ')
-                      : 'Unassigned'}
-                  </span>
+                <div className="text-stone-700">
+                  <div className="flex items-start">
+                    <Users size={14} className="mr-2 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 space-y-1">
+                      {dog.handlers && dog.handlers.length > 0 && (
+                        <div>
+                          <span className="font-medium text-xs text-stone-500">Handlers: </span>
+                          <span className="text-sm">{dog.handlers.map((h) => h.full_name).join(', ')}</span>
+                        </div>
+                      )}
+                      {dog.officers && dog.officers.length > 0 && (
+                        <div>
+                          <span className="font-medium text-xs text-stone-500">Officers: </span>
+                          <span className="text-sm">{dog.officers.map((o) => o.full_name).join(', ')}</span>
+                        </div>
+                      )}
+                      {(!dog.handlers || dog.handlers.length === 0) && (!dog.officers || dog.officers.length === 0) && (
+                        <span className="text-stone-400">Unassigned</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 {dog.location && (
                   <div className="flex items-center">

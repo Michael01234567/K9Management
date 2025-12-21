@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal } from '../UI/Modal';
 import { Button } from '../UI/Button';
 import { CreditCard as Edit, Trash2, Calendar, Activity } from 'lucide-react';
-import { DogWithHandlers, VetRecord, FitnessLog, FitnessStatus, Handler } from '../../types/database';
+import { DogWithHandlers, VetRecord, FitnessLog, FitnessStatus, Handler, MissionOfficer } from '../../types/database';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../UI/Card';
 import { FitnessStatusBadge } from '../UI/FitnessStatusBadge';
@@ -16,17 +16,19 @@ interface DogDetailsModalProps {
 }
 
 export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogDetailsModalProps) {
-  const [activeTab, setActiveTab] = useState<'info' | 'handlers' | 'vet' | 'fitness'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'personnel' | 'vet' | 'fitness'>('info');
   const [vetRecords, setVetRecords] = useState<VetRecord[]>([]);
   const [fitnessLogs, setFitnessLogs] = useState<FitnessLog[]>([]);
   const [fitnessStatus, setFitnessStatus] = useState<FitnessStatus | null>(null);
   const [fitnessHandler, setFitnessHandler] = useState<Handler | null>(null);
+  const [officers, setOfficers] = useState<MissionOfficer[]>([]);
 
   useEffect(() => {
     if (dog && isOpen) {
       loadVetRecords();
       loadFitnessLogs();
       loadFitnessStatus();
+      loadOfficers();
     }
   }, [dog, isOpen]);
 
@@ -73,6 +75,26 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
     }
   };
 
+  const loadOfficers = async () => {
+    if (!dog) return;
+    const { data: dogOfficers } = await supabase
+      .from('dog_officer')
+      .select('officer_id')
+      .eq('dog_id', dog.id);
+
+    const officerIds = dogOfficers?.map((dh) => dh.officer_id) || [];
+
+    if (officerIds.length > 0) {
+      const { data: officersData } = await supabase
+        .from('mission_officers')
+        .select('*')
+        .in('id', officerIds);
+      setOfficers(officersData || []);
+    } else {
+      setOfficers([]);
+    }
+  };
+
   const handleDelete = async () => {
     if (!dog || !confirm('Are you sure you want to delete this dog? This action cannot be undone.')) return;
     await onDelete(dog.id);
@@ -92,7 +114,7 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
 
   const tabs = [
     { id: 'info', label: 'General Info' },
-    { id: 'handlers', label: 'Handlers' },
+    { id: 'personnel', label: 'Personnel' },
     { id: 'vet', label: 'Vet Records' },
     { id: 'fitness', label: 'Fitness' },
   ] as const;
@@ -196,25 +218,51 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
           </div>
         )}
 
-        {activeTab === 'handlers' && (
-          <div>
-            {dog.handlers && dog.handlers.length > 0 ? (
-              <div className="space-y-4">
-                {dog.handlers.map((handler) => (
-                  <Card key={handler.id}>
-                    <div className="p-4">
-                      <h4 className="font-semibold text-stone-900 mb-2">{handler.full_name}</h4>
-                      <div className="space-y-1 text-sm text-stone-600">
-                        {handler.email && <p>Email: {handler.email}</p>}
-                        {handler.phone && <p>Phone: {handler.phone}</p>}
+        {activeTab === 'personnel' && (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-stone-900 mb-4">Handlers</h3>
+              {dog.handlers && dog.handlers.length > 0 ? (
+                <div className="space-y-4">
+                  {dog.handlers.map((handler) => (
+                    <Card key={handler.id}>
+                      <div className="p-4">
+                        <h4 className="font-semibold text-stone-900 mb-2">{handler.full_name}</h4>
+                        <p className="text-xs text-stone-500 mb-2">Employee ID: {handler.employee_id}</p>
+                        <div className="space-y-1 text-sm text-stone-600">
+                          {handler.email && <p>Email: {handler.email}</p>}
+                          {handler.phone && <p>Phone: {handler.phone}</p>}
+                        </div>
                       </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <p className="text-stone-500 text-center py-8">No handlers assigned</p>
-            )}
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-stone-500 text-center py-4 text-sm">No handlers assigned</p>
+              )}
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-stone-900 mb-4">Mission Officers</h3>
+              {officers.length > 0 ? (
+                <div className="space-y-4">
+                  {officers.map((officer) => (
+                    <Card key={officer.id}>
+                      <div className="p-4">
+                        <h4 className="font-semibold text-stone-900 mb-2">{officer.full_name}</h4>
+                        <p className="text-xs text-stone-500 mb-2">Employee ID: {officer.employee_id}</p>
+                        <div className="space-y-1 text-sm text-stone-600">
+                          {officer.email && <p>Email: {officer.email}</p>}
+                          {officer.phone && <p>Phone: {officer.phone}</p>}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-stone-500 text-center py-4 text-sm">No officers assigned</p>
+              )}
+            </div>
           </div>
         )}
 

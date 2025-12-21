@@ -46,6 +46,13 @@ export interface DogHandler {
   assigned_at: string;
 }
 
+export interface DogOfficer {
+  id: string;
+  dog_id: string;
+  officer_id: string;
+  assigned_at: string;
+}
+
 export interface VetRecord {
   id: string;
   dog_id: string;
