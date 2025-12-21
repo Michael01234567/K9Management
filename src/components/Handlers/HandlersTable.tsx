@@ -50,6 +50,7 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger, onRetur
 
   const handleExport = () => {
     const exportData = handlers.map((handler) => ({
+      'Employee ID': handler.employee_id,
       'Full Name': handler.full_name,
       Email: handler.email || 'N/A',
       Phone: handler.phone || 'N/A',
@@ -107,6 +108,7 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger, onRetur
                 )}
                 <div className="flex-1 min-w-0">
                   <h3 className="text-xl font-semibold text-stone-900 truncate">{handler.full_name}</h3>
+                  <p className="text-sm text-stone-500">ID: {handler.employee_id}</p>
                 </div>
               </div>
               <div className="space-y-2 mb-4">

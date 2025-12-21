@@ -16,6 +16,7 @@ interface HandlerFormProps {
 export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    employee_id: '',
     full_name: '',
     email: '',
     phone: '',
@@ -27,6 +28,7 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
   useEffect(() => {
     if (handler) {
       setFormData({
+        employee_id: handler.employee_id,
         full_name: handler.full_name,
         email: handler.email || '',
         phone: handler.phone || '',
@@ -34,7 +36,9 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
       });
       setPicturePreview(handler.picture_url);
     } else {
+      loadNextEmployeeId();
       setFormData({
+        employee_id: '',
         full_name: '',
         email: '',
         phone: '',
@@ -44,6 +48,27 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
     }
     setPictureFile(null);
   }, [handler, isOpen]);
+
+  const loadNextEmployeeId = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('handlers')
+        .select('employee_id')
+        .order('employee_id', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (data && !error) {
+        const lastId = parseInt(data.employee_id);
+        const nextId = (lastId + 1).toString();
+        setFormData(prev => ({ ...prev, employee_id: nextId }));
+      } else {
+        setFormData(prev => ({ ...prev, employee_id: '150101' }));
+      }
+    } catch (error) {
+      setFormData(prev => ({ ...prev, employee_id: '150101' }));
+    }
+  };
 
   const handlePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -195,6 +220,14 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
           </div>
         </div>
 
+        <Input
+          label="Employee ID *"
+          value={formData.employee_id}
+          onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
+          required
+          placeholder="150101"
+          disabled={!!handler}
+        />
         <Input
           label="Full Name *"
           value={formData.full_name}
