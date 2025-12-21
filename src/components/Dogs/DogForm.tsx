@@ -29,6 +29,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
     specialization: '',
     location: '',
     origin: '',
+    weight_kg: '',
     note: '',
   });
 
@@ -49,6 +50,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
         specialization: dog.specialization || '',
         location: dog.location || '',
         origin: dog.origin || '',
+        weight_kg: dog.weight_kg?.toString() || '',
         note: dog.note || '',
       });
       loadDogHandlers(dog.id);
@@ -63,6 +65,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
         specialization: '',
         location: '',
         origin: '',
+        weight_kg: '',
         note: '',
       });
       setSelectedHandlers([]);
@@ -89,8 +92,13 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
     setLoading(true);
 
     try {
+      const dataToSave = {
+        ...formData,
+        weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
+      };
+
       if (dog) {
-        const { error } = await supabase.from('dogs').update(formData).eq('id', dog.id);
+        const { error } = await supabase.from('dogs').update(dataToSave).eq('id', dog.id);
         if (error) throw error;
 
         await supabase.from('dog_handler').delete().eq('dog_id', dog.id);
@@ -107,7 +115,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
       } else {
         const { data: newDog, error } = await supabase
           .from('dogs')
-          .insert(formData)
+          .insert(dataToSave)
           .select()
           .single();
         if (error) throw error;
@@ -204,6 +212,14 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
             value={formData.origin}
             onChange={(e) => setFormData({ ...formData, origin: e.target.value })}
             placeholder="Breeder or source"
+          />
+          <Input
+            label="Weight (kg)"
+            type="number"
+            step="0.01"
+            value={formData.weight_kg}
+            onChange={(e) => setFormData({ ...formData, weight_kg: e.target.value })}
+            placeholder="e.g., 25.5"
           />
         </div>
 

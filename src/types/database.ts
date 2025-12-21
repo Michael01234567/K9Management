@@ -9,6 +9,7 @@ export interface Dog {
   specialization: string | null;
   location: string | null;
   origin: string | null;
+  weight_kg: number | null;
   note: string | null;
   created_at: string;
   updated_at: string;
