@@ -31,6 +31,7 @@ export function VetRecordsTable({ onAddClick, onEditClick, refreshTrigger, onRet
       const { data: recordsData } = await supabase
         .from('vet_records')
         .select('*')
+        .order('next_visit_date', { ascending: true, nullsFirst: false })
         .order('visit_date', { ascending: false });
 
       const recordsWithDogs = await Promise.all(

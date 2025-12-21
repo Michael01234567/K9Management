@@ -26,6 +26,7 @@ export function FitnessStatusTable({ onReturn }: FitnessStatusTableProps = {}) {
       const { data: statusData } = await supabase
         .from('fitness_status')
         .select('*')
+        .order('duration_end', { ascending: true, nullsFirst: false })
         .order('updated_at', { ascending: false });
 
       if (statusData) {
