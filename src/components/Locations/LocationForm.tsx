@@ -115,7 +115,7 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
       )}
 
       <Input
-        label="Location Name"
+        label="Facility Location Name"
         required
         value={formData.name}
         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -182,7 +182,7 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
         label="Description"
         value={formData.description}
         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-        placeholder="Additional details about this location"
+        placeholder="Additional details about this facility location"
         rows={3}
       />
 
@@ -191,7 +191,7 @@ const LocationForm: React.FC<LocationFormProps> = ({ location, onSuccess, onCanc
           Cancel
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : location ? 'Update Location' : 'Add Location'}
+          {loading ? 'Saving...' : location ? 'Update Facility Location' : 'Add Facility Location'}
         </Button>
       </div>
     </form>

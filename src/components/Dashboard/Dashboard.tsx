@@ -257,7 +257,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
 
         <Card>
           <div className="p-4 md:p-6">
-            <h3 className="text-lg md:text-xl font-bold text-stone-900 mb-3 md:mb-4">Dogs by Location</h3>
+            <h3 className="text-lg md:text-xl font-bold text-stone-900 mb-3 md:mb-4">Dogs by Facility Location</h3>
             <div className="space-y-3">
               {Object.entries(stats.dogsByLocation).length > 0 ? (
                 Object.entries(stats.dogsByLocation)
@@ -294,7 +294,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (view: string) => void }
                     </div>
                   ))
               ) : (
-                <p className="text-stone-500 text-sm">No locations assigned yet</p>
+                <p className="text-stone-500 text-sm">No facility locations assigned yet</p>
               )}
             </div>
           </div>

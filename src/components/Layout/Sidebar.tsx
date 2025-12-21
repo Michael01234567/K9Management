@@ -14,7 +14,7 @@ export function Sidebar({ activeView, onNavigate, isOpen, onClose }: SidebarProp
     { id: 'handlers', label: 'Handlers', icon: Users },
     { id: 'vet', label: 'Vet Records', icon: Calendar },
     { id: 'fitness', label: 'Fitness', icon: Activity },
-    { id: 'locations', label: 'Locations', icon: MapPin },
+    { id: 'locations', label: 'Facility Locations', icon: MapPin },
     { id: 'mission-locations', label: 'Mission Locations', icon: Target },
   ];
 

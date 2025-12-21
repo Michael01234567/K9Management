@@ -51,7 +51,7 @@ const LocationsTable: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this location?')) return;
+    if (!confirm('Are you sure you want to delete this facility location?')) return;
 
     try {
       const { error } = await supabase
@@ -63,7 +63,7 @@ const LocationsTable: React.FC = () => {
       fetchLocations();
     } catch (error) {
       console.error('Error deleting location:', error);
-      alert('Error deleting location. It may be in use by dogs.');
+      alert('Error deleting facility location. It may be in use by dogs.');
     }
   };
 
@@ -79,16 +79,16 @@ const LocationsTable: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading locations...</div>;
+    return <div className="text-center py-8">Loading facility locations...</div>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Locations</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Facility Locations</h2>
         <Button onClick={handleAdd}>
           <Plus className="w-4 h-4 mr-2" />
-          Add Location
+          Add Facility Location
         </Button>
       </div>
 
@@ -96,7 +96,7 @@ const LocationsTable: React.FC = () => {
         <div className="grid gap-4">
           {locations.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
-              No locations found. Add your first location to get started.
+              No facility locations found. Add your first facility location to get started.
             </div>
           ) : (
             locations.map((location) => (
@@ -185,7 +185,7 @@ const LocationsTable: React.FC = () => {
                 {locations.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                      No locations found. Add your first location to get started.
+                      No facility locations found. Add your first facility location to get started.
                     </td>
                   </tr>
                 ) : (
@@ -250,7 +250,7 @@ const LocationsTable: React.FC = () => {
           setShowModal(false);
           setEditingLocation(undefined);
         }}
-        title={editingLocation ? 'Edit Location' : 'Add New Location'}
+        title={editingLocation ? 'Edit Facility Location' : 'Add New Facility Location'}
       >
         <LocationForm
           location={editingLocation}
