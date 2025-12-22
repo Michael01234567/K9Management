@@ -198,9 +198,11 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
         explosive_teams: prev.explosive_teams.filter((t) => t.dog_id !== dogId),
       }));
     } else {
+      const dog = dogs.find((d) => d.id === dogId);
+      const defaultHandlerId = dog?.default_handler_id || '';
       setFormData((prev) => ({
         ...prev,
-        explosive_teams: [...prev.explosive_teams, { dog_id: dogId, handler_id: '' }],
+        explosive_teams: [...prev.explosive_teams, { dog_id: dogId, handler_id: defaultHandlerId }],
       }));
     }
   };
@@ -213,9 +215,11 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
         narcotic_teams: prev.narcotic_teams.filter((t) => t.dog_id !== dogId),
       }));
     } else {
+      const dog = dogs.find((d) => d.id === dogId);
+      const defaultHandlerId = dog?.default_handler_id || '';
       setFormData((prev) => ({
         ...prev,
-        narcotic_teams: [...prev.narcotic_teams, { dog_id: dogId, handler_id: '' }],
+        narcotic_teams: [...prev.narcotic_teams, { dog_id: dogId, handler_id: defaultHandlerId }],
       }));
     }
   };

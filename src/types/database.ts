@@ -11,6 +11,7 @@ export interface Dog {
   origin: string | null;
   weight_kg: number | null;
   note: string | null;
+  default_handler_id: string | null;
   created_at: string;
   updated_at: string;
 }
