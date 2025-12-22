@@ -4,6 +4,7 @@ import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { MissionCard } from './MissionCard';
 import { MissionForm } from './MissionForm';
+import { MissionDetailsModal } from './MissionDetailsModal';
 import { supabase } from '../../lib/supabase';
 import { MissionWithDetails, Dog, Handler, MissionOfficer, Item } from '../../types/database';
 
@@ -12,6 +13,7 @@ export function Missions() {
   const [filteredMissions, setFilteredMissions] = useState<MissionWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedMission, setSelectedMission] = useState<MissionWithDetails | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
@@ -92,8 +94,14 @@ export function Missions() {
     setFilteredMissions(filtered);
   };
 
+  const handleCardClick = (mission: MissionWithDetails) => {
+    setSelectedMission(mission);
+    setIsDetailsOpen(true);
+  };
+
   const handleEdit = (mission: MissionWithDetails) => {
     setSelectedMission(mission);
+    setIsDetailsOpen(false);
     setIsFormOpen(true);
   };
 
@@ -103,6 +111,7 @@ export function Missions() {
     try {
       const { error } = await supabase.from('missions').delete().eq('id', missionId);
       if (error) throw error;
+      setIsDetailsOpen(false);
       loadMissions();
     } catch (error) {
       console.error('Error deleting mission:', error);
@@ -117,6 +126,11 @@ export function Missions() {
 
   const handleFormClose = () => {
     setIsFormOpen(false);
+    setSelectedMission(null);
+  };
+
+  const handleDetailsClose = () => {
+    setIsDetailsOpen(false);
     setSelectedMission(null);
   };
 
@@ -170,12 +184,19 @@ export function Missions() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {filteredMissions.map((mission) => (
-            <MissionCard key={mission.id} mission={mission} onEdit={handleEdit} onDelete={handleDelete} />
+            <MissionCard key={mission.id} mission={mission} onClick={handleCardClick} />
           ))}
         </div>
       )}
 
       <MissionForm isOpen={isFormOpen} onClose={handleFormClose} onSave={handleFormSave} mission={selectedMission} />
+      <MissionDetailsModal
+        mission={selectedMission}
+        isOpen={isDetailsOpen}
+        onClose={handleDetailsClose}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

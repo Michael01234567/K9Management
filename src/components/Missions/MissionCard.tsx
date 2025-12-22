@@ -1,15 +1,13 @@
-import { MapPin, Clock, User, Users, Edit, Trash2, MessageSquare, CheckCircle, AlertCircle, Package } from 'lucide-react';
+import { MapPin, Clock, User, Users, CheckCircle, AlertCircle } from 'lucide-react';
 import { Card } from '../UI/Card';
-import { Button } from '../UI/Button';
 import { MissionWithDetails } from '../../types/database';
 
 interface MissionCardProps {
   mission: MissionWithDetails;
-  onEdit: (mission: MissionWithDetails) => void;
-  onDelete: (missionId: string) => void;
+  onClick: (mission: MissionWithDetails) => void;
 }
 
-export function MissionCard({ mission, onEdit, onDelete }: MissionCardProps) {
+export function MissionCard({ mission, onClick }: MissionCardProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Active':
@@ -46,7 +44,6 @@ export function MissionCard({ mission, onEdit, onDelete }: MissionCardProps) {
 
   const explosiveTeams = mission.explosive_teams || [];
   const narcoticTeams = mission.narcotic_teams || [];
-  const itemsWithQuantities = mission.items_with_quantities || [];
 
   const getHandlerForTeam = (handlerId: string) => {
     return mission.handlers?.find((h) => h.id === handlerId);
@@ -56,12 +53,11 @@ export function MissionCard({ mission, onEdit, onDelete }: MissionCardProps) {
     return [...(mission.explosive_dogs || []), ...(mission.narcotic_dogs || [])].find((d) => d.id === dogId);
   };
 
-  const getItemById = (itemId: string) => {
-    return mission.items_searched?.find((i) => i.id === itemId);
-  };
-
   return (
-    <Card className="relative overflow-hidden hover:shadow-lg transition-shadow">
+    <Card
+      className="relative overflow-hidden hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer"
+      onClick={() => onClick(mission)}
+    >
       <div className="absolute top-3 right-3 flex items-center gap-2">
         <div className={`w-3 h-3 rounded-full ${getStatusColor(mission.status)} shadow-lg`} />
         <span className={`text-xs font-semibold ${getStatusTextColor(mission.status)}`}>
@@ -81,15 +77,6 @@ export function MissionCard({ mission, onEdit, onDelete }: MissionCardProps) {
                   </h3>
                 </div>
               )}
-              <div className="flex items-center gap-4 text-sm text-stone-600 flex-wrap">
-                {mission.departure_time && (
-                  <div className="flex items-center gap-1">
-                    <Clock size={14} />
-                    <span>{mission.departure_time}</span>
-                    {mission.return_time && <span>- {mission.return_time}</span>}
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -182,26 +169,6 @@ export function MissionCard({ mission, onEdit, onDelete }: MissionCardProps) {
             </div>
           )}
 
-          {itemsWithQuantities.length > 0 && (
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-              <div className="flex items-center gap-2 mb-2">
-                <Package size={14} className="text-slate-700" />
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide">Items Searched</h4>
-              </div>
-              <div className="space-y-1.5">
-                {itemsWithQuantities.map((itemWithQty) => {
-                  const item = getItemById(itemWithQty.item_id);
-                  return (
-                    <div key={itemWithQty.item_id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1">
-                      <span className="text-sm text-slate-700">{item?.name}</span>
-                      <span className="text-sm font-semibold text-slate-900">{itemWithQty.quantity}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           {(mission.indication || mission.confirmed_indication) && (
             <div className="flex gap-2">
               {mission.indication && (
@@ -222,39 +189,6 @@ export function MissionCard({ mission, onEdit, onDelete }: MissionCardProps) {
               )}
             </div>
           )}
-
-          {mission.comments && (
-            <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
-              <div className="flex items-start gap-2">
-                <MessageSquare size={14} className="text-amber-700 flex-shrink-0 mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-amber-700 font-medium mb-1">Comments</div>
-                  <p className="text-sm text-stone-700 whitespace-pre-wrap break-words leading-relaxed">{mission.comments}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="flex gap-2 pt-2 border-t border-stone-200">
-            <Button
-              onClick={() => onEdit(mission)}
-              variant="outline"
-              size="sm"
-              className="flex-1"
-            >
-              <Edit size={16} className="mr-1" />
-              Edit
-            </Button>
-            <Button
-              onClick={() => onDelete(mission.id)}
-              variant="outline"
-              size="sm"
-              className="flex-1 text-red-600 hover:bg-red-50 hover:border-red-300"
-            >
-              <Trash2 size={16} className="mr-1" />
-              Delete
-            </Button>
-          </div>
         </div>
       </div>
     </Card>
