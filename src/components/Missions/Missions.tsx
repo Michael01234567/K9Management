@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Calendar, Filter } from 'lucide-react';
+import { Plus, Calendar, Filter, Download } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { MissionCard } from './MissionCard';
@@ -7,6 +7,7 @@ import { MissionForm } from './MissionForm';
 import { MissionDetailsModal } from './MissionDetailsModal';
 import { supabase } from '../../lib/supabase';
 import { MissionWithDetails, Dog, Handler, MissionOfficer, Item } from '../../types/database';
+import { exportToExcel } from '../../utils/excelExport';
 
 export function Missions() {
   const [missions, setMissions] = useState<MissionWithDetails[]>([]);
@@ -138,6 +139,31 @@ export function Missions() {
     loadMissions();
   };
 
+  const handleExport = () => {
+    const exportData = missions.map((mission) => ({
+      Date: mission.date,
+      Status: mission.status,
+      'Departure Time': mission.departure_time || 'N/A',
+      'Return Time': mission.return_time || 'N/A',
+      Location: mission.mission_location?.name || 'N/A',
+      Address: mission.mission_location?.address || 'N/A',
+      'Mission Officer': mission.mission_officer?.full_name || 'N/A',
+      'Team Leader': mission.team_leader?.full_name || 'N/A',
+      Driver: mission.driver?.full_name || 'N/A',
+      'Explosive Dogs': mission.explosive_dogs?.map((d) => d.name).join(', ') || 'None',
+      'Narcotic Dogs': mission.narcotic_dogs?.map((d) => d.name).join(', ') || 'None',
+      Handlers: mission.handlers?.map((h) => h.full_name).join(', ') || 'None',
+      Training: mission.training ? 'Yes' : 'No',
+      Search: mission.search ? 'Yes' : 'No',
+      'Items Searched': mission.num_items_searched,
+      'Items Details': mission.items_searched?.map((i) => i.name).join(', ') || 'None',
+      Indication: mission.indication ? 'Yes' : 'No',
+      'Confirmed Indication': mission.confirmed_indication ? 'Yes' : 'No',
+      Comments: mission.comments || 'N/A',
+    }));
+    exportToExcel(exportData, 'Missions_Export', 'Missions');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -153,10 +179,16 @@ export function Missions() {
           <h1 className="text-2xl md:text-3xl font-bold text-stone-900">Daily Missions</h1>
           <p className="text-stone-600 mt-1">Manage and view all missions</p>
         </div>
-        <Button onClick={handleCreateNew} size="sm">
-          <Plus size={18} className="mr-2" />
-          Create Mission
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExport} variant="outline" size="sm">
+            <Download size={18} className="sm:mr-2" />
+            <span className="hidden sm:inline">Export</span>
+          </Button>
+          <Button onClick={handleCreateNew} size="sm">
+            <Plus size={18} className="mr-2" />
+            Create Mission
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
