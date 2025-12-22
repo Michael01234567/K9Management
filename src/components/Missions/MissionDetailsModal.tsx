@@ -142,8 +142,8 @@ export function MissionDetailsModal({ mission, isOpen, onClose, onEdit, onDelete
               )}
               <div>
                 <div className="text-base font-bold text-stone-900">{mission.mission_officer.full_name}</div>
-                {mission.mission_officer.email && (
-                  <div className="text-sm text-stone-600">{mission.mission_officer.email}</div>
+                {mission.mission_officer.phone && (
+                  <div className="text-sm text-stone-600">{mission.mission_officer.phone}</div>
                 )}
               </div>
             </div>
