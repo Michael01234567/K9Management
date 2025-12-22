@@ -77,8 +77,8 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
                   onClick={(e) => e.stopPropagation()}
                   className="flex items-start gap-2 mb-1 group cursor-pointer"
                 >
-                  <MapPin size={18} className="text-amber-700 flex-shrink-0 mt-1 transition-transform group-hover:scale-110" />
-                  <h3 className="text-lg font-bold text-stone-900 line-clamp-2 group-hover:text-amber-700 transition-colors">
+                  <MapPin size={16} className="text-amber-700 flex-shrink-0 mt-0.5 transition-transform group-hover:scale-110" />
+                  <h3 className="text-sm md:text-base font-bold text-stone-900 leading-tight group-hover:text-amber-700 transition-colors">
                     {mission.mission_location.name}
                   </h3>
                 </a>
