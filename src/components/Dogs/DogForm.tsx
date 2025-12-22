@@ -102,13 +102,61 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
     setSelectedOfficers(data?.map((dh) => dh.officer_id) || []);
   };
 
+  const getNextAvailableName = async (baseName: string, excludeId?: string): Promise<string> => {
+    const { data: existingDogs } = await supabase
+      .from('dogs')
+      .select('name')
+      .or(`name.eq.${baseName},name.like.${baseName} %`);
+
+    if (!existingDogs || existingDogs.length === 0) {
+      return baseName;
+    }
+
+    const filteredDogs = excludeId
+      ? existingDogs.filter((d) => d.name !== baseName || d.name === baseName)
+      : existingDogs;
+
+    if (filteredDogs.length === 0 || (filteredDogs.length === 1 && filteredDogs[0].name === baseName && excludeId)) {
+      return baseName;
+    }
+
+    const pattern = new RegExp(`^${baseName}( (\\d+))?$`);
+    const numbers = filteredDogs
+      .map((d) => {
+        const match = d.name.match(pattern);
+        if (match) {
+          return match[2] ? parseInt(match[2], 10) : 1;
+        }
+        return 0;
+      })
+      .filter((n) => n > 0);
+
+    if (numbers.length === 0) {
+      return baseName;
+    }
+
+    const maxNumber = Math.max(...numbers);
+    return `${baseName} ${maxNumber + 1}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      let finalName = formData.name.trim();
+
+      if (dog) {
+        if (dog.name !== finalName) {
+          finalName = await getNextAvailableName(finalName, dog.id);
+        }
+      } else {
+        finalName = await getNextAvailableName(finalName);
+      }
+
       const dataToSave = {
         ...formData,
+        name: finalName,
         weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
       };
 
