@@ -103,6 +103,11 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
     updateHandlerIdsFromTeams();
   }, [formData.explosive_teams, formData.narcotic_teams]);
 
+  useEffect(() => {
+    const totalItems = formData.items_with_quantities.reduce((sum, item) => sum + item.quantity, 0);
+    setFormData((prev) => ({ ...prev, num_items_searched: totalItems }));
+  }, [formData.items_with_quantities]);
+
   const loadData = async () => {
     const [locationsRes, dogsRes, handlersRes, officersRes, itemsRes] = await Promise.all([
       supabase.from('mission_locations').select('*').order('name'),
@@ -480,17 +485,12 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
         {formData.search && (
           <>
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Number of Items Searched</label>
-              <Input
-                type="number"
-                min="0"
-                value={formData.num_items_searched}
-                onChange={(e) => setFormData({ ...formData, num_items_searched: parseInt(e.target.value) || 0 })}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">Items Searched with Quantities</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-stone-700">Items Searched with Quantities</label>
+                <div className="px-3 py-1 bg-blue-100 rounded-md">
+                  <span className="text-xs font-medium text-blue-900">Total: {formData.num_items_searched}</span>
+                </div>
+              </div>
               <div className="border border-stone-300 rounded-md p-3 max-h-60 overflow-y-auto space-y-2">
                 {items.map((item) => {
                   const itemWithQty = formData.items_with_quantities.find((i) => i.item_id === item.id);
