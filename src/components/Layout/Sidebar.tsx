@@ -10,13 +10,14 @@ interface SidebarProps {
 export function Sidebar({ activeView, onNavigate, isOpen, onClose }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'missions', label: 'Missions', icon: Target },
     { id: 'dogs', label: 'Dogs', icon: Dog },
     { id: 'handlers', label: 'Handlers', icon: Users },
     { id: 'mission-officers', label: 'Mission Officers', icon: Shield },
     { id: 'vet', label: 'Vet Records', icon: Calendar },
     { id: 'fitness', label: 'Fitness', icon: Activity },
     { id: 'locations', label: 'Facility Locations', icon: MapPin },
-    { id: 'mission-locations', label: 'Mission Locations', icon: Target },
+    { id: 'mission-locations', label: 'Mission Locations', icon: MapPin },
   ];
 
   const handleNavigate = (view: string) => {

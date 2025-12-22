@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Navbar } from './Layout/Navbar';
 import { Sidebar } from './Layout/Sidebar';
+import { BottomNav } from './Layout/BottomNav';
 import { Dashboard } from './Dashboard/Dashboard';
 import { DogTable } from './Dogs/DogTable';
 import { DogDetailsModal } from './Dogs/DogDetailsModal';
@@ -12,6 +13,7 @@ import { MissionOfficerForm } from './MissionOfficers/MissionOfficerForm';
 import { VetRecordsTable } from './Vet/VetRecordsTable';
 import { VetRecordForm } from './Vet/VetRecordForm';
 import { FitnessStatusTable } from './Fitness/FitnessStatusTable';
+import { Missions } from './Missions/Missions';
 import Locations from './Locations/Locations';
 import MissionLocations from './MissionLocations/MissionLocations';
 import { Dog, Handler, MissionOfficer, VetRecord } from '../types/database';
@@ -170,11 +172,15 @@ export function MainApp() {
 
           {activeView === 'fitness' && <FitnessStatusTable onReturn={() => setActiveView('dashboard')} />}
 
+          {activeView === 'missions' && <Missions />}
+
           {activeView === 'locations' && <Locations />}
 
           {activeView === 'mission-locations' && <MissionLocations />}
         </main>
       </div>
+
+      <BottomNav activeView={activeView} onNavigate={setActiveView} />
 
       <DogDetailsModal
         isOpen={showDogDetails}

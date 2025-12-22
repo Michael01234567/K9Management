@@ -115,6 +115,48 @@ export interface MissionLocation {
   updated_at: string;
 }
 
+export interface Item {
+  id: string;
+  name: string;
+  category: string | null;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Mission {
+  id: string;
+  date: string;
+  mission_location_id: string | null;
+  departure_time: string | null;
+  return_time: string | null;
+  explosive_dog_ids: string[];
+  narcotic_dog_ids: string[];
+  handler_ids: string[];
+  mission_officer_id: string | null;
+  team_leader_id: string | null;
+  driver_id: string | null;
+  training: boolean;
+  search: boolean;
+  num_items_searched: number;
+  items_searched_ids: string[];
+  comments: string | null;
+  status: 'Active' | 'On Standby' | 'Emergency' | 'Cancelled';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MissionWithDetails extends Mission {
+  mission_location?: MissionLocation;
+  explosive_dogs?: Dog[];
+  narcotic_dogs?: Dog[];
+  handlers?: Handler[];
+  mission_officer?: MissionOfficer;
+  team_leader?: Handler;
+  driver?: Handler;
+  items_searched?: Item[];
+}
+
 export interface User {
   id: string;
   email: string;
@@ -179,4 +221,11 @@ export const FITNESS_STATUS_OPTIONS = [
   'Sick',
   'Estrus',
   'After Care',
+] as const;
+
+export const MISSION_STATUS_OPTIONS = [
+  'Active',
+  'On Standby',
+  'Emergency',
+  'Cancelled',
 ] as const;
