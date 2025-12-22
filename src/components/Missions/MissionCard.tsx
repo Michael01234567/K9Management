@@ -68,14 +68,20 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
       <div className="p-5 space-y-4">
         <div className="pr-24">
           <div className="flex items-start justify-between mb-2">
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               {mission.mission_location && (
-                <div className="flex items-center gap-2 mb-1">
-                  <MapPin size={18} className="text-amber-700 flex-shrink-0" />
-                  <h3 className="text-lg font-bold text-stone-900 break-words">
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mission.mission_location.name)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-start gap-2 mb-1 group cursor-pointer"
+                >
+                  <MapPin size={18} className="text-amber-700 flex-shrink-0 mt-1 transition-transform group-hover:scale-110" />
+                  <h3 className="text-lg font-bold text-stone-900 line-clamp-2 group-hover:text-amber-700 transition-colors">
                     {mission.mission_location.name}
                   </h3>
-                </div>
+                </a>
               )}
             </div>
           </div>
