@@ -66,7 +66,6 @@ export function MissionDetailsModal({ mission, isOpen, onClose, onEdit, onDelete
 
   const handleEditClick = () => {
     onEdit(mission);
-    onClose();
   };
 
   const handleDeleteClick = () => {
