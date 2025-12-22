@@ -124,6 +124,16 @@ export interface Item {
   updated_at: string;
 }
 
+export interface DogHandlerPair {
+  dog_id: string;
+  handler_id: string;
+}
+
+export interface ItemWithQuantity {
+  item_id: string;
+  quantity: number;
+}
+
 export interface Mission {
   id: string;
   date: string;
@@ -133,6 +143,8 @@ export interface Mission {
   explosive_dog_ids: string[];
   narcotic_dog_ids: string[];
   handler_ids: string[];
+  explosive_teams: DogHandlerPair[];
+  narcotic_teams: DogHandlerPair[];
   mission_officer_id: string | null;
   team_leader_id: string | null;
   driver_id: string | null;
@@ -140,8 +152,11 @@ export interface Mission {
   search: boolean;
   num_items_searched: number;
   items_searched_ids: string[];
+  items_with_quantities: ItemWithQuantity[];
+  indication: boolean;
+  confirmed_indication: boolean;
   comments: string | null;
-  status: 'Active' | 'On Standby' | 'Emergency' | 'Cancelled';
+  status: 'Active' | 'On Standby' | 'Emergency' | 'Cancelled' | 'Completed';
   created_at: string;
   updated_at: string;
 }
@@ -228,4 +243,5 @@ export const MISSION_STATUS_OPTIONS = [
   'On Standby',
   'Emergency',
   'Cancelled',
+  'Completed',
 ] as const;

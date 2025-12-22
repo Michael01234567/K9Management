@@ -35,6 +35,8 @@ export function Missions() {
 
       const missionsWithDetails = await Promise.all(
         (missionsData || []).map(async (mission) => {
+          const itemIds = (mission.items_with_quantities || []).map((item: any) => item.item_id);
+
           const [locationRes, explosiveDogsRes, narcoticDogsRes, handlersRes, officerRes, teamLeaderRes, driverRes, itemsRes] =
             await Promise.all([
               mission.mission_location_id
@@ -58,8 +60,8 @@ export function Missions() {
               mission.driver_id
                 ? supabase.from('handlers').select('*').eq('id', mission.driver_id).maybeSingle()
                 : Promise.resolve({ data: null }),
-              mission.items_searched_ids.length > 0
-                ? supabase.from('items').select('*').in('id', mission.items_searched_ids)
+              itemIds.length > 0
+                ? supabase.from('items').select('*').in('id', itemIds)
                 : Promise.resolve({ data: [] }),
             ]);
 

@@ -15,6 +15,8 @@ import {
   MissionOfficer,
   Item,
   MISSION_STATUS_OPTIONS,
+  DogHandlerPair,
+  ItemWithQuantity,
 } from '../../types/database';
 
 interface MissionFormProps {
@@ -31,14 +33,15 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
   const [handlers, setHandlers] = useState<Handler[]>([]);
   const [missionOfficers, setMissionOfficers] = useState<MissionOfficer[]>([]);
   const [items, setItems] = useState<Item[]>([]);
+  const [manualStatusChange, setManualStatusChange] = useState(false);
 
   const [formData, setFormData] = useState({
     date: mission?.date || new Date().toISOString().split('T')[0],
     mission_location_id: mission?.mission_location_id || '',
     departure_time: mission?.departure_time || '',
     return_time: mission?.return_time || '',
-    explosive_dog_ids: mission?.explosive_dog_ids || [],
-    narcotic_dog_ids: mission?.narcotic_dog_ids || [],
+    explosive_teams: mission?.explosive_teams || [] as DogHandlerPair[],
+    narcotic_teams: mission?.narcotic_teams || [] as DogHandlerPair[],
     handler_ids: mission?.handler_ids || [],
     mission_officer_id: mission?.mission_officer_id || '',
     team_leader_id: mission?.team_leader_id || '',
@@ -46,7 +49,9 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
     training: mission?.training || false,
     search: mission?.search || false,
     num_items_searched: mission?.num_items_searched || 0,
-    items_searched_ids: mission?.items_searched_ids || [],
+    items_with_quantities: mission?.items_with_quantities || [] as ItemWithQuantity[],
+    indication: mission?.indication || false,
+    confirmed_indication: mission?.confirmed_indication || false,
     comments: mission?.comments || '',
     status: mission?.status || 'Active',
   });
@@ -60,8 +65,8 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
           mission_location_id: mission.mission_location_id || '',
           departure_time: mission.departure_time || '',
           return_time: mission.return_time || '',
-          explosive_dog_ids: mission.explosive_dog_ids || [],
-          narcotic_dog_ids: mission.narcotic_dog_ids || [],
+          explosive_teams: mission.explosive_teams || [],
+          narcotic_teams: mission.narcotic_teams || [],
           handler_ids: mission.handler_ids || [],
           mission_officer_id: mission.mission_officer_id || '',
           team_leader_id: mission.team_leader_id || '',
@@ -69,17 +74,34 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
           training: mission.training,
           search: mission.search,
           num_items_searched: mission.num_items_searched,
-          items_searched_ids: mission.items_searched_ids || [],
+          items_with_quantities: mission.items_with_quantities || [],
+          indication: mission.indication,
+          confirmed_indication: mission.confirmed_indication,
           comments: mission.comments || '',
           status: mission.status,
         });
+        setManualStatusChange(false);
+      } else {
+        setManualStatusChange(false);
       }
     }
   }, [isOpen, mission]);
 
   useEffect(() => {
-    autoPopulateHandlers();
-  }, [formData.explosive_dog_ids, formData.narcotic_dog_ids]);
+    if (!manualStatusChange) {
+      if (formData.return_time && formData.return_time.trim() !== '') {
+        setFormData((prev) => ({ ...prev, status: 'Completed' }));
+      } else if (!mission || mission.return_time !== formData.return_time) {
+        if (formData.status === 'Completed') {
+          setFormData((prev) => ({ ...prev, status: 'Active' }));
+        }
+      }
+    }
+  }, [formData.return_time, manualStatusChange]);
+
+  useEffect(() => {
+    updateHandlerIdsFromTeams();
+  }, [formData.explosive_teams, formData.narcotic_teams]);
 
   const loadData = async () => {
     const [locationsRes, dogsRes, handlersRes, officersRes, itemsRes] = await Promise.all([
@@ -97,27 +119,15 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
     if (itemsRes.data) setItems(itemsRes.data);
   };
 
-  const autoPopulateHandlers = async () => {
-    const allDogIds = [...formData.explosive_dog_ids, ...formData.narcotic_dog_ids];
-    if (allDogIds.length === 0) {
-      setFormData((prev) => ({ ...prev, handler_ids: [] }));
-      return;
-    }
-
-    const handlerIds: string[] = [];
-    for (const dogId of allDogIds) {
-      const { data } = await supabase
-        .from('dog_handler')
-        .select('handler_id')
-        .eq('dog_id', dogId)
-        .maybeSingle();
-
-      if (data && !handlerIds.includes(data.handler_id)) {
-        handlerIds.push(data.handler_id);
-      }
-    }
-
-    setFormData((prev) => ({ ...prev, handler_ids: handlerIds }));
+  const updateHandlerIdsFromTeams = () => {
+    const handlerIds = new Set<string>();
+    formData.explosive_teams.forEach((team) => {
+      if (team.handler_id) handlerIds.add(team.handler_id);
+    });
+    formData.narcotic_teams.forEach((team) => {
+      if (team.handler_id) handlerIds.add(team.handler_id);
+    });
+    setFormData((prev) => ({ ...prev, handler_ids: Array.from(handlerIds) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -130,14 +140,31 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
 
     setLoading(true);
     try {
+      const explosive_dog_ids = formData.explosive_teams.map((t) => t.dog_id);
+      const narcotic_dog_ids = formData.narcotic_teams.map((t) => t.dog_id);
+
       const missionData = {
-        ...formData,
+        date: formData.date,
         mission_location_id: formData.mission_location_id || null,
+        departure_time: formData.departure_time || null,
+        return_time: formData.return_time || null,
+        explosive_dog_ids,
+        narcotic_dog_ids,
+        explosive_teams: formData.explosive_teams,
+        narcotic_teams: formData.narcotic_teams,
+        handler_ids: formData.handler_ids,
         mission_officer_id: formData.mission_officer_id || null,
         team_leader_id: formData.team_leader_id || null,
         driver_id: formData.driver_id || null,
-        departure_time: formData.departure_time || null,
-        return_time: formData.return_time || null,
+        training: formData.training,
+        search: formData.search,
+        num_items_searched: formData.num_items_searched,
+        items_searched_ids: formData.items_with_quantities.map((i) => i.item_id),
+        items_with_quantities: formData.items_with_quantities,
+        indication: formData.indication,
+        confirmed_indication: formData.confirmed_indication,
+        comments: formData.comments || null,
+        status: formData.status,
         updated_at: new Date().toISOString(),
       };
 
@@ -163,14 +190,81 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
     }
   };
 
-  const handleMultiSelect = (field: string, value: string) => {
-    setFormData((prev) => {
-      const currentValues = prev[field as keyof typeof prev] as string[];
-      const newValues = currentValues.includes(value)
-        ? currentValues.filter((id) => id !== value)
-        : [...currentValues, value];
-      return { ...prev, [field]: newValues };
-    });
+  const handleExplosiveDogToggle = (dogId: string) => {
+    const exists = formData.explosive_teams.find((t) => t.dog_id === dogId);
+    if (exists) {
+      setFormData((prev) => ({
+        ...prev,
+        explosive_teams: prev.explosive_teams.filter((t) => t.dog_id !== dogId),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        explosive_teams: [...prev.explosive_teams, { dog_id: dogId, handler_id: '' }],
+      }));
+    }
+  };
+
+  const handleNarcoticDogToggle = (dogId: string) => {
+    const exists = formData.narcotic_teams.find((t) => t.dog_id === dogId);
+    if (exists) {
+      setFormData((prev) => ({
+        ...prev,
+        narcotic_teams: prev.narcotic_teams.filter((t) => t.dog_id !== dogId),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        narcotic_teams: [...prev.narcotic_teams, { dog_id: dogId, handler_id: '' }],
+      }));
+    }
+  };
+
+  const handleExplosiveHandlerChange = (dogId: string, handlerId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      explosive_teams: prev.explosive_teams.map((t) =>
+        t.dog_id === dogId ? { ...t, handler_id: handlerId } : t
+      ),
+    }));
+  };
+
+  const handleNarcoticHandlerChange = (dogId: string, handlerId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      narcotic_teams: prev.narcotic_teams.map((t) =>
+        t.dog_id === dogId ? { ...t, handler_id: handlerId } : t
+      ),
+    }));
+  };
+
+  const handleItemToggle = (itemId: string) => {
+    const exists = formData.items_with_quantities.find((i) => i.item_id === itemId);
+    if (exists) {
+      setFormData((prev) => ({
+        ...prev,
+        items_with_quantities: prev.items_with_quantities.filter((i) => i.item_id !== itemId),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        items_with_quantities: [...prev.items_with_quantities, { item_id: itemId, quantity: 1 }],
+      }));
+    }
+  };
+
+  const handleItemQuantityChange = (itemId: string, quantity: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      items_with_quantities: prev.items_with_quantities.map((i) =>
+        i.item_id === itemId ? { ...i, quantity } : i
+      ),
+    }));
+  };
+
+  const handleStatusChange = (newStatus: typeof formData.status) => {
+    setManualStatusChange(true);
+    setFormData({ ...formData, status: newStatus });
   };
 
   const teamLeaders = handlers.filter((h) => h.team_leader);
@@ -178,9 +272,25 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
   const explosiveDogs = dogs.filter((d) => d.specialization === 'Explosive');
   const narcoticDogs = dogs.filter((d) => d.specialization === 'Narcotic');
 
+  const allHandlerOptions = [
+    ...handlers,
+    ...missionOfficers.map((officer) => ({
+      id: officer.id,
+      employee_id: officer.employee_id,
+      full_name: `${officer.full_name} (Officer)`,
+      email: officer.email,
+      phone: officer.phone,
+      picture_url: officer.picture_url,
+      team_leader: false,
+      driver: false,
+      created_at: officer.created_at,
+      updated_at: officer.updated_at,
+    })),
+  ];
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={mission ? 'Edit Mission' : 'Create Mission'}>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto px-1">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">Date</label>
@@ -224,20 +334,39 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">Explosive Dogs</label>
-          <div className="border border-stone-300 rounded-md p-3 max-h-40 overflow-y-auto bg-red-50/30">
+          <label className="block text-sm font-medium text-stone-700 mb-2">Explosive Dogs & Handlers</label>
+          <div className="border border-stone-300 rounded-md p-3 max-h-60 overflow-y-auto bg-red-50/30 space-y-2">
             {explosiveDogs.length > 0 ? (
-              explosiveDogs.map((dog) => (
-                <label key={dog.id} className="flex items-center gap-2 py-1.5 cursor-pointer hover:bg-red-50 px-2 rounded">
-                  <input
-                    type="checkbox"
-                    checked={formData.explosive_dog_ids.includes(dog.id)}
-                    onChange={() => handleMultiSelect('explosive_dog_ids', dog.id)}
-                    className="rounded border-stone-300"
-                  />
-                  <span className="text-sm text-stone-700">{dog.name}</span>
-                </label>
-              ))
+              explosiveDogs.map((dog) => {
+                const team = formData.explosive_teams.find((t) => t.dog_id === dog.id);
+                const isSelected = !!team;
+                return (
+                  <div key={dog.id} className="bg-white rounded-md p-2 border border-red-100">
+                    <label className="flex items-center gap-2 cursor-pointer mb-2">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleExplosiveDogToggle(dog.id)}
+                        className="rounded border-stone-300"
+                      />
+                      <span className="text-sm font-semibold text-stone-900">{dog.name}</span>
+                    </label>
+                    {isSelected && (
+                      <div className="ml-6">
+                        <Select
+                          value={team?.handler_id || ''}
+                          onChange={(e) => handleExplosiveHandlerChange(dog.id, e.target.value)}
+                          options={[
+                            { value: '', label: 'Select Handler' },
+                            ...allHandlerOptions.map((h) => ({ value: h.id, label: h.full_name })),
+                          ]}
+                          className="text-sm"
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             ) : (
               <p className="text-sm text-stone-500">No explosive dogs available</p>
             )}
@@ -245,40 +374,42 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">Narcotic Dogs</label>
-          <div className="border border-stone-300 rounded-md p-3 max-h-40 overflow-y-auto bg-green-50/30">
+          <label className="block text-sm font-medium text-stone-700 mb-2">Narcotic Dogs & Handlers</label>
+          <div className="border border-stone-300 rounded-md p-3 max-h-60 overflow-y-auto bg-green-50/30 space-y-2">
             {narcoticDogs.length > 0 ? (
-              narcoticDogs.map((dog) => (
-                <label key={dog.id} className="flex items-center gap-2 py-1.5 cursor-pointer hover:bg-green-50 px-2 rounded">
-                  <input
-                    type="checkbox"
-                    checked={formData.narcotic_dog_ids.includes(dog.id)}
-                    onChange={() => handleMultiSelect('narcotic_dog_ids', dog.id)}
-                    className="rounded border-stone-300"
-                  />
-                  <span className="text-sm text-stone-700">{dog.name}</span>
-                </label>
-              ))
+              narcoticDogs.map((dog) => {
+                const team = formData.narcotic_teams.find((t) => t.dog_id === dog.id);
+                const isSelected = !!team;
+                return (
+                  <div key={dog.id} className="bg-white rounded-md p-2 border border-green-100">
+                    <label className="flex items-center gap-2 cursor-pointer mb-2">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleNarcoticDogToggle(dog.id)}
+                        className="rounded border-stone-300"
+                      />
+                      <span className="text-sm font-semibold text-stone-900">{dog.name}</span>
+                    </label>
+                    {isSelected && (
+                      <div className="ml-6">
+                        <Select
+                          value={team?.handler_id || ''}
+                          onChange={(e) => handleNarcoticHandlerChange(dog.id, e.target.value)}
+                          options={[
+                            { value: '', label: 'Select Handler' },
+                            ...allHandlerOptions.map((h) => ({ value: h.id, label: h.full_name })),
+                          ]}
+                          className="text-sm"
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             ) : (
               <p className="text-sm text-stone-500">No narcotic dogs available</p>
             )}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">Handlers (Auto-populated)</label>
-          <div className="border border-stone-300 rounded-md p-3 max-h-40 overflow-y-auto">
-            {handlers.map((handler) => (
-              <label key={handler.id} className="flex items-center gap-2 py-1.5 cursor-pointer hover:bg-stone-50 px-2 rounded">
-                <input
-                  type="checkbox"
-                  checked={formData.handler_ids.includes(handler.id)}
-                  onChange={() => handleMultiSelect('handler_ids', handler.id)}
-                  className="rounded border-stone-300"
-                />
-                <span className="text-sm text-stone-700">{handler.full_name}</span>
-              </label>
-            ))}
           </div>
         </div>
 
@@ -355,32 +486,72 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">Items Searched</label>
-              <div className="border border-stone-300 rounded-md p-3 max-h-40 overflow-y-auto">
-                {items.map((item) => (
-                  <label key={item.id} className="flex items-center gap-2 py-1.5 cursor-pointer hover:bg-stone-50 px-2 rounded">
-                    <input
-                      type="checkbox"
-                      checked={formData.items_searched_ids.includes(item.id)}
-                      onChange={() => handleMultiSelect('items_searched_ids', item.id)}
-                      className="rounded border-stone-300"
-                    />
-                    <span className="text-sm text-stone-700">{item.name}</span>
-                  </label>
-                ))}
+              <label className="block text-sm font-medium text-stone-700 mb-2">Items Searched with Quantities</label>
+              <div className="border border-stone-300 rounded-md p-3 max-h-60 overflow-y-auto space-y-2">
+                {items.map((item) => {
+                  const itemWithQty = formData.items_with_quantities.find((i) => i.item_id === item.id);
+                  const isSelected = !!itemWithQty;
+                  return (
+                    <div key={item.id} className="bg-stone-50 rounded-md p-2">
+                      <label className="flex items-center gap-2 cursor-pointer mb-2">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleItemToggle(item.id)}
+                          className="rounded border-stone-300"
+                        />
+                        <span className="text-sm text-stone-700">{item.name}</span>
+                      </label>
+                      {isSelected && (
+                        <div className="ml-6">
+                          <Input
+                            type="number"
+                            min="1"
+                            value={itemWithQty?.quantity || 1}
+                            onChange={(e) => handleItemQuantityChange(item.id, parseInt(e.target.value) || 1)}
+                            placeholder="Quantity"
+                            className="text-sm"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.indication}
+                  onChange={(e) => setFormData({ ...formData, indication: e.target.checked })}
+                  className="rounded border-stone-300"
+                />
+                <span className="text-sm font-medium text-stone-700">Indication</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.confirmed_indication}
+                  onChange={(e) => setFormData({ ...formData, confirmed_indication: e.target.checked })}
+                  className="rounded border-stone-300"
+                />
+                <span className="text-sm font-medium text-stone-700">Confirmed Indication</span>
+              </label>
             </div>
           </>
         )}
 
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">Status</label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
             {MISSION_STATUS_OPTIONS.map((status) => (
               <button
                 key={status}
                 type="button"
-                onClick={() => setFormData({ ...formData, status })}
+                onClick={() => handleStatusChange(status)}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   formData.status === status
                     ? status === 'Active'
@@ -389,7 +560,9 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
                       ? 'bg-yellow-600 text-white'
                       : status === 'Emergency'
                       ? 'bg-red-600 text-white'
-                      : 'bg-gray-600 text-white'
+                      : status === 'Cancelled'
+                      ? 'bg-gray-600 text-white'
+                      : 'bg-blue-600 text-white'
                     : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                 }`}
               >
@@ -411,7 +584,7 @@ export function MissionForm({ isOpen, onClose, onSave, mission }: MissionFormPro
           />
         </div>
 
-        <div className="flex gap-3 pt-4 border-t">
+        <div className="flex gap-3 pt-4 border-t sticky bottom-0 bg-white">
           <Button type="button" variant="outline" onClick={onClose} className="flex-1">
             Cancel
           </Button>

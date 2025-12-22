@@ -1,4 +1,4 @@
-import { MapPin, Clock, User, Users, Edit, Trash2, MessageSquare } from 'lucide-react';
+import { MapPin, Clock, User, Users, Edit, Trash2, MessageSquare, CheckCircle, AlertCircle, Package } from 'lucide-react';
 import { Card } from '../UI/Card';
 import { Button } from '../UI/Button';
 import { MissionWithDetails } from '../../types/database';
@@ -20,25 +20,57 @@ export function MissionCard({ mission, onEdit, onDelete }: MissionCardProps) {
         return 'bg-red-500';
       case 'Cancelled':
         return 'bg-gray-400';
+      case 'Completed':
+        return 'bg-blue-500';
       default:
         return 'bg-green-500';
     }
   };
 
-  const explosiveDogs = mission.explosive_dogs || [];
-  const narcoticDogs = mission.narcotic_dogs || [];
-  const handlers = mission.handlers || [];
+  const getStatusTextColor = (status: string) => {
+    switch (status) {
+      case 'Active':
+        return 'text-green-700';
+      case 'On Standby':
+        return 'text-yellow-700';
+      case 'Emergency':
+        return 'text-red-700';
+      case 'Cancelled':
+        return 'text-gray-700';
+      case 'Completed':
+        return 'text-blue-700';
+      default:
+        return 'text-green-700';
+    }
+  };
 
-  const getHandlerForDog = (dogId: string) => {
-    return handlers.find((h) => mission.handler_ids.includes(h.id));
+  const explosiveTeams = mission.explosive_teams || [];
+  const narcoticTeams = mission.narcotic_teams || [];
+  const itemsWithQuantities = mission.items_with_quantities || [];
+
+  const getHandlerForTeam = (handlerId: string) => {
+    return mission.handlers?.find((h) => h.id === handlerId);
+  };
+
+  const getDogById = (dogId: string) => {
+    return [...(mission.explosive_dogs || []), ...(mission.narcotic_dogs || [])].find((d) => d.id === dogId);
+  };
+
+  const getItemById = (itemId: string) => {
+    return mission.items_searched?.find((i) => i.id === itemId);
   };
 
   return (
     <Card className="relative overflow-hidden hover:shadow-lg transition-shadow">
-      <div className={`absolute top-3 right-3 w-3 h-3 rounded-full ${getStatusColor(mission.status)} shadow-lg`} />
+      <div className="absolute top-3 right-3 flex items-center gap-2">
+        <div className={`w-3 h-3 rounded-full ${getStatusColor(mission.status)} shadow-lg`} />
+        <span className={`text-xs font-semibold ${getStatusTextColor(mission.status)}`}>
+          {mission.status}
+        </span>
+      </div>
 
       <div className="p-5 space-y-4">
-        <div className="pr-6">
+        <div className="pr-24">
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1">
               {mission.mission_location && (
@@ -98,22 +130,21 @@ export function MissionCard({ mission, onEdit, onDelete }: MissionCardProps) {
             )}
           </div>
 
-          {explosiveDogs.length > 0 && (
+          {explosiveTeams.length > 0 && (
             <div className="p-3 bg-gradient-to-br from-red-50 to-pink-50 rounded-lg border border-red-100">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-red-500" />
                 <h4 className="text-xs font-bold text-red-900 uppercase tracking-wide">Explosive Teams</h4>
               </div>
               <div className="space-y-2">
-                {explosiveDogs.map((dog) => {
-                  const handler = handlers.find((h) => {
-                    return mission.handler_ids.includes(h.id);
-                  });
+                {explosiveTeams.map((team) => {
+                  const dog = getDogById(team.dog_id);
+                  const handler = getHandlerForTeam(team.handler_id);
                   return (
-                    <div key={dog.id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1.5">
+                    <div key={team.dog_id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1.5">
                       <div className="flex items-center gap-2">
                         <Users size={14} className="text-red-700" />
-                        <span className="text-sm font-semibold text-red-900">{dog.name}</span>
+                        <span className="text-sm font-semibold text-red-900">{dog?.name}</span>
                       </div>
                       {handler && (
                         <span className="text-xs text-red-700">{handler.full_name}</span>
@@ -125,22 +156,21 @@ export function MissionCard({ mission, onEdit, onDelete }: MissionCardProps) {
             </div>
           )}
 
-          {narcoticDogs.length > 0 && (
+          {narcoticTeams.length > 0 && (
             <div className="p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-100">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-green-500" />
                 <h4 className="text-xs font-bold text-green-900 uppercase tracking-wide">Narcotics Teams</h4>
               </div>
               <div className="space-y-2">
-                {narcoticDogs.map((dog) => {
-                  const handler = handlers.find((h) => {
-                    return mission.handler_ids.includes(h.id);
-                  });
+                {narcoticTeams.map((team) => {
+                  const dog = getDogById(team.dog_id);
+                  const handler = getHandlerForTeam(team.handler_id);
                   return (
-                    <div key={dog.id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1.5">
+                    <div key={team.dog_id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1.5">
                       <div className="flex items-center gap-2">
                         <Users size={14} className="text-green-700" />
-                        <span className="text-sm font-semibold text-green-900">{dog.name}</span>
+                        <span className="text-sm font-semibold text-green-900">{dog?.name}</span>
                       </div>
                       {handler && (
                         <span className="text-xs text-green-700">{handler.full_name}</span>
@@ -149,6 +179,47 @@ export function MissionCard({ mission, onEdit, onDelete }: MissionCardProps) {
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {itemsWithQuantities.length > 0 && (
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="flex items-center gap-2 mb-2">
+                <Package size={14} className="text-slate-700" />
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide">Items Searched</h4>
+              </div>
+              <div className="space-y-1.5">
+                {itemsWithQuantities.map((itemWithQty) => {
+                  const item = getItemById(itemWithQty.item_id);
+                  return (
+                    <div key={itemWithQty.item_id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1">
+                      <span className="text-sm text-slate-700">{item?.name}</span>
+                      <span className="text-sm font-semibold text-slate-900">{itemWithQty.quantity}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {(mission.indication || mission.confirmed_indication) && (
+            <div className="flex gap-2">
+              {mission.indication && (
+                <div className="flex-1 p-2 bg-orange-50 rounded-lg border border-orange-200">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle size={14} className="text-orange-700" />
+                    <span className="text-xs font-semibold text-orange-900">Indication</span>
+                  </div>
+                </div>
+              )}
+              {mission.confirmed_indication && (
+                <div className="flex-1 p-2 bg-emerald-50 rounded-lg border border-emerald-200">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle size={14} className="text-emerald-700" />
+                    <span className="text-xs font-semibold text-emerald-900">Confirmed</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
