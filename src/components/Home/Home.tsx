@@ -20,7 +20,7 @@ export function Home({ onNavigate }: HomeProps) {
               K9 Operations Center
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-white/90 drop-shadow-md max-w-2xl">
-              Professional canine unit management system for customs and border protection
+              Professional canine unit management system for customs and border security
             </p>
           </div>
         </div>
