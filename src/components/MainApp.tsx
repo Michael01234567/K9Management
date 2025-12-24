@@ -1,23 +1,25 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Navbar } from './Layout/Navbar';
 import { Sidebar } from './Layout/Sidebar';
 import { BottomNav } from './Layout/BottomNav';
-import { Dashboard } from './Dashboard/Dashboard';
-import { DogTable } from './Dogs/DogTable';
 import { DogDetailsModal } from './Dogs/DogDetailsModal';
 import { DogForm } from './Dogs/DogForm';
-import { HandlersTable } from './Handlers/HandlersTable';
 import { HandlerForm } from './Handlers/HandlerForm';
-import { MissionOfficersTable } from './MissionOfficers/MissionOfficersTable';
 import { MissionOfficerForm } from './MissionOfficers/MissionOfficerForm';
-import { VetRecordsTable } from './Vet/VetRecordsTable';
 import { VetRecordForm } from './Vet/VetRecordForm';
-import { FitnessStatusTable } from './Fitness/FitnessStatusTable';
-import { Missions } from './Missions/Missions';
-import Locations from './Locations/Locations';
-import MissionLocations from './MissionLocations/MissionLocations';
+import { AppLoader } from './UI/AppLoader';
 import { Dog, Handler, MissionOfficer, VetRecord } from '../types/database';
 import { supabase } from '../lib/supabase';
+
+const Dashboard = lazy(() => import('./Dashboard/Dashboard').then(m => ({ default: m.Dashboard })));
+const DogTable = lazy(() => import('./Dogs/DogTable').then(m => ({ default: m.DogTable })));
+const HandlersTable = lazy(() => import('./Handlers/HandlersTable').then(m => ({ default: m.HandlersTable })));
+const MissionOfficersTable = lazy(() => import('./MissionOfficers/MissionOfficersTable').then(m => ({ default: m.MissionOfficersTable })));
+const VetRecordsTable = lazy(() => import('./Vet/VetRecordsTable').then(m => ({ default: m.VetRecordsTable })));
+const FitnessStatusTable = lazy(() => import('./Fitness/FitnessStatusTable').then(m => ({ default: m.FitnessStatusTable })));
+const Missions = lazy(() => import('./Missions/Missions').then(m => ({ default: m.Missions })));
+const Locations = lazy(() => import('./Locations/Locations'));
+const MissionLocations = lazy(() => import('./MissionLocations/MissionLocations'));
 
 interface DogWithHandlers extends Dog {
   handlers?: Handler[];
@@ -132,51 +134,53 @@ export function MainApp() {
           onClose={() => setSidebarOpen(false)}
         />
         <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
-          {activeView === 'dashboard' && <Dashboard onNavigate={setActiveView} />}
+          <Suspense fallback={<AppLoader />}>
+            {activeView === 'dashboard' && <Dashboard onNavigate={setActiveView} />}
 
-          {activeView === 'dogs' && (
-            <DogTable
-              onDogClick={handleDogClick}
-              onAddClick={handleAddDog}
-              refreshTrigger={refreshTrigger}
-              onReturn={() => setActiveView('dashboard')}
-            />
-          )}
+            {activeView === 'dogs' && (
+              <DogTable
+                onDogClick={handleDogClick}
+                onAddClick={handleAddDog}
+                refreshTrigger={refreshTrigger}
+                onReturn={() => setActiveView('dashboard')}
+              />
+            )}
 
-          {activeView === 'handlers' && (
-            <HandlersTable
-              onAddClick={handleAddHandler}
-              onEditClick={handleEditHandler}
-              refreshTrigger={refreshTrigger}
-              onReturn={() => setActiveView('dashboard')}
-            />
-          )}
+            {activeView === 'handlers' && (
+              <HandlersTable
+                onAddClick={handleAddHandler}
+                onEditClick={handleEditHandler}
+                refreshTrigger={refreshTrigger}
+                onReturn={() => setActiveView('dashboard')}
+              />
+            )}
 
-          {activeView === 'mission-officers' && (
-            <MissionOfficersTable
-              onAddClick={handleAddMissionOfficer}
-              onEditClick={handleEditMissionOfficer}
-              refreshTrigger={refreshTrigger}
-              onReturn={() => setActiveView('dashboard')}
-            />
-          )}
+            {activeView === 'mission-officers' && (
+              <MissionOfficersTable
+                onAddClick={handleAddMissionOfficer}
+                onEditClick={handleEditMissionOfficer}
+                refreshTrigger={refreshTrigger}
+                onReturn={() => setActiveView('dashboard')}
+              />
+            )}
 
-          {activeView === 'vet' && (
-            <VetRecordsTable
-              onAddClick={handleAddVetRecord}
-              onEditClick={handleEditVetRecord}
-              refreshTrigger={refreshTrigger}
-              onReturn={() => setActiveView('dashboard')}
-            />
-          )}
+            {activeView === 'vet' && (
+              <VetRecordsTable
+                onAddClick={handleAddVetRecord}
+                onEditClick={handleEditVetRecord}
+                refreshTrigger={refreshTrigger}
+                onReturn={() => setActiveView('dashboard')}
+              />
+            )}
 
-          {activeView === 'fitness' && <FitnessStatusTable onReturn={() => setActiveView('dashboard')} />}
+            {activeView === 'fitness' && <FitnessStatusTable onReturn={() => setActiveView('dashboard')} />}
 
-          {activeView === 'missions' && <Missions />}
+            {activeView === 'missions' && <Missions />}
 
-          {activeView === 'locations' && <Locations />}
+            {activeView === 'locations' && <Locations />}
 
-          {activeView === 'mission-locations' && <MissionLocations />}
+            {activeView === 'mission-locations' && <MissionLocations />}
+          </Suspense>
         </main>
       </div>
 
