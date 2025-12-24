@@ -6,6 +6,7 @@ import { Select } from '../UI/Select';
 import { Textarea } from '../UI/Textarea';
 import { supabase } from '../../lib/supabase';
 import { Dog, Handler, MissionOfficer, Location, TRAINING_LEVELS, SEX_OPTIONS, SPECIALIZATION_TYPES } from '../../types/database';
+import { validateHandlerOfficerCombination, getHandlerInfo, getOfficerInfo } from '../../utils/assignmentValidation';
 
 interface DogFormProps {
   isOpen: boolean;
@@ -19,8 +20,9 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
   const [handlers, setHandlers] = useState<Handler[]>([]);
   const [officers, setOfficers] = useState<MissionOfficer[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedHandlers, setSelectedHandlers] = useState<string[]>([]);
-  const [selectedOfficers, setSelectedOfficers] = useState<string[]>([]);
+  const [selectedHandler, setSelectedHandler] = useState<string>('');
+  const [selectedOfficer, setSelectedOfficer] = useState<string>('');
+  const [validationError, setValidationError] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     breed: '',
@@ -72,9 +74,10 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
         weight_kg: '',
         note: '',
       });
-      setSelectedHandlers([]);
-      setSelectedOfficers([]);
+      setSelectedHandler('');
+      setSelectedOfficer('');
     }
+    setValidationError('');
   }, [dog, isOpen]);
 
   const loadHandlers = async () => {
@@ -93,13 +96,13 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
   };
 
   const loadDogHandlers = async (dogId: string) => {
-    const { data } = await supabase.from('dog_handler').select('handler_id').eq('dog_id', dogId);
-    setSelectedHandlers(data?.map((dh) => dh.handler_id) || []);
+    const { data } = await supabase.from('dog_handler').select('handler_id').eq('dog_id', dogId).maybeSingle();
+    setSelectedHandler(data?.handler_id || '');
   };
 
   const loadDogOfficers = async (dogId: string) => {
-    const { data } = await supabase.from('dog_officer').select('officer_id').eq('dog_id', dogId);
-    setSelectedOfficers(data?.map((dh) => dh.officer_id) || []);
+    const { data } = await supabase.from('dog_officer').select('officer_id').eq('dog_id', dogId).maybeSingle();
+    setSelectedOfficer(data?.officer_id || '');
   };
 
   const getNextAvailableName = async (baseName: string, excludeId?: string): Promise<string> => {
@@ -142,8 +145,22 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setValidationError('');
 
     try {
+      if (selectedHandler && selectedOfficer) {
+        const validation = await validateHandlerOfficerCombination(
+          selectedHandler,
+          selectedOfficer,
+          dog?.id
+        );
+        if (!validation.isValid) {
+          setValidationError(validation.error || 'Validation failed');
+          setLoading(false);
+          return;
+        }
+      }
+
       let finalName = formData.name.trim();
 
       if (dog) {
@@ -167,24 +184,27 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
         await supabase.from('dog_handler').delete().eq('dog_id', dog.id);
         await supabase.from('dog_officer').delete().eq('dog_id', dog.id);
 
-        if (selectedHandlers.length > 0) {
-          const { error: handlerError } = await supabase.from('dog_handler').insert(
-            selectedHandlers.map((handlerId) => ({
-              dog_id: dog.id,
-              handler_id: handlerId,
-            }))
-          );
+        if (selectedHandler) {
+          const { error: handlerError } = await supabase.from('dog_handler').insert({
+            dog_id: dog.id,
+            handler_id: selectedHandler,
+          });
           if (handlerError) throw handlerError;
         }
 
-        if (selectedOfficers.length > 0) {
-          const { error: officerError } = await supabase.from('dog_officer').insert(
-            selectedOfficers.map((officerId) => ({
-              dog_id: dog.id,
-              officer_id: officerId,
-            }))
-          );
-          if (officerError) throw officerError;
+        if (selectedOfficer) {
+          const { error: officerError } = await supabase.from('dog_officer').insert({
+            dog_id: dog.id,
+            officer_id: selectedOfficer,
+          });
+          if (officerError) {
+            if (officerError.message.includes('Assignment Rule Violated')) {
+              setValidationError(officerError.message);
+              setLoading(false);
+              return;
+            }
+            throw officerError;
+          }
         }
       } else {
         const { data: newDog, error } = await supabase
@@ -194,47 +214,76 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
           .single();
         if (error) throw error;
 
-        if (selectedHandlers.length > 0 && newDog) {
-          const { error: handlerError } = await supabase.from('dog_handler').insert(
-            selectedHandlers.map((handlerId) => ({
-              dog_id: newDog.id,
-              handler_id: handlerId,
-            }))
-          );
+        if (selectedHandler && newDog) {
+          const { error: handlerError } = await supabase.from('dog_handler').insert({
+            dog_id: newDog.id,
+            handler_id: selectedHandler,
+          });
           if (handlerError) throw handlerError;
         }
 
-        if (selectedOfficers.length > 0 && newDog) {
-          const { error: officerError } = await supabase.from('dog_officer').insert(
-            selectedOfficers.map((officerId) => ({
-              dog_id: newDog.id,
-              officer_id: officerId,
-            }))
-          );
-          if (officerError) throw officerError;
+        if (selectedOfficer && newDog) {
+          const { error: officerError } = await supabase.from('dog_officer').insert({
+            dog_id: newDog.id,
+            officer_id: selectedOfficer,
+          });
+          if (officerError) {
+            if (officerError.message.includes('Assignment Rule Violated')) {
+              setValidationError(officerError.message);
+              setLoading(false);
+              return;
+            }
+            throw officerError;
+          }
         }
       }
 
       onSave();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving dog:', error);
-      alert('Error saving dog. Please try again.');
+      if (error.message && error.message.includes('Assignment Rule Violated')) {
+        setValidationError(error.message);
+      } else {
+        alert('Error saving dog. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleHandler = (handlerId: string) => {
-    setSelectedHandlers((prev) =>
-      prev.includes(handlerId) ? prev.filter((id) => id !== handlerId) : [...prev, handlerId]
-    );
+  const handleHandlerChange = async (handlerId: string) => {
+    setSelectedHandler(handlerId);
+    setValidationError('');
+
+    if (handlerId && selectedOfficer) {
+      const handlerDogs = await getHandlerInfo(handlerId);
+      const hasOfficerAssignedDog = handlerDogs.some(
+        (hd: any) => hd.dogs?.dog_officer?.length > 0 && hd.dog_id !== dog?.id
+      );
+      if (hasOfficerAssignedDog) {
+        setValidationError(
+          'This handler already has another dog with a mission officer assigned. Please remove the officer assignment from the other dog first, or choose a different handler.'
+        );
+      }
+    }
   };
 
-  const toggleOfficer = (officerId: string) => {
-    setSelectedOfficers((prev) =>
-      prev.includes(officerId) ? prev.filter((id) => id !== officerId) : [...prev, officerId]
-    );
+  const handleOfficerChange = async (officerId: string) => {
+    setSelectedOfficer(officerId);
+    setValidationError('');
+
+    if (officerId && selectedHandler) {
+      const handlerDogs = await getHandlerInfo(selectedHandler);
+      const hasOfficerAssignedDog = handlerDogs.some(
+        (hd: any) => hd.dogs?.dog_officer?.length > 0 && hd.dog_id !== dog?.id
+      );
+      if (hasOfficerAssignedDog) {
+        setValidationError(
+          'This handler already has another dog with a mission officer assigned. Please remove the officer assignment from the other dog first, or choose a different handler.'
+        );
+      }
+    }
   };
 
   return (
@@ -313,18 +362,37 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
           />
         </div>
 
+        {validationError && (
+          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded-lg">
+            <p className="text-sm font-medium">{validationError}</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">Assign Handlers</label>
+            <label className="block text-sm font-medium text-stone-700 mb-2">
+              Assign Handler <span className="text-stone-500 text-xs">(max 1)</span>
+            </label>
             <div className="border border-stone-300 rounded-lg p-4 max-h-48 overflow-y-auto space-y-2">
+              <label className="flex items-center space-x-3 cursor-pointer hover:bg-stone-50 p-2 rounded">
+                <input
+                  type="radio"
+                  name="handler"
+                  checked={selectedHandler === ''}
+                  onChange={() => handleHandlerChange('')}
+                  className="w-4 h-4 text-amber-900 border-stone-300 focus:ring-amber-500"
+                />
+                <span className="text-stone-500 italic">None</span>
+              </label>
               {handlers.length > 0 ? (
                 handlers.map((handler) => (
                   <label key={handler.id} className="flex items-center space-x-3 cursor-pointer hover:bg-stone-50 p-2 rounded">
                     <input
-                      type="checkbox"
-                      checked={selectedHandlers.includes(handler.id)}
-                      onChange={() => toggleHandler(handler.id)}
-                      className="w-4 h-4 text-amber-900 border-stone-300 rounded focus:ring-amber-500"
+                      type="radio"
+                      name="handler"
+                      checked={selectedHandler === handler.id}
+                      onChange={() => handleHandlerChange(handler.id)}
+                      className="w-4 h-4 text-amber-900 border-stone-300 focus:ring-amber-500"
                     />
                     <span className="text-stone-900">{handler.full_name}</span>
                   </label>
@@ -336,16 +404,29 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">Assign Mission Officers</label>
+            <label className="block text-sm font-medium text-stone-700 mb-2">
+              Assign Mission Officer <span className="text-stone-500 text-xs">(max 1)</span>
+            </label>
             <div className="border border-stone-300 rounded-lg p-4 max-h-48 overflow-y-auto space-y-2">
+              <label className="flex items-center space-x-3 cursor-pointer hover:bg-stone-50 p-2 rounded">
+                <input
+                  type="radio"
+                  name="officer"
+                  checked={selectedOfficer === ''}
+                  onChange={() => handleOfficerChange('')}
+                  className="w-4 h-4 text-amber-900 border-stone-300 focus:ring-amber-500"
+                />
+                <span className="text-stone-500 italic">None</span>
+              </label>
               {officers.length > 0 ? (
                 officers.map((officer) => (
                   <label key={officer.id} className="flex items-center space-x-3 cursor-pointer hover:bg-stone-50 p-2 rounded">
                     <input
-                      type="checkbox"
-                      checked={selectedOfficers.includes(officer.id)}
-                      onChange={() => toggleOfficer(officer.id)}
-                      className="w-4 h-4 text-amber-900 border-stone-300 rounded focus:ring-amber-500"
+                      type="radio"
+                      name="officer"
+                      checked={selectedOfficer === officer.id}
+                      onChange={() => handleOfficerChange(officer.id)}
+                      className="w-4 h-4 text-amber-900 border-stone-300 focus:ring-amber-500"
                     />
                     <span className="text-stone-900">{officer.full_name}</span>
                   </label>
@@ -369,7 +450,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
           <Button type="button" variant="secondary" onClick={onClose} fullWidth className="sm:w-auto">
             Cancel
           </Button>
-          <Button type="submit" disabled={loading} fullWidth className="sm:w-auto">
+          <Button type="submit" disabled={loading || !!validationError} fullWidth className="sm:w-auto">
             {loading ? 'Saving...' : dog ? 'Update Dog' : 'Add Dog'}
           </Button>
         </div>
