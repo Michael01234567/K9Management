@@ -28,7 +28,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-base md:text-xl font-bold truncate">Michael K9 Management</h1>
-              <p className="text-xs text-amber-100 hidden sm:block">Teams, K9 Missions & Care</p>
+              <p className="text-xs text-amber-100 hidden sm:block">Teams, Missions & Care</p>
             </div>
           </div>
           <div className="flex items-center space-x-2 md:space-x-4 flex-shrink-0">
