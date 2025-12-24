@@ -2,6 +2,7 @@ import { useState, lazy, Suspense } from 'react';
 import { Navbar } from './Layout/Navbar';
 import { Sidebar } from './Layout/Sidebar';
 import { BottomNav } from './Layout/BottomNav';
+import { Home } from './Home/Home';
 import { DogDetailsModal } from './Dogs/DogDetailsModal';
 import { DogForm } from './Dogs/DogForm';
 import { HandlerForm } from './Handlers/HandlerForm';
@@ -30,7 +31,7 @@ interface VetRecordWithDog extends VetRecord {
 }
 
 export function MainApp() {
-  const [activeView, setActiveView] = useState('dashboard');
+  const [activeView, setActiveView] = useState('home');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -123,18 +124,24 @@ export function MainApp() {
     handleRefresh();
   };
 
+  const showSidebar = activeView !== 'home';
+  const showNavbar = activeView !== 'home';
+
   return (
     <div className="min-h-screen bg-stone-50">
-      <Navbar onMenuClick={() => setSidebarOpen(true)} />
+      {showNavbar && <Navbar onMenuClick={() => setSidebarOpen(true)} activeView={activeView} />}
       <div className="flex">
-        <Sidebar
-          activeView={activeView}
-          onNavigate={setActiveView}
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-        />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 w-full">
+        {showSidebar && (
+          <Sidebar
+            activeView={activeView}
+            onNavigate={setActiveView}
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+          />
+        )}
+        <main className={`flex-1 w-full ${activeView === 'home' ? 'p-4 md:p-8 lg:p-12' : 'p-4 md:p-6 lg:p-8'}`}>
           <Suspense fallback={<AppLoader />}>
+            {activeView === 'home' && <Home onNavigate={setActiveView} />}
             {activeView === 'dashboard' && <Dashboard onNavigate={setActiveView} />}
 
             {activeView === 'dogs' && (
@@ -184,7 +191,7 @@ export function MainApp() {
         </main>
       </div>
 
-      <BottomNav activeView={activeView} onNavigate={setActiveView} />
+      {activeView !== 'home' && <BottomNav activeView={activeView} onNavigate={setActiveView} />}
 
       <DogDetailsModal
         isOpen={showDogDetails}

@@ -4,13 +4,15 @@ import { Button } from '../UI/Button';
 
 interface NavbarProps {
   onMenuClick: () => void;
+  activeView?: string;
 }
 
-export function Navbar({ onMenuClick }: NavbarProps) {
+export function Navbar({ onMenuClick, activeView }: NavbarProps) {
   const { user, signOut } = useAuth();
+  const isMissionsView = activeView === 'missions';
 
   return (
-    <nav className="bg-amber-900 text-white shadow-lg">
+    <nav className={`bg-amber-900 text-white shadow-lg ${isMissionsView ? 'hidden md:block' : ''}`}>
       <div className="px-4 py-3 md:py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0">
