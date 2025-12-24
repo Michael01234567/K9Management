@@ -41,7 +41,7 @@ export function Home({ onNavigate }: HomeProps) {
           </div>
         </Card>
 
-        <Card hover onClick={() => onNavigate('missions')} className="bg-amber-800 border-amber-900">
+        <Card hover onClick={() => onNavigate('missions')} className="bg-amber-800 border-amber-900 shadow-lg hover:shadow-2xl">
           <div className="p-8 md:p-10 lg:p-12 text-center group cursor-pointer">
             <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-white/20 mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
               <Target size={40} className="text-white md:w-12 md:h-12" />
