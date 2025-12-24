@@ -1,4 +1,4 @@
-import { LayoutDashboard, Dog, Users, Calendar, Activity, MapPin, Target, Shield, X } from 'lucide-react';
+import { LayoutDashboard, Dog, Users, Calendar, Activity, MapPin, Target, Shield, X, Home } from 'lucide-react';
 
 interface SidebarProps {
   activeView: string;
@@ -9,6 +9,7 @@ interface SidebarProps {
 
 export function Sidebar({ activeView, onNavigate, isOpen, onClose }: SidebarProps) {
   const menuItems = [
+    { id: 'home', label: 'Home', icon: Home },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'missions', label: 'Missions', icon: Target },
     { id: 'dogs', label: 'Dogs', icon: Dog },

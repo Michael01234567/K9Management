@@ -129,7 +129,13 @@ export function MainApp() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {showNavbar && <Navbar onMenuClick={() => setSidebarOpen(true)} activeView={activeView} />}
+      {showNavbar && (
+        <Navbar
+          onMenuClick={() => setSidebarOpen(true)}
+          onHomeClick={() => setActiveView('home')}
+          activeView={activeView}
+        />
+      )}
       <div className="flex">
         {showSidebar && (
           <Sidebar

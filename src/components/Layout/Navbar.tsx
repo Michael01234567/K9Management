@@ -1,13 +1,14 @@
-import { LogOut, Menu } from 'lucide-react';
+import { LogOut, Menu, Home } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../UI/Button';
 
 interface NavbarProps {
   onMenuClick: () => void;
+  onHomeClick?: () => void;
   activeView?: string;
 }
 
-export function Navbar({ onMenuClick, activeView }: NavbarProps) {
+export function Navbar({ onMenuClick, onHomeClick, activeView }: NavbarProps) {
   const { user, signOut } = useAuth();
   const isMissionsView = activeView === 'missions';
 
@@ -23,15 +24,26 @@ export function Navbar({ onMenuClick, activeView }: NavbarProps) {
             >
               <Menu size={24} />
             </button>
+            <button
+              onClick={onHomeClick}
+              className="hidden md:flex p-2 hover:bg-amber-800 rounded-lg transition-colors"
+              aria-label="Go to home"
+            >
+              <Home size={24} />
+            </button>
             <div className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0">
               <svg className="w-5 h-5 md:w-6 md:h-6 text-amber-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
             </div>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-base md:text-xl font-bold truncate">Michael K9 Management</h1>
-              <p className="text-xs text-amber-100 hidden sm:block">Teams, Missions & Care</p>
-            </div>
+            <button onClick={onHomeClick} className="min-w-0 flex-1 text-left group">
+              <h1 className="text-base md:text-xl font-bold truncate group-hover:text-amber-100 transition-colors">
+                Michael K9 Management
+              </h1>
+              <p className="text-xs text-amber-100 hidden sm:block group-hover:text-white transition-colors">
+                Teams, Missions & Care
+              </p>
+            </button>
           </div>
           <div className="flex items-center space-x-2 md:space-x-4 flex-shrink-0">
             <span className="text-xs md:text-sm text-amber-100 hidden md:inline truncate max-w-[150px]">{user?.email}</span>

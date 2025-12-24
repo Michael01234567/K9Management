@@ -1,4 +1,4 @@
-import { LayoutDashboard, Dog, Target, Users, Activity } from 'lucide-react';
+import { LayoutDashboard, Dog, Target, Users, Activity, Home } from 'lucide-react';
 
 interface BottomNavProps {
   activeView: string;
@@ -9,6 +9,7 @@ export function BottomNav({ activeView, onNavigate }: BottomNavProps) {
   const isMissionsView = activeView === 'missions';
 
   const inventoryNavItems = [
+    { id: 'home', label: 'Home', icon: Home },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'dogs', label: 'Dogs', icon: Dog },
     { id: 'handlers', label: 'Handlers', icon: Users },
@@ -16,6 +17,7 @@ export function BottomNav({ activeView, onNavigate }: BottomNavProps) {
   ];
 
   const missionsNavItems = [
+    { id: 'home', label: 'Home', icon: Home },
     { id: 'missions', label: 'Missions', icon: Target },
   ];
 
