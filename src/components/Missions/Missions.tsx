@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Plus, Calendar, Filter, Download } from 'lucide-react';
+import { Plus, Calendar, Download } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
 import { MissionCard } from './MissionCard';
 import { MissionForm } from './MissionForm';
 import { MissionDetailsModal } from './MissionDetailsModal';
 import { supabase } from '../../lib/supabase';
-import { MissionWithDetails, Dog, Handler, MissionOfficer, Item } from '../../types/database';
+import { MissionWithDetails } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
 
 export function Missions() {

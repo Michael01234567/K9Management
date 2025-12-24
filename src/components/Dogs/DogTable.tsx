@@ -156,8 +156,8 @@ export function DogTable({ onDogClick, onAddClick, refreshTrigger, onReturn }: D
     return breeds;
   };
 
-  const getUniqueSpecializations = () => {
-    const specializations = [...new Set(dogs.map((dog) => dog.specialization).filter(Boolean))].sort();
+  const getUniqueSpecializations = (): string[] => {
+    const specializations = [...new Set(dogs.map((dog) => dog.specialization).filter((spec): spec is string => !!spec))].sort();
     return specializations;
   };
 

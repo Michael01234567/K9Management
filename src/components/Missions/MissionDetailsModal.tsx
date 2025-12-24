@@ -1,4 +1,4 @@
-import { MapPin, Clock, User, Users, Edit, Trash2, MessageSquare, CheckCircle, AlertCircle, Package, Calendar, X } from 'lucide-react';
+import { MapPin, Clock, User, Users, Edit, Trash2, MessageSquare, CheckCircle, AlertCircle, Package, Calendar } from 'lucide-react';
 import { Modal } from '../UI/Modal';
 import { Button } from '../UI/Button';
 import { MissionWithDetails } from '../../types/database';

@@ -143,7 +143,7 @@ export function HandlerForm({ isOpen, onClose, onSave, handler }: HandlerFormPro
         if (insertError) throw insertError;
         handlerId = newHandler.id;
 
-        if (pictureFile) {
+        if (pictureFile && handlerId) {
           pictureUrl = await uploadPicture(handlerId) || '';
           const { error: updateError } = await supabase
             .from('handlers')

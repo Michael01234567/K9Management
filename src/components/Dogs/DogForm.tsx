@@ -6,7 +6,7 @@ import { Select } from '../UI/Select';
 import { Textarea } from '../UI/Textarea';
 import { supabase } from '../../lib/supabase';
 import { Dog, Handler, MissionOfficer, Location, TRAINING_LEVELS, SEX_OPTIONS, SPECIALIZATION_TYPES } from '../../types/database';
-import { validateHandlerOfficerCombination, getHandlerInfo, getOfficerInfo } from '../../utils/assignmentValidation';
+import { validateHandlerOfficerCombination, getHandlerInfo } from '../../utils/assignmentValidation';
 
 interface DogFormProps {
   isOpen: boolean;

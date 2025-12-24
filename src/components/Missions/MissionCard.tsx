@@ -1,4 +1,4 @@
-import { MapPin, Clock, User, Users, CheckCircle, AlertCircle } from 'lucide-react';
+import { MapPin, User, Users, CheckCircle, AlertCircle } from 'lucide-react';
 import { Card } from '../UI/Card';
 import { MissionWithDetails } from '../../types/database';
 

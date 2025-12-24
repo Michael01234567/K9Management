@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
 import { Modal } from '../UI/Modal';
 import { Button } from '../UI/Button';
 import { Input } from '../UI/Input';
@@ -7,7 +6,6 @@ import { Select } from '../UI/Select';
 import { Textarea } from '../UI/Textarea';
 import { supabase } from '../../lib/supabase';
 import {
-  Mission,
   MissionWithDetails,
   MissionLocation,
   Dog,

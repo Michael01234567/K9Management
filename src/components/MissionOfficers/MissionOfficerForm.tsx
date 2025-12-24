@@ -115,7 +115,7 @@ export function MissionOfficerForm({ isOpen, onClose, onSave, officer }: Mission
         if (insertError) throw insertError;
         officerId = newOfficer.id;
 
-        if (pictureFile) {
+        if (pictureFile && officerId) {
           pictureUrl = await uploadPicture(officerId) || '';
           const { error: updateError } = await supabase
             .from('mission_officers')
