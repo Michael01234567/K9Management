@@ -6,13 +6,20 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ activeView, onNavigate }: BottomNavProps) {
-  const navItems = [
+  const isMissionsView = activeView === 'missions';
+
+  const inventoryNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'missions', label: 'Missions', icon: Target },
     { id: 'dogs', label: 'Dogs', icon: Dog },
     { id: 'handlers', label: 'Handlers', icon: Users },
     { id: 'fitness', label: 'Fitness', icon: Activity },
   ];
+
+  const missionsNavItems = [
+    { id: 'missions', label: 'Missions', icon: Target },
+  ];
+
+  const navItems = isMissionsView ? missionsNavItems : inventoryNavItems;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 md:hidden z-40">
