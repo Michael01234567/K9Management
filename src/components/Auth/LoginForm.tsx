@@ -43,7 +43,7 @@ export function LoginForm() {
             </svg>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2">Michael K9 Management</h1>
-          <p className="text-sm sm:text-base text-stone-600">Dog Inventory & Care System</p>
+          <p className="text-sm sm:text-base text-stone-600">Teams, K9 Missions & Care System</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
