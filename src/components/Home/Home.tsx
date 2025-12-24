@@ -41,15 +41,15 @@ export function Home({ onNavigate }: HomeProps) {
           </div>
         </Card>
 
-        <Card hover onClick={() => onNavigate('missions')} className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+        <Card hover onClick={() => onNavigate('missions')} className="bg-amber-900 border-amber-800">
           <div className="p-8 md:p-10 lg:p-12 text-center group cursor-pointer">
-            <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+            <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
               <Target size={40} className="text-amber-900 md:w-12 md:h-12" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-stone-900 mb-3">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
               Missions
             </h2>
-            <p className="text-stone-600 text-base md:text-lg">
+            <p className="text-amber-100 text-base md:text-lg">
               Create, schedule, and track daily field operations
             </p>
           </div>
