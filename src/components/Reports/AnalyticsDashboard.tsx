@@ -16,7 +16,6 @@ interface AnalyticsDashboardProps {
   missions: Mission[];
 }
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 const STATUS_COLORS = {
   Planning: '#f59e0b',
   Active: '#3b82f6',
@@ -115,7 +114,7 @@ export function AnalyticsDashboard({ missions }: AnalyticsDashboardProps) {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => percent ? `${name}: ${(percent * 100).toFixed(0)}%` : name}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"

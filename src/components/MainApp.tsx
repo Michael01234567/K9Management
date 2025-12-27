@@ -134,7 +134,6 @@ export function MainApp() {
         <Navbar
           onMenuClick={() => setSidebarOpen(true)}
           onHomeClick={() => setActiveView('home')}
-          activeView={activeView}
         />
       )}
       <div className="flex">

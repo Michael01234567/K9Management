@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Download, FileText, Printer } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { exportMissionsToPDF } from '../../utils/pdfExport';
-import { formatDate, formatDateTime } from '../../utils/dateFormat';
+import { formatDate } from '../../utils/dateFormat';
 import * as XLSX from 'xlsx';
 
 interface MissionReport {

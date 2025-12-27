@@ -5,10 +5,9 @@ import { Button } from '../UI/Button';
 interface NavbarProps {
   onMenuClick: () => void;
   onHomeClick?: () => void;
-  activeView?: string;
 }
 
-export function Navbar({ onMenuClick, onHomeClick, activeView }: NavbarProps) {
+export function Navbar({ onMenuClick, onHomeClick }: NavbarProps) {
   const { user, signOut } = useAuth();
 
   return (
