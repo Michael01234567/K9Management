@@ -10,10 +10,12 @@ interface CardProps {
 export function Card({ children, className = '', onClick, hover = false }: CardProps) {
   const hoverClass = hover ? 'hover:shadow-lg hover:scale-[1.02] cursor-pointer' : '';
   const clickableClass = onClick ? 'cursor-pointer' : '';
+  const hasCustomBg = className.includes('bg-');
+  const hasCustomBorder = className.includes('border-');
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md border border-stone-200 transition-all duration-200 ${hoverClass} ${clickableClass} ${className}`}
+      className={`rounded-lg shadow-md transition-all duration-200 ${!hasCustomBg ? 'bg-white' : ''} ${!hasCustomBorder ? 'border border-stone-200' : ''} ${hoverClass} ${clickableClass} ${className}`}
       onClick={onClick}
     >
       {children}
