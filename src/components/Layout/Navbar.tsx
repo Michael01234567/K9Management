@@ -44,7 +44,14 @@ export function Navbar({ onMenuClick, onHomeClick }: NavbarProps) {
             </button>
           </div>
           <div className="flex items-center space-x-2 md:space-x-4 flex-shrink-0">
-            <span className="text-xs md:text-sm text-amber-100 hidden md:inline truncate max-w-[150px]">{user?.email}</span>
+            <div className="hidden md:flex flex-col items-end">
+              <span className="text-sm font-bold text-white">
+                Hi {user?.user_metadata?.full_name || 'User'}
+              </span>
+              <span className="text-xs text-amber-200">
+                {user?.user_metadata?.role || 'Role Unknown'}
+              </span>
+            </div>
             <Button
               variant="ghost"
               size="sm"
