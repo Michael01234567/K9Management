@@ -10,8 +10,7 @@ interface MissionData {
   id: string;
   name: string;
   status: string;
-  mission_start: string;
-  mission_end: string | null;
+  date: string;
   notes: string;
   location: string;
   officer_name: string;
@@ -51,15 +50,13 @@ export function ReportsAnalytics() {
         .from('missions')
         .select(`
           id,
-          name,
+          date,
           status,
-          mission_start,
-          mission_end,
-          notes,
+          comments,
           mission_officer_id,
           mission_location_id
         `)
-        .order('mission_start', { ascending: false });
+        .order('date', { ascending: false });
 
       if (missionsError) throw missionsError;
 
@@ -115,11 +112,10 @@ export function ReportsAnalytics() {
 
         return {
           id: mission.id,
-          name: mission.name,
+          name: `Mission ${mission.date}`,
           status: mission.status,
-          mission_start: mission.mission_start,
-          mission_end: mission.mission_end,
-          notes: mission.notes || '',
+          date: mission.date,
+          notes: mission.comments || '',
           location: locationMap.get(mission.mission_location_id) || 'Unknown',
           officer_name: officerMap.get(mission.mission_officer_id) || 'Unknown',
           handler_names: handlerNames,
@@ -146,13 +142,13 @@ export function ReportsAnalytics() {
 
     if (filters.dateFrom) {
       const fromDate = new Date(filters.dateFrom);
-      filtered = filtered.filter(m => new Date(m.mission_start) >= fromDate);
+      filtered = filtered.filter(m => new Date(m.date) >= fromDate);
     }
 
     if (filters.dateTo) {
       const toDate = new Date(filters.dateTo);
       toDate.setHours(23, 59, 59, 999);
-      filtered = filtered.filter(m => new Date(m.mission_start) <= toDate);
+      filtered = filtered.filter(m => new Date(m.date) <= toDate);
     }
 
     if (filters.location) {

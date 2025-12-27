@@ -10,8 +10,7 @@ interface MissionReport {
   name: string;
   status: string;
   location: string;
-  mission_start: string;
-  mission_end: string | null;
+  date: string;
   officer_name: string;
   handler_names: string[];
   dog_names: string[];
@@ -39,8 +38,7 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
       'Mission Officer': mission.officer_name,
       'Handlers': mission.handler_names.join(', ') || 'None',
       'Dogs': mission.dog_names.join(', ') || 'None',
-      'Start Date': formatDateTime(mission.mission_start),
-      'End Date': mission.mission_end ? formatDateTime(mission.mission_end) : 'Ongoing',
+      'Date': formatDate(mission.date),
       'Notes': mission.notes || ''
     }));
 
@@ -55,7 +53,6 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
       { wch: 20 },
       { wch: 25 },
       { wch: 25 },
-      { wch: 20 },
       { wch: 20 },
       { wch: 40 }
     ];
@@ -148,17 +145,14 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
                 Dogs
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
-                Start Date
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
-                End Date
+                Date
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-stone-200">
             {missions.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-stone-500">
+                <td colSpan={7} className="px-6 py-12 text-center text-stone-500">
                   No missions found matching the selected filters
                 </td>
               </tr>
@@ -198,14 +192,7 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-stone-900">
-                    {formatDate(mission.mission_start)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-stone-900">
-                    {mission.mission_end ? (
-                      formatDate(mission.mission_end)
-                    ) : (
-                      <span className="text-blue-600 font-medium">Ongoing</span>
-                    )}
+                    {formatDate(mission.date)}
                   </td>
                 </tr>
               ))

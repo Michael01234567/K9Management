@@ -5,8 +5,7 @@ interface Mission {
   id: string;
   name: string;
   status: string;
-  mission_start: string;
-  mission_end: string | null;
+  date: string;
   location?: string;
   handler_count?: number;
   dog_count?: number;
@@ -55,7 +54,7 @@ export function AnalyticsDashboard({ missions }: AnalyticsDashboardProps) {
     .slice(0, 10);
 
   const missionsByMonth = missions.reduce((acc: Record<string, number>, mission) => {
-    const date = new Date(mission.mission_start);
+    const date = new Date(mission.date);
     const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     acc[monthYear] = (acc[monthYear] || 0) + 1;
     return acc;

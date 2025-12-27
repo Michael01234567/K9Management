@@ -13,8 +13,7 @@ interface MissionReportData {
   name: string;
   status: string;
   location: string;
-  mission_start: string;
-  mission_end: string | null;
+  date: string;
   officer_name: string;
   handler_names: string[];
   dog_names: string[];
@@ -63,13 +62,12 @@ export function exportMissionsToPDF(missions: MissionReportData[], filters?: {
     mission.officer_name,
     mission.handler_names.join(', ') || 'None',
     mission.dog_names.join(', ') || 'None',
-    formatDate(mission.mission_start),
-    mission.mission_end ? formatDate(mission.mission_end) : 'Ongoing'
+    formatDate(mission.date)
   ]);
 
   doc.autoTable({
     startY: yPos,
-    head: [['Mission', 'Status', 'Location', 'Officer', 'Handlers', 'Dogs', 'Start Date', 'End Date']],
+    head: [['Mission', 'Status', 'Location', 'Officer', 'Handlers', 'Dogs', 'Date']],
     body: tableData,
     styles: { fontSize: 8, cellPadding: 2 },
     headStyles: { fillColor: [41, 128, 185], textColor: 255 },
@@ -117,18 +115,10 @@ export function exportMissionDetailToPDF(mission: MissionReportData) {
   yPos += 10;
 
   doc.setFont(undefined, 'bold');
-  doc.text('Start Date:', 14, yPos);
+  doc.text('Date:', 14, yPos);
   doc.setFont(undefined, 'normal');
-  doc.text(formatDateTime(mission.mission_start), 60, yPos);
+  doc.text(formatDate(mission.date), 60, yPos);
   yPos += 10;
-
-  if (mission.mission_end) {
-    doc.setFont(undefined, 'bold');
-    doc.text('End Date:', 14, yPos);
-    doc.setFont(undefined, 'normal');
-    doc.text(formatDateTime(mission.mission_end), 60, yPos);
-    yPos += 10;
-  }
 
   yPos += 5;
   doc.setFont(undefined, 'bold');
