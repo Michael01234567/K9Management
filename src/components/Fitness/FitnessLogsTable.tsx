@@ -5,6 +5,7 @@ import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { FitnessLog, Dog } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
+import { formatDate, formatDateTime } from '../../utils/dateFormat';
 
 interface FitnessLogWithDog extends FitnessLog {
   dog?: Dog;
@@ -56,13 +57,13 @@ export function FitnessLogsTable({ onAddClick, onEditClick, refreshTrigger }: Fi
     const exportData = logs.map((log) => ({
       Dog: log.dog?.name || 'Unknown',
       Breed: log.dog?.breed || 'N/A',
-      Date: new Date(log.log_date).toLocaleDateString(),
+      Date: formatDate(log.log_date),
       'Activity Type': log.activity_type,
       'Duration (min)': log.duration_minutes || 'N/A',
       'Distance (km)': log.distance_km || 'N/A',
       'Weight (kg)': log.weight_kg || 'N/A',
       Notes: log.notes || 'No notes',
-      'Created At': new Date(log.created_at).toLocaleString(),
+      'Created At': formatDateTime(log.created_at),
     }));
     exportToExcel(exportData, 'Fitness_Logs_Export', 'Fitness Logs');
   };
@@ -118,7 +119,7 @@ export function FitnessLogsTable({ onAddClick, onEditClick, refreshTrigger }: Fi
                       <div className="text-xs text-stone-500">{log.dog?.breed}</div>
                     </td>
                     <td className="px-6 py-4 text-stone-700">
-                      {new Date(log.log_date).toLocaleDateString()}
+                      {formatDate(log.log_date)}
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-900">
@@ -174,7 +175,7 @@ export function FitnessLogsTable({ onAddClick, onEditClick, refreshTrigger }: Fi
               <div className="space-y-2 text-sm">
                 <div className="flex items-center text-stone-700">
                   <Calendar size={14} className="mr-2 flex-shrink-0" />
-                  <span>{new Date(log.log_date).toLocaleDateString()}</span>
+                  <span>{formatDate(log.log_date)}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-stone-200">
                   {log.duration_minutes && (

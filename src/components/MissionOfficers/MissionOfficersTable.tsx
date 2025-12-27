@@ -5,6 +5,7 @@ import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { MissionOfficer } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
+import { formatDateTime } from '../../utils/dateFormat';
 
 interface MissionOfficersTableProps {
   onAddClick: () => void;
@@ -44,7 +45,7 @@ export function MissionOfficersTable({ onAddClick, onEditClick, refreshTrigger, 
       'Full Name': officer.full_name,
       Email: officer.email || 'N/A',
       Phone: officer.phone || 'N/A',
-      'Created At': new Date(officer.created_at).toLocaleString(),
+      'Created At': formatDateTime(officer.created_at),
     }));
     exportToExcel(exportData, 'Mission_Officers_Export', 'Mission_Officers');
   };

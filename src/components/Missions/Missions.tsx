@@ -8,6 +8,7 @@ import { MissionDetailsModal } from './MissionDetailsModal';
 import { supabase } from '../../lib/supabase';
 import { MissionWithDetails } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
+import { formatDate } from '../../utils/dateFormat';
 
 export function Missions() {
   const [missions, setMissions] = useState<MissionWithDetails[]>([]);
@@ -207,7 +208,7 @@ export function Missions() {
         <div className="text-center py-16 bg-stone-50 rounded-lg border-2 border-dashed border-stone-300">
           <Calendar size={48} className="mx-auto text-stone-400 mb-4" />
           <h3 className="text-lg font-semibold text-stone-900 mb-2">No missions scheduled</h3>
-          <p className="text-stone-600 mb-4">There are no missions for {new Date(selectedDate).toLocaleDateString()}.</p>
+          <p className="text-stone-600 mb-4">There are no missions for {formatDate(selectedDate)}.</p>
           <Button onClick={handleCreateNew} size="sm">
             <Plus size={18} className="mr-2" />
             Create First Mission

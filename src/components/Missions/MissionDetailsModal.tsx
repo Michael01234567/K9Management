@@ -2,6 +2,7 @@ import { MapPin, Clock, User, Users, Edit, Trash2, MessageSquare, CheckCircle, A
 import { Modal } from '../UI/Modal';
 import { Button } from '../UI/Button';
 import { MissionWithDetails } from '../../types/database';
+import { formatDate } from '../../utils/dateFormat';
 
 interface MissionDetailsModalProps {
   mission: MissionWithDetails | null;
@@ -86,7 +87,7 @@ export function MissionDetailsModal({ mission, isOpen, onClose, onEdit, onDelete
           {mission.date && (
             <div className="flex items-center gap-2 text-stone-600">
               <Calendar size={16} />
-              <span className="text-sm font-medium">{new Date(mission.date).toLocaleDateString()}</span>
+              <span className="text-sm font-medium">{formatDate(mission.date)}</span>
             </div>
           )}
         </div>

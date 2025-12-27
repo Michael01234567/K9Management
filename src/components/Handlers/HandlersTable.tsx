@@ -5,6 +5,7 @@ import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { Handler } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
+import { formatDateTime } from '../../utils/dateFormat';
 
 interface HandlersTableProps {
   onAddClick: () => void;
@@ -58,7 +59,7 @@ export function HandlersTable({ onAddClick, onEditClick, refreshTrigger, onRetur
       'Team Leader': handler.team_leader ? 'Yes' : 'No',
       'Driver': handler.driver ? 'Yes' : 'No',
       'Assigned Dogs': handlerDogs[handler.id] || 0,
-      'Created At': new Date(handler.created_at).toLocaleString(),
+      'Created At': formatDateTime(handler.created_at),
     }));
     exportToExcel(exportData, 'Handlers_Export', 'Handlers');
   };

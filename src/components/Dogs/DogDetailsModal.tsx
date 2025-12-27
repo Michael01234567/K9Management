@@ -6,6 +6,7 @@ import { DogWithHandlers, VetRecord, FitnessLog, FitnessStatus, Handler, Mission
 import { supabase } from '../../lib/supabase';
 import { Card } from '../UI/Card';
 import { FitnessStatusBadge } from '../UI/FitnessStatusBadge';
+import { formatDate, formatDateTime } from '../../utils/dateFormat';
 
 interface DogDetailsModalProps {
   isOpen: boolean;
@@ -163,7 +164,7 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
             </div>
             <div>
               <label className="text-sm font-medium text-stone-700">Date of Birth</label>
-              <p className="mt-1 text-stone-900">{new Date(dog.dob).toLocaleDateString()}</p>
+              <p className="mt-1 text-stone-900">{formatDate(dog.dob)}</p>
             </div>
             <div>
               <label className="text-sm font-medium text-stone-700">Breed</label>
@@ -277,7 +278,7 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
                         <div>
                           <h4 className="font-semibold text-stone-900">{record.visit_type}</h4>
                           <p className="text-sm text-stone-600">
-                            {new Date(record.visit_date).toLocaleDateString()}
+                            {formatDate(record.visit_date)}
                           </p>
                         </div>
                         <Calendar size={20} className="text-stone-400" />
@@ -285,7 +286,7 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
                       {record.notes && <p className="text-sm text-stone-700 mb-2">{record.notes}</p>}
                       {record.next_visit_date && (
                         <p className="text-sm text-amber-900">
-                          Next visit: {new Date(record.next_visit_date).toLocaleDateString()}
+                          Next visit: {formatDate(record.next_visit_date)}
                         </p>
                       )}
                     </div>
@@ -325,9 +326,9 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
                       <div>
                         <label className="text-sm font-medium text-stone-700">Duration</label>
                         <p className="mt-1 text-stone-900">
-                          {fitnessStatus.duration_start && new Date(fitnessStatus.duration_start).toLocaleDateString()}
+                          {fitnessStatus.duration_start && formatDate(fitnessStatus.duration_start)}
                           {fitnessStatus.duration_start && fitnessStatus.duration_end && ' - '}
-                          {fitnessStatus.duration_end && new Date(fitnessStatus.duration_end).toLocaleDateString()}
+                          {fitnessStatus.duration_end && formatDate(fitnessStatus.duration_end)}
                         </p>
                       </div>
                     )}
@@ -340,7 +341,7 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
                     <div className="md:col-span-2">
                       <label className="text-sm font-medium text-stone-700">Last Updated</label>
                       <p className="mt-1 text-stone-600 text-sm">
-                        {new Date(fitnessStatus.updated_at).toLocaleString()}
+                        {formatDateTime(fitnessStatus.updated_at)}
                       </p>
                     </div>
                   </div>
@@ -365,7 +366,7 @@ export function DogDetailsModal({ isOpen, onClose, dog, onEdit, onDelete }: DogD
                           <div>
                             <h4 className="font-semibold text-stone-900">{log.activity_type}</h4>
                             <p className="text-sm text-stone-600">
-                              {new Date(log.log_date).toLocaleDateString()}
+                              {formatDate(log.log_date)}
                             </p>
                           </div>
                           <Activity size={20} className="text-stone-400" />

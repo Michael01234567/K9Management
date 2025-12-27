@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { formatDate, formatDateTime } from './dateFormat';
 
 declare module 'jspdf' {
   interface jsPDF {
@@ -62,8 +63,8 @@ export function exportMissionsToPDF(missions: MissionReportData[], filters?: {
     mission.officer_name,
     mission.handler_names.join(', ') || 'None',
     mission.dog_names.join(', ') || 'None',
-    new Date(mission.mission_start).toLocaleDateString(),
-    mission.mission_end ? new Date(mission.mission_end).toLocaleDateString() : 'Ongoing'
+    formatDate(mission.mission_start),
+    mission.mission_end ? formatDate(mission.mission_end) : 'Ongoing'
   ]);
 
   doc.autoTable({
@@ -118,14 +119,14 @@ export function exportMissionDetailToPDF(mission: MissionReportData) {
   doc.setFont(undefined, 'bold');
   doc.text('Start Date:', 14, yPos);
   doc.setFont(undefined, 'normal');
-  doc.text(new Date(mission.mission_start).toLocaleString(), 60, yPos);
+  doc.text(formatDateTime(mission.mission_start), 60, yPos);
   yPos += 10;
 
   if (mission.mission_end) {
     doc.setFont(undefined, 'bold');
     doc.text('End Date:', 14, yPos);
     doc.setFont(undefined, 'normal');
-    doc.text(new Date(mission.mission_end).toLocaleString(), 60, yPos);
+    doc.text(formatDateTime(mission.mission_end), 60, yPos);
     yPos += 10;
   }
 

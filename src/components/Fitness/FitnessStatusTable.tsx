@@ -113,13 +113,13 @@ export function FitnessStatusTable({ onReturn }: FitnessStatusTableProps = {}) {
     }
   };
 
-  const formatDate = (dateString: string | null) => {
+  const formatDateLocal = (dateString: string | null) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    const d = new Date(dateString);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   if (loading) {
@@ -197,7 +197,7 @@ export function FitnessStatusTable({ onReturn }: FitnessStatusTableProps = {}) {
                         <div className="text-sm text-stone-900">{status.handler?.full_name || 'Unassigned'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-stone-900">{formatDate(status.dog?.dob || null)}</div>
+                        <div className="text-sm text-stone-900">{formatDateLocal(status.dog?.dob || null)}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-stone-900">{status.weight_kg || '-'}</div>
@@ -210,7 +210,7 @@ export function FitnessStatusTable({ onReturn }: FitnessStatusTableProps = {}) {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-stone-900">
                           {status.duration_start && status.duration_end
-                            ? `${formatDate(status.duration_start)} - ${formatDate(status.duration_end)}`
+                            ? `${formatDateLocal(status.duration_start)} - ${formatDateLocal(status.duration_end)}`
                             : '-'}
                         </div>
                       </td>
@@ -275,7 +275,7 @@ export function FitnessStatusTable({ onReturn }: FitnessStatusTableProps = {}) {
                   <div className="flex items-center text-stone-700">
                     <Calendar size={14} className="mr-2 flex-shrink-0" />
                     <span>
-                      {formatDate(status.duration_start)} - {formatDate(status.duration_end)}
+                      {formatDateLocal(status.duration_start)} - {formatDateLocal(status.duration_end)}
                     </span>
                   </div>
                 )}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Download, FileText, Printer } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { exportMissionsToPDF } from '../../utils/pdfExport';
+import { formatDate, formatDateTime } from '../../utils/dateFormat';
 import * as XLSX from 'xlsx';
 
 interface MissionReport {
@@ -38,8 +39,8 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
       'Mission Officer': mission.officer_name,
       'Handlers': mission.handler_names.join(', ') || 'None',
       'Dogs': mission.dog_names.join(', ') || 'None',
-      'Start Date': new Date(mission.mission_start).toLocaleString(),
-      'End Date': mission.mission_end ? new Date(mission.mission_end).toLocaleString() : 'Ongoing',
+      'Start Date': formatDateTime(mission.mission_start),
+      'End Date': mission.mission_end ? formatDateTime(mission.mission_end) : 'Ongoing',
       'Notes': mission.notes || ''
     }));
 
@@ -197,11 +198,11 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-stone-900">
-                    {new Date(mission.mission_start).toLocaleDateString()}
+                    {formatDate(mission.mission_start)}
                   </td>
                   <td className="px-6 py-4 text-sm text-stone-900">
                     {mission.mission_end ? (
-                      new Date(mission.mission_end).toLocaleDateString()
+                      formatDate(mission.mission_end)
                     ) : (
                       <span className="text-blue-600 font-medium">Ongoing</span>
                     )}

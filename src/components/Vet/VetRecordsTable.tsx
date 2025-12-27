@@ -5,6 +5,7 @@ import { Card } from '../UI/Card';
 import { supabase } from '../../lib/supabase';
 import { VetRecord, Dog } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
+import { formatDate, formatDateTime } from '../../utils/dateFormat';
 
 interface VetRecordWithDog extends VetRecord {
   dog?: Dog;
@@ -65,11 +66,11 @@ export function VetRecordsTable({ onAddClick, onEditClick, refreshTrigger, onRet
     const exportData = records.map((record) => ({
       Dog: record.dog?.name || 'Unknown',
       Breed: record.dog?.breed || 'N/A',
-      'Visit Date': new Date(record.visit_date).toLocaleDateString(),
+      'Visit Date': formatDate(record.visit_date),
       'Visit Type': record.visit_type,
-      'Next Visit Date': record.next_visit_date ? new Date(record.next_visit_date).toLocaleDateString() : 'N/A',
+      'Next Visit Date': record.next_visit_date ? formatDate(record.next_visit_date) : 'N/A',
       Notes: record.notes || 'No notes',
-      'Created At': new Date(record.created_at).toLocaleString(),
+      'Created At': formatDateTime(record.created_at),
     }));
     exportToExcel(exportData, 'Vet_Records_Export', 'Vet Records');
   };
@@ -129,7 +130,7 @@ export function VetRecordsTable({ onAddClick, onEditClick, refreshTrigger, onRet
                       <div className="text-xs text-stone-500">{record.dog?.breed}</div>
                     </td>
                     <td className="px-6 py-4 text-stone-700">
-                      {new Date(record.visit_date).toLocaleDateString()}
+                      {formatDate(record.visit_date)}
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-900">
@@ -143,7 +144,7 @@ export function VetRecordsTable({ onAddClick, onEditClick, refreshTrigger, onRet
                             <AlertCircle size={16} className="text-red-600 mr-2" />
                           )}
                           <span className={isUpcoming(record.next_visit_date) ? 'text-red-600 font-medium' : 'text-stone-700'}>
-                            {new Date(record.next_visit_date).toLocaleDateString()}
+                            {formatDate(record.next_visit_date)}
                           </span>
                         </div>
                       ) : (
@@ -183,13 +184,13 @@ export function VetRecordsTable({ onAddClick, onEditClick, refreshTrigger, onRet
               <div className="space-y-2 text-sm">
                 <div className="flex items-center text-stone-700">
                   <Calendar size={14} className="mr-2 flex-shrink-0" />
-                  <span>Visit: {new Date(record.visit_date).toLocaleDateString()}</span>
+                  <span>Visit: {formatDate(record.visit_date)}</span>
                 </div>
                 {record.next_visit_date && (
                   <div className="flex items-center">
                     <AlertCircle size={14} className={`mr-2 flex-shrink-0 ${isUpcoming(record.next_visit_date) ? 'text-red-600' : 'text-stone-400'}`} />
                     <span className={isUpcoming(record.next_visit_date) ? 'text-red-600 font-medium' : 'text-stone-700'}>
-                      Next: {new Date(record.next_visit_date).toLocaleDateString()}
+                      Next: {formatDate(record.next_visit_date)}
                     </span>
                   </div>
                 )}
