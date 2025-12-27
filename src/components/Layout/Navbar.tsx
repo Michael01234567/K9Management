@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { LogOut, Menu, Home } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../UI/Button';
+import { Modal } from '../UI/Modal';
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -9,6 +11,7 @@ interface NavbarProps {
 
 export function Navbar({ onMenuClick, onHomeClick }: NavbarProps) {
   const { user, signOut } = useAuth();
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
   return (
     <nav className="bg-amber-900 text-white shadow-lg">
@@ -55,7 +58,7 @@ export function Navbar({ onMenuClick, onHomeClick }: NavbarProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={signOut}
+              onClick={() => setShowSignOutConfirm(true)}
               className="text-white hover:bg-amber-800 p-2 md:px-3 md:py-2"
             >
               <LogOut size={18} className="md:mr-2" />
@@ -64,6 +67,37 @@ export function Navbar({ onMenuClick, onHomeClick }: NavbarProps) {
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={showSignOutConfirm}
+        onClose={() => setShowSignOutConfirm(false)}
+        title="Confirm Sign Out"
+        size="sm"
+      >
+        <div className="space-y-6">
+          <p className="text-stone-700 text-base leading-relaxed">
+            Are you sure you want to sign out? You will need to log in again to continue.
+          </p>
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setShowSignOutConfirm(false)}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setShowSignOutConfirm(false);
+                signOut();
+              }}
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
+            >
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </nav>
   );
 }
