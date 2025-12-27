@@ -10,6 +10,8 @@ interface Mission {
   handler_count?: number;
   dog_count?: number;
   officer_name?: string;
+  handler_names?: string[];
+  dog_names?: string[];
 }
 
 interface AnalyticsDashboardProps {
@@ -30,8 +32,16 @@ export function AnalyticsDashboard({ missions }: AnalyticsDashboardProps) {
   const cancelledMissions = missions.filter(m => m.status === 'Cancelled').length;
   const planningMissions = missions.filter(m => m.status === 'Planning').length;
 
-  const totalHandlers = missions.reduce((sum, m) => sum + (m.handler_count || 0), 0);
-  const totalDogs = missions.reduce((sum, m) => sum + (m.dog_count || 0), 0);
+  const allHandlers = new Set<string>();
+  const allDogs = new Set<string>();
+
+  missions.forEach(mission => {
+    mission.handler_names?.forEach(name => allHandlers.add(name));
+    mission.dog_names?.forEach(name => allDogs.add(name));
+  });
+
+  const totalHandlers = allHandlers.size;
+  const totalDogs = allDogs.size;
   const uniqueOfficers = new Set(missions.map(m => m.officer_name).filter(Boolean)).size;
 
   const statusData = [
@@ -89,12 +99,12 @@ export function AnalyticsDashboard({ missions }: AnalyticsDashboardProps) {
         <Card className="p-6">
           <h3 className="text-sm font-medium text-stone-600 mb-2">Total K9 Teams</h3>
           <p className="text-3xl font-bold text-stone-900">{totalDogs}</p>
-          <p className="text-xs text-stone-500 mt-1">Dogs Deployed</p>
+          <p className="text-xs text-stone-500 mt-1">Unique Dogs Deployed</p>
         </Card>
         <Card className="p-6">
           <h3 className="text-sm font-medium text-stone-600 mb-2">Handlers Involved</h3>
           <p className="text-3xl font-bold text-stone-900">{totalHandlers}</p>
-          <p className="text-xs text-stone-500 mt-1">Total Assignments</p>
+          <p className="text-xs text-stone-500 mt-1">Unique Handlers</p>
         </Card>
         <Card className="p-6">
           <h3 className="text-sm font-medium text-stone-600 mb-2">Mission Officers</h3>

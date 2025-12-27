@@ -54,7 +54,10 @@ export function ReportsAnalytics() {
           status,
           comments,
           mission_officer_id,
-          mission_location_id
+          mission_location_id,
+          handler_ids,
+          explosive_dog_ids,
+          narcotic_dog_ids
         `)
         .order('date', { ascending: false });
 
@@ -68,47 +71,36 @@ export function ReportsAnalytics() {
 
       const { data: officersData } = await supabase
         .from('mission_officers')
+        .select('id, full_name');
+
+      const officerMap = new Map(officersData?.map(off => [off.id, off.full_name]) || []);
+
+      const { data: handlersData } = await supabase
+        .from('handlers')
+        .select('id, full_name');
+
+      const handlerMap = new Map(handlersData?.map(h => [h.id, h.full_name]) || []);
+
+      const { data: dogsData } = await supabase
+        .from('dogs')
         .select('id, name');
 
-      const officerMap = new Map(officersData?.map(off => [off.id, off.name]) || []);
-
-      const { data: handlerAssignments } = await supabase
-        .from('dog_handler')
-        .select(`
-          mission_id,
-          handler:handlers(name)
-        `);
-
-      const handlersByMission = new Map<string, string[]>();
-      handlerAssignments?.forEach((assignment: any) => {
-        if (assignment.mission_id && assignment.handler?.name) {
-          if (!handlersByMission.has(assignment.mission_id)) {
-            handlersByMission.set(assignment.mission_id, []);
-          }
-          handlersByMission.get(assignment.mission_id)?.push(assignment.handler.name);
-        }
-      });
-
-      const { data: dogAssignments } = await supabase
-        .from('dog_officer')
-        .select(`
-          mission_id,
-          dog:dogs(name)
-        `);
-
-      const dogsByMission = new Map<string, string[]>();
-      dogAssignments?.forEach((assignment: any) => {
-        if (assignment.mission_id && assignment.dog?.name) {
-          if (!dogsByMission.has(assignment.mission_id)) {
-            dogsByMission.set(assignment.mission_id, []);
-          }
-          dogsByMission.get(assignment.mission_id)?.push(assignment.dog.name);
-        }
-      });
+      const dogMap = new Map(dogsData?.map(d => [d.id, d.name]) || []);
 
       const enrichedMissions: MissionData[] = (missionsData || []).map(mission => {
-        const handlerNames = handlersByMission.get(mission.id) || [];
-        const dogNames = dogsByMission.get(mission.id) || [];
+        const handlerIds = mission.handler_ids || [];
+        const explosiveDogIds = mission.explosive_dog_ids || [];
+        const narcoticDogIds = mission.narcotic_dog_ids || [];
+
+        const allDogIds = [...explosiveDogIds, ...narcoticDogIds];
+
+        const handlerNames = handlerIds
+          .map((id: string) => handlerMap.get(id))
+          .filter((name: string | undefined): name is string => !!name);
+
+        const dogNames = allDogIds
+          .map((id: string) => dogMap.get(id))
+          .filter((name: string | undefined): name is string => !!name);
 
         return {
           id: mission.id,
