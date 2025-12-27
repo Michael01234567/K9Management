@@ -18,11 +18,6 @@ interface MissionData {
   dog_names: string[];
   handler_count: number;
   dog_count: number;
-  departure_time: string | null;
-  return_time: string | null;
-  training: boolean;
-  search: boolean;
-  num_items_searched: number;
 }
 
 export function ReportsAnalytics() {
@@ -62,12 +57,7 @@ export function ReportsAnalytics() {
           mission_location_id,
           handler_ids,
           explosive_dog_ids,
-          narcotic_dog_ids,
-          departure_time,
-          return_time,
-          training,
-          search,
-          num_items_searched
+          narcotic_dog_ids
         `)
         .order('date', { ascending: false });
 
@@ -124,11 +114,6 @@ export function ReportsAnalytics() {
           dog_names: dogNames,
           handler_count: handlerNames.length,
           dog_count: dogNames.length,
-          departure_time: mission.departure_time,
-          return_time: mission.return_time,
-          training: mission.training || false,
-          search: mission.search || false,
-          num_items_searched: mission.num_items_searched || 0,
         };
       });
 
