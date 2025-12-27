@@ -20,6 +20,7 @@ export function BottomNav({ activeView, onNavigate }: BottomNavProps) {
   const missionsNavItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'missions', label: 'Missions', icon: Target },
+    { id: 'reports', label: 'Reports', icon: BarChart3 },
   ];
 
   const reportsNavItems = [
