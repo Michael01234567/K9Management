@@ -9,8 +9,10 @@ import { HandlerForm } from './Handlers/HandlerForm';
 import { MissionOfficerForm } from './MissionOfficers/MissionOfficerForm';
 import { VetRecordForm } from './Vet/VetRecordForm';
 import { AppLoader } from './UI/AppLoader';
+import { PWAInstallPrompt } from './PWA/PWAInstallPrompt';
 import { Dog, Handler, MissionOfficer, VetRecord } from '../types/database';
 import { supabase } from '../lib/supabase';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 
 const Dashboard = lazy(() => import('./Dashboard/Dashboard').then(m => ({ default: m.Dashboard })));
 const DogTable = lazy(() => import('./Dogs/DogTable').then(m => ({ default: m.DogTable })));
@@ -48,6 +50,8 @@ export function MainApp() {
 
   const [showVetForm, setShowVetForm] = useState(false);
   const [selectedVetRecord, setSelectedVetRecord] = useState<VetRecord | null>(null);
+
+  const { showPrompt, isIOS, handleInstall, handleDismiss } = usePWAInstall();
 
 
   const handleRefresh = () => {
@@ -248,6 +252,14 @@ export function MainApp() {
         onSave={handleSaveVetRecord}
         record={selectedVetRecord}
       />
+
+      {showPrompt && (
+        <PWAInstallPrompt
+          isIOS={isIOS}
+          onInstall={handleInstall}
+          onDismiss={handleDismiss}
+        />
+      )}
     </div>
   );
 }
