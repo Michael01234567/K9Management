@@ -10,7 +10,7 @@ export function Home({ onNavigate }: HomeProps) {
     <div className="min-h-[calc(100vh-8rem)] md:min-h-[calc(100vh-12rem)] flex flex-col">
       <div className="relative h-[260px] md:h-[420px] w-full overflow-hidden rounded-xl shadow-2xl mb-8 md:mb-12">
         <img
-          src="/customs-k9-handler-in-action.png"
+          src="/customs-k9-handler-in-action.jpg"
           alt="Customs K9 Handler in Action"
           className="absolute inset-0 w-full h-full object-cover"
           loading="eager"
