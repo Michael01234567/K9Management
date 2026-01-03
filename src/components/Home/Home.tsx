@@ -8,11 +8,12 @@ interface HomeProps {
 export function Home({ onNavigate }: HomeProps) {
   return (
     <div className="min-h-[calc(100vh-8rem)] md:min-h-[calc(100vh-12rem)] flex flex-col">
-      <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[28rem] rounded-xl overflow-hidden shadow-2xl mb-8 md:mb-12">
+      <div className="relative h-[260px] md:h-[420px] w-full overflow-hidden rounded-xl shadow-2xl mb-8 md:mb-12">
         <img
-          src="/customs_k9.png"
+          src="/customs-k9-handler-in-action.png"
           alt="Customs K9 Handler in Action"
-          className="w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 lg:p-10">
