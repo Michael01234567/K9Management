@@ -1,0 +1,24 @@
+{
+  "name": "K9 Management System",
+  "short_name": "K9 Manager",
+  "description": "Professional K9 Mission, Assignment & Operations Management System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#78350f",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/customs_k9.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/customs_k9.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
