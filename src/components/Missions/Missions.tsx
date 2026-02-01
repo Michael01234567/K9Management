@@ -32,7 +32,32 @@ export function Missions() {
       setLoading(true);
       const { data: missionsData, error } = await supabase
         .from('missions')
-        .select('*')
+        .select(`
+          id,
+          date,
+          mission_location_id,
+          departure_time,
+          return_time,
+          explosive_dog_ids,
+          narcotic_dog_ids,
+          handler_ids,
+          explosive_teams,
+          narcotic_teams,
+          mission_officer_id,
+          team_leader_id,
+          driver_id,
+          training,
+          search,
+          num_items_searched,
+          items_searched_ids,
+          items_with_quantities,
+          indication,
+          confirmed_indication,
+          comments,
+          status,
+          created_at,
+          updated_at
+        `)
         .order('departure_time', { ascending: true});
 
       if (error) throw error;
@@ -69,7 +94,7 @@ export function Missions() {
                 : Promise.resolve({ data: [] }),
             ]);
 
-          return {
+          const enriched = {
             ...mission,
             mission_location: locationRes.data || undefined,
             explosive_dogs: explosiveDogsRes.data || [],
@@ -80,6 +105,8 @@ export function Missions() {
             driver: driverRes.data || undefined,
             items_searched: itemsRes.data || [],
           };
+
+          return enriched;
         })
       );
 
