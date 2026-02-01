@@ -155,27 +155,51 @@ export function Missions() {
   };
 
   const handleExport = () => {
-    const exportData = missions.map((mission) => ({
-      Date: mission.date,
-      Status: mission.status,
-      'Departure Time': mission.departure_time || 'N/A',
-      'Return Time': mission.return_time || 'N/A',
-      Location: mission.mission_location?.name || 'N/A',
-      Address: mission.mission_location?.address || 'N/A',
-      'Mission Officer': mission.mission_officer?.full_name || 'N/A',
-      'Team Leader': mission.team_leader?.full_name || 'N/A',
-      Driver: mission.driver?.full_name || 'N/A',
-      'Explosive Dogs': mission.explosive_dogs?.map((d) => d.name).join(', ') || 'None',
-      'Narcotic Dogs': mission.narcotic_dogs?.map((d) => d.name).join(', ') || 'None',
-      Handlers: mission.handlers?.map((h) => h.full_name).join(', ') || 'None',
-      Training: mission.training ? 'Yes' : 'No',
-      Search: mission.search ? 'Yes' : 'No',
-      'Items Searched': mission.num_items_searched,
-      'Items Details': mission.items_searched?.map((i) => i.name).join(', ') || 'None',
-      Indication: mission.indication ? 'Yes' : 'No',
-      'Confirmed Indication': mission.confirmed_indication ? 'Yes' : 'No',
-      Comments: mission.comments || 'N/A',
-    }));
+    const exportData = missions.map((mission) => {
+      const explosiveTeams = (mission.explosive_dogs || [])
+        .map(dog => {
+          const handlers = dog.mission_handlers.map(h => h.full_name).join(', ');
+          return handlers ? `${dog.name} (${handlers})` : `${dog.name} (Not paired)`;
+        })
+        .join('; ');
+
+      const narcoticTeams = (mission.narcotic_dogs || [])
+        .map(dog => {
+          const handlers = dog.mission_handlers.map(h => h.full_name).join(', ');
+          return handlers ? `${dog.name} (${handlers})` : `${dog.name} (Not paired)`;
+        })
+        .join('; ');
+
+      const allHandlers = new Set<string>();
+      (mission.explosive_dogs || []).forEach(dog => {
+        dog.mission_handlers.forEach(h => allHandlers.add(h.full_name));
+      });
+      (mission.narcotic_dogs || []).forEach(dog => {
+        dog.mission_handlers.forEach(h => allHandlers.add(h.full_name));
+      });
+
+      return {
+        Date: mission.date,
+        Status: mission.status,
+        'Departure Time': mission.departure_time || 'N/A',
+        'Return Time': mission.return_time || 'N/A',
+        Location: mission.mission_location?.name || 'N/A',
+        Address: mission.mission_location?.address || 'N/A',
+        'Mission Officer': mission.mission_officer?.full_name || 'N/A',
+        'Team Leader': mission.team_leader?.full_name || 'N/A',
+        Driver: mission.driver?.full_name || 'N/A',
+        'Explosive Teams': explosiveTeams || 'None',
+        'Narcotic Teams': narcoticTeams || 'None',
+        'All Handlers': Array.from(allHandlers).join(', ') || 'None',
+        Training: mission.training ? 'Yes' : 'No',
+        Search: mission.search ? 'Yes' : 'No',
+        'Items Searched': mission.num_items_searched,
+        'Items Details': mission.items_searched?.map((i) => i.name).join(', ') || 'None',
+        Indication: mission.indication ? 'Yes' : 'No',
+        'Confirmed Indication': mission.confirmed_indication ? 'Yes' : 'No',
+        Comments: mission.comments || 'N/A',
+      };
+    });
     exportToExcel(exportData, 'Missions_Export', 'Missions');
   };
 

@@ -129,13 +129,17 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
                         <Users size={14} className="text-red-700" />
                         <span className="text-sm font-semibold text-red-900">{dog.name}</span>
                       </div>
-                      {dog.mission_handlers.length > 0 && (
+                      {dog.mission_handlers.length > 0 ? (
                         <div className="ml-5 flex flex-wrap gap-1">
                           {dog.mission_handlers.map((handler, idx) => (
                             <span key={handler.id} className="text-xs text-red-700">
                               {handler.full_name}{idx < dog.mission_handlers.length - 1 ? ',' : ''}
                             </span>
                           ))}
+                        </div>
+                      ) : (
+                        <div className="ml-5 text-xs text-red-400 italic">
+                          Not paired
                         </div>
                       )}
                     </div>
@@ -159,13 +163,17 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
                         <Users size={14} className="text-green-700" />
                         <span className="text-sm font-semibold text-green-900">{dog.name}</span>
                       </div>
-                      {dog.mission_handlers.length > 0 && (
+                      {dog.mission_handlers.length > 0 ? (
                         <div className="ml-5 flex flex-wrap gap-1">
                           {dog.mission_handlers.map((handler, idx) => (
                             <span key={handler.id} className="text-xs text-green-700">
                               {handler.full_name}{idx < dog.mission_handlers.length - 1 ? ',' : ''}
                             </span>
                           ))}
+                        </div>
+                      ) : (
+                        <div className="ml-5 text-xs text-green-400 italic">
+                          Not paired
                         </div>
                       )}
                     </div>

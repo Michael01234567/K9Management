@@ -45,12 +45,12 @@ export function getMissionScopedDogs(
     };
   };
 
-  const explosiveDogs = mission.explosive_dog_ids
-    .map(dogId => enrichDogWithHandlers(dogId, mission.explosive_teams))
+  const explosiveDogs = (mission.explosive_dog_ids ?? [])
+    .map(dogId => enrichDogWithHandlers(dogId, mission.explosive_teams || []))
     .filter((dog): dog is DogWithMissionHandlers => dog !== null);
 
-  const narcoticDogs = mission.narcotic_dog_ids
-    .map(dogId => enrichDogWithHandlers(dogId, mission.narcotic_teams))
+  const narcoticDogs = (mission.narcotic_dog_ids ?? [])
+    .map(dogId => enrichDogWithHandlers(dogId, mission.narcotic_teams || []))
     .filter((dog): dog is DogWithMissionHandlers => dog !== null);
 
   return {
