@@ -20,11 +20,10 @@ export function getMissionPersonnel(mission: MissionWithDetails): MissionPersonn
   const handlerIdToDogsMap = new Map<string, string[]>();
 
   allDogs.forEach(dog => {
-    const person = dog.assigned_handler || dog.assigned_officer;
-    if (person) {
-      const existingDogs = handlerIdToDogsMap.get(person.id) || [];
-      handlerIdToDogsMap.set(person.id, [...existingDogs, dog.name]);
-    }
+    dog.mission_handlers.forEach(handler => {
+      const existingDogs = handlerIdToDogsMap.get(handler.id) || [];
+      handlerIdToDogsMap.set(handler.id, [...existingDogs, dog.name]);
+    });
   });
 
   const teamLeaderHadDog = mission.team_leader_id
@@ -39,9 +38,9 @@ export function getMissionPersonnel(mission: MissionWithDetails): MissionPersonn
     }
 
     const dogWithPerson = allDogs.find(d =>
-      d.assigned_handler?.id === handlerId || d.assigned_officer?.id === handlerId
+      d.mission_handlers.some(h => h.id === handlerId)
     );
-    const person = dogWithPerson?.assigned_handler || dogWithPerson?.assigned_officer;
+    const person = dogWithPerson?.mission_handlers.find(h => h.id === handlerId);
 
     if (person) {
       dogNames.forEach(dogName => {

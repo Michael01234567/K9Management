@@ -7,6 +7,7 @@ import { AppLoader } from '../UI/AppLoader';
 import { BarChart3 } from 'lucide-react';
 import { getMissionPersonnel, formatHandlersWithDogs, PersonnelWithDog } from '../../utils/missionPersonnel';
 import { MissionWithDetails } from '../../types/database';
+import { getMissionScopedDogs } from '../../utils/missionDogHandlers';
 
 interface MissionData {
   id: string;
@@ -81,43 +82,34 @@ export function ReportsAnalytics() {
 
       const dogMap = new Map(dogsData?.map(d => [d.id, d]) || []);
 
-      const { data: dogOfficerData } = await supabase
-        .from('dog_officer')
-        .select('*');
-
-      const dogOfficerMap = new Map(dogOfficerData?.map(d => [d.dog_id, d.officer_id]) || []);
-
       const enrichedMissions: MissionData[] = (missionsData || []).map(mission => {
-        const explosiveDogs = (mission.explosive_dog_ids || [])
-          .map((id: string) => {
-            const dog = dogMap.get(id);
-            if (!dog) return null;
-            const handler = dog.default_handler_id ? handlerMap.get(dog.default_handler_id) : undefined;
-            const officerId = dogOfficerMap.get(id);
-            const officer = officerId ? officerMap.get(officerId) : undefined;
-            return { ...dog, assigned_handler: handler, assigned_officer: officer };
-          })
-          .filter(Boolean);
-        const narcoticDogs = (mission.narcotic_dog_ids || [])
-          .map((id: string) => {
-            const dog = dogMap.get(id);
-            if (!dog) return null;
-            const handler = dog.default_handler_id ? handlerMap.get(dog.default_handler_id) : undefined;
-            const officerId = dogOfficerMap.get(id);
-            const officer = officerId ? officerMap.get(officerId) : undefined;
-            return { ...dog, assigned_handler: handler, assigned_officer: officer };
-          })
-          .filter(Boolean);
-        const allDogs = [...explosiveDogs, ...narcoticDogs];
+        const allDogs = [
+          ...(mission.explosive_dog_ids || []).map((id: string) => dogMap.get(id)).filter(Boolean),
+          ...(mission.narcotic_dog_ids || []).map((id: string) => dogMap.get(id)).filter(Boolean)
+        ];
 
         const handlers = (mission.handler_ids || [])
           .map((id: string) => handlerMap.get(id))
           .filter(Boolean);
 
+        const missionOfficer = mission.mission_officer_id ? officerMap.get(mission.mission_officer_id) : undefined;
+        const teamLeader = mission.team_leader_id ? handlerMap.get(mission.team_leader_id) : undefined;
+        const driver = mission.driver_id ? handlerMap.get(mission.driver_id) : undefined;
+
+        const { explosiveDogs, narcoticDogs } = getMissionScopedDogs(
+          mission,
+          allDogs,
+          handlers,
+          missionOfficer,
+          teamLeader,
+          driver
+        );
+
         const missionWithDetails: MissionWithDetails = {
           ...mission,
-          mission_officer: mission.mission_officer_id ? officerMap.get(mission.mission_officer_id) : undefined,
-          team_leader: mission.team_leader_id ? handlerMap.get(mission.team_leader_id) : undefined,
+          mission_officer: missionOfficer,
+          team_leader: teamLeader,
+          driver: driver,
           explosive_dogs: explosiveDogs,
           narcotic_dogs: narcoticDogs,
           handlers: handlers,

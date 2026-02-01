@@ -9,6 +9,7 @@ import { supabase } from '../../lib/supabase';
 import { MissionWithDetails } from '../../types/database';
 import { exportToExcel } from '../../utils/excelExport';
 import { formatDate } from '../../utils/dateFormat';
+import { getMissionScopedDogs } from '../../utils/missionDogHandlers';
 
 export function Missions() {
   const [missions, setMissions] = useState<MissionWithDetails[]>([]);
@@ -69,53 +70,18 @@ export function Missions() {
                 : Promise.resolve({ data: [] }),
             ]);
 
-          const explosiveDogs = explosiveDogsRes.data || [];
-          const narcoticDogs = narcoticDogsRes.data || [];
-          const allDogs = [...explosiveDogs, ...narcoticDogs];
+          const allDogs = [...(explosiveDogsRes.data || []), ...(narcoticDogsRes.data || [])];
+          const allHandlers = handlersRes.data || [];
 
-          const dogsWithHandlers = await Promise.all(
-            allDogs.map(async (dog) => {
-              let assignedHandler = undefined;
-              let assignedOfficer = undefined;
-
-              if (dog.default_handler_id) {
-                const { data: handler } = await supabase
-                  .from('handlers')
-                  .select('*')
-                  .eq('id', dog.default_handler_id)
-                  .maybeSingle();
-                assignedHandler = handler || undefined;
-              }
-
-              const { data: officerAssignment } = await supabase
-                .from('dog_officer')
-                .select('officer_id')
-                .eq('dog_id', dog.id)
-                .maybeSingle();
-
-              if (officerAssignment?.officer_id) {
-                const { data: officer } = await supabase
-                  .from('mission_officers')
-                  .select('*')
-                  .eq('id', officerAssignment.officer_id)
-                  .maybeSingle();
-                assignedOfficer = officer || undefined;
-              }
-
-              return {
-                ...dog,
-                assigned_handler: assignedHandler,
-                assigned_officer: assignedOfficer
-              };
-            })
-          );
-
-          const explosiveDogsWithHandlers = dogsWithHandlers.filter(d =>
-            mission.explosive_dog_ids.includes(d.id)
-          );
-          const narcoticDogsWithHandlers = dogsWithHandlers.filter(d =>
-            mission.narcotic_dog_ids.includes(d.id)
-          );
+          const { explosiveDogs: explosiveDogsWithHandlers, narcoticDogs: narcoticDogsWithHandlers } =
+            getMissionScopedDogs(
+              mission,
+              allDogs,
+              allHandlers,
+              officerRes.data || undefined,
+              teamLeaderRes.data || undefined,
+              driverRes.data || undefined
+            );
 
           return {
             ...mission,

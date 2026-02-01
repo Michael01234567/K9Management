@@ -123,15 +123,20 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
               </div>
               <div className="space-y-2">
                 {explosiveDogs.map((dog) => {
-                  const handlerName = dog.assigned_handler?.full_name || dog.assigned_officer?.full_name;
                   return (
-                    <div key={dog.id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1.5">
-                      <div className="flex items-center gap-2">
+                    <div key={dog.id} className="bg-white/60 rounded-md px-2 py-1.5">
+                      <div className="flex items-center gap-2 mb-1">
                         <Users size={14} className="text-red-700" />
                         <span className="text-sm font-semibold text-red-900">{dog.name}</span>
                       </div>
-                      {handlerName && (
-                        <span className="text-xs text-red-700">{handlerName}</span>
+                      {dog.mission_handlers.length > 0 && (
+                        <div className="ml-5 flex flex-wrap gap-1">
+                          {dog.mission_handlers.map((handler, idx) => (
+                            <span key={handler.id} className="text-xs text-red-700">
+                              {handler.full_name}{idx < dog.mission_handlers.length - 1 ? ',' : ''}
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
                   );
@@ -148,15 +153,20 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
               </div>
               <div className="space-y-2">
                 {narcoticDogs.map((dog) => {
-                  const handlerName = dog.assigned_handler?.full_name || dog.assigned_officer?.full_name;
                   return (
-                    <div key={dog.id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1.5">
-                      <div className="flex items-center gap-2">
+                    <div key={dog.id} className="bg-white/60 rounded-md px-2 py-1.5">
+                      <div className="flex items-center gap-2 mb-1">
                         <Users size={14} className="text-green-700" />
                         <span className="text-sm font-semibold text-green-900">{dog.name}</span>
                       </div>
-                      {handlerName && (
-                        <span className="text-xs text-green-700">{handlerName}</span>
+                      {dog.mission_handlers.length > 0 && (
+                        <div className="ml-5 flex flex-wrap gap-1">
+                          {dog.mission_handlers.map((handler, idx) => (
+                            <span key={handler.id} className="text-xs text-green-700">
+                              {handler.full_name}{idx < dog.mission_handlers.length - 1 ? ',' : ''}
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
                   );
