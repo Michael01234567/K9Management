@@ -33,7 +33,7 @@ export function Missions() {
       const { data: missionsData, error } = await supabase
         .from('missions')
         .select('*')
-        .order('departure_time', { ascending: true });
+        .order('departure_time', { ascending: true});
 
       if (error) throw error;
 
