@@ -82,15 +82,21 @@ export function ReportsAnalytics() {
       const dogMap = new Map(dogsData?.map(d => [d.id, d]) || []);
 
       const enrichedMissions: MissionData[] = (missionsData || []).map(mission => {
-        const explosiveTeams = mission.explosive_teams || [];
-        const narcoticTeams = mission.narcotic_teams || [];
-        const allTeams = [...explosiveTeams, ...narcoticTeams];
-
         const explosiveDogs = (mission.explosive_dog_ids || [])
-          .map((id: string) => dogMap.get(id))
+          .map((id: string) => {
+            const dog = dogMap.get(id);
+            if (!dog) return null;
+            const handler = dog.default_handler_id ? handlerMap.get(dog.default_handler_id) : undefined;
+            return { ...dog, assigned_handler: handler };
+          })
           .filter(Boolean);
         const narcoticDogs = (mission.narcotic_dog_ids || [])
-          .map((id: string) => dogMap.get(id))
+          .map((id: string) => {
+            const dog = dogMap.get(id);
+            if (!dog) return null;
+            const handler = dog.default_handler_id ? handlerMap.get(dog.default_handler_id) : undefined;
+            return { ...dog, assigned_handler: handler };
+          })
           .filter(Boolean);
         const allDogs = [...explosiveDogs, ...narcoticDogs];
 

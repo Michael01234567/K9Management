@@ -49,17 +49,9 @@ export function MissionDetailsModal({ mission, isOpen, onClose, onEdit, onDelete
     }
   };
 
-  const explosiveTeams = mission.explosive_teams || [];
-  const narcoticTeams = mission.narcotic_teams || [];
+  const explosiveDogs = mission.explosive_dogs || [];
+  const narcoticDogs = mission.narcotic_dogs || [];
   const itemsWithQuantities = mission.items_with_quantities || [];
-
-  const getHandlerForTeam = (handlerId: string) => {
-    return mission.handlers?.find((h) => h.id === handlerId);
-  };
-
-  const getDogById = (dogId: string) => {
-    return [...(mission.explosive_dogs || []), ...(mission.narcotic_dogs || [])].find((d) => d.id === dogId);
-  };
 
   const getItemById = (itemId: string) => {
     return mission.items_searched?.find((i) => i.id === itemId);
@@ -167,24 +159,22 @@ export function MissionDetailsModal({ mission, isOpen, onClose, onEdit, onDelete
           </div>
         )}
 
-        {explosiveTeams.length > 0 && (
+        {explosiveDogs.length > 0 && (
           <div className="p-4 bg-gradient-to-br from-red-50 to-pink-50 rounded-lg border border-red-200">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-3 h-3 rounded-full bg-red-500" />
               <h4 className="text-sm font-bold text-red-900 uppercase tracking-wide">Explosive Teams</h4>
             </div>
             <div className="space-y-2">
-              {explosiveTeams.map((team) => {
-                const dog = getDogById(team.dog_id);
-                const handler = getHandlerForTeam(team.handler_id);
+              {explosiveDogs.map((dog) => {
                 return (
-                  <div key={team.dog_id} className="flex items-center justify-between bg-white/80 rounded-md px-3 py-2 border border-red-100">
+                  <div key={dog.id} className="flex items-center justify-between bg-white/80 rounded-md px-3 py-2 border border-red-100">
                     <div className="flex items-center gap-2">
                       <Users size={16} className="text-red-700" />
-                      <span className="font-bold text-red-900">{dog?.name}</span>
+                      <span className="font-bold text-red-900">{dog.name}</span>
                     </div>
-                    {handler && (
-                      <span className="text-sm text-red-700 font-medium">{handler.full_name}</span>
+                    {dog.assigned_handler && (
+                      <span className="text-sm text-red-700 font-medium">{dog.assigned_handler.full_name}</span>
                     )}
                   </div>
                 );
@@ -193,24 +183,22 @@ export function MissionDetailsModal({ mission, isOpen, onClose, onEdit, onDelete
           </div>
         )}
 
-        {narcoticTeams.length > 0 && (
+        {narcoticDogs.length > 0 && (
           <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-3 h-3 rounded-full bg-green-500" />
               <h4 className="text-sm font-bold text-green-900 uppercase tracking-wide">Narcotics Teams</h4>
             </div>
             <div className="space-y-2">
-              {narcoticTeams.map((team) => {
-                const dog = getDogById(team.dog_id);
-                const handler = getHandlerForTeam(team.handler_id);
+              {narcoticDogs.map((dog) => {
                 return (
-                  <div key={team.dog_id} className="flex items-center justify-between bg-white/80 rounded-md px-3 py-2 border border-green-100">
+                  <div key={dog.id} className="flex items-center justify-between bg-white/80 rounded-md px-3 py-2 border border-green-100">
                     <div className="flex items-center gap-2">
                       <Users size={16} className="text-green-700" />
-                      <span className="font-bold text-green-900">{dog?.name}</span>
+                      <span className="font-bold text-green-900">{dog.name}</span>
                     </div>
-                    {handler && (
-                      <span className="text-sm text-green-700 font-medium">{handler.full_name}</span>
+                    {dog.assigned_handler && (
+                      <span className="text-sm text-green-700 font-medium">{dog.assigned_handler.full_name}</span>
                     )}
                   </div>
                 );

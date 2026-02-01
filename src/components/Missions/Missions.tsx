@@ -69,11 +69,36 @@ export function Missions() {
                 : Promise.resolve({ data: [] }),
             ]);
 
+          const explosiveDogs = explosiveDogsRes.data || [];
+          const narcoticDogs = narcoticDogsRes.data || [];
+          const allDogs = [...explosiveDogs, ...narcoticDogs];
+
+          const dogsWithHandlers = await Promise.all(
+            allDogs.map(async (dog) => {
+              if (dog.default_handler_id) {
+                const { data: handler } = await supabase
+                  .from('handlers')
+                  .select('*')
+                  .eq('id', dog.default_handler_id)
+                  .maybeSingle();
+                return { ...dog, assigned_handler: handler || undefined };
+              }
+              return { ...dog, assigned_handler: undefined };
+            })
+          );
+
+          const explosiveDogsWithHandlers = dogsWithHandlers.filter(d =>
+            mission.explosive_dog_ids.includes(d.id)
+          );
+          const narcoticDogsWithHandlers = dogsWithHandlers.filter(d =>
+            mission.narcotic_dog_ids.includes(d.id)
+          );
+
           return {
             ...mission,
             mission_location: locationRes.data || undefined,
-            explosive_dogs: explosiveDogsRes.data || [],
-            narcotic_dogs: narcoticDogsRes.data || [],
+            explosive_dogs: explosiveDogsWithHandlers,
+            narcotic_dogs: narcoticDogsWithHandlers,
             handlers: handlersRes.data || [],
             mission_officer: officerRes.data || undefined,
             team_leader: teamLeaderRes.data || undefined,

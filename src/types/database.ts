@@ -162,10 +162,14 @@ export interface Mission {
   updated_at: string;
 }
 
+export interface DogWithHandler extends Dog {
+  assigned_handler?: Handler;
+}
+
 export interface MissionWithDetails extends Mission {
   mission_location?: MissionLocation;
-  explosive_dogs?: Dog[];
-  narcotic_dogs?: Dog[];
+  explosive_dogs?: DogWithHandler[];
+  narcotic_dogs?: DogWithHandler[];
   handlers?: Handler[];
   mission_officer?: MissionOfficer;
   team_leader?: Handler;

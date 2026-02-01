@@ -15,20 +15,14 @@ export interface MissionPersonnelInfo {
 }
 
 export function getMissionPersonnel(mission: MissionWithDetails): MissionPersonnelInfo {
-  const explosiveTeams = mission.explosive_teams || [];
-  const narcoticTeams = mission.narcotic_teams || [];
-  const allTeams = [...explosiveTeams, ...narcoticTeams];
-
   const allDogs = [...(mission.explosive_dogs || []), ...(mission.narcotic_dogs || [])];
-  const allHandlers = mission.handlers || [];
 
   const handlerIdToDogsMap = new Map<string, string[]>();
 
-  allTeams.forEach(team => {
-    const dogName = allDogs.find(d => d.id === team.dog_id)?.name;
-    if (dogName) {
-      const existingDogs = handlerIdToDogsMap.get(team.handler_id) || [];
-      handlerIdToDogsMap.set(team.handler_id, [...existingDogs, dogName]);
+  allDogs.forEach(dog => {
+    if (dog.assigned_handler) {
+      const existingDogs = handlerIdToDogsMap.get(dog.assigned_handler.id) || [];
+      handlerIdToDogsMap.set(dog.assigned_handler.id, [...existingDogs, dog.name]);
     }
   });
 
@@ -43,7 +37,7 @@ export function getMissionPersonnel(mission: MissionWithDetails): MissionPersonn
       return;
     }
 
-    const handler = allHandlers.find(h => h.id === handlerId);
+    const handler = allDogs.find(d => d.assigned_handler?.id === handlerId)?.assigned_handler;
     if (handler) {
       dogNames.forEach(dogName => {
         handlersWithDogs.push({
