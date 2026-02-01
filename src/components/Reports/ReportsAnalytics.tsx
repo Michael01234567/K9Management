@@ -5,6 +5,8 @@ import { MissionReportsTable } from './MissionReportsTable';
 import { ReportFilters } from './ReportFilters';
 import { AppLoader } from '../UI/AppLoader';
 import { BarChart3 } from 'lucide-react';
+import { getMissionPersonnel, formatHandlersWithDogs, PersonnelWithDog } from '../../utils/missionPersonnel';
+import { MissionWithDetails } from '../../types/database';
 
 interface MissionData {
   id: string;
@@ -14,7 +16,9 @@ interface MissionData {
   notes: string;
   location: string;
   officer_name: string;
+  team_leader_name: string;
   handler_names: string[];
+  handlersWithDogs: PersonnelWithDog[];
   dog_names: string[];
   handler_count: number;
   dog_count: number;
@@ -48,17 +52,7 @@ export function ReportsAnalytics() {
 
       const { data: missionsData, error: missionsError } = await supabase
         .from('missions')
-        .select(`
-          id,
-          date,
-          status,
-          comments,
-          mission_officer_id,
-          mission_location_id,
-          handler_ids,
-          explosive_dog_ids,
-          narcotic_dog_ids
-        `)
+        .select('*')
         .order('date', { ascending: false });
 
       if (missionsError) throw missionsError;
@@ -71,36 +65,51 @@ export function ReportsAnalytics() {
 
       const { data: officersData } = await supabase
         .from('mission_officers')
-        .select('id, full_name');
+        .select('*');
 
-      const officerMap = new Map(officersData?.map(off => [off.id, off.full_name]) || []);
+      const officerMap = new Map(officersData?.map(off => [off.id, off]) || []);
 
       const { data: handlersData } = await supabase
         .from('handlers')
-        .select('id, full_name');
+        .select('*');
 
-      const handlerMap = new Map(handlersData?.map(h => [h.id, h.full_name]) || []);
+      const handlerMap = new Map(handlersData?.map(h => [h.id, h]) || []);
 
       const { data: dogsData } = await supabase
         .from('dogs')
-        .select('id, name');
+        .select('*');
 
-      const dogMap = new Map(dogsData?.map(d => [d.id, d.name]) || []);
+      const dogMap = new Map(dogsData?.map(d => [d.id, d]) || []);
 
       const enrichedMissions: MissionData[] = (missionsData || []).map(mission => {
-        const handlerIds = mission.handler_ids || [];
-        const explosiveDogIds = mission.explosive_dog_ids || [];
-        const narcoticDogIds = mission.narcotic_dog_ids || [];
+        const explosiveTeams = mission.explosive_teams || [];
+        const narcoticTeams = mission.narcotic_teams || [];
+        const allTeams = [...explosiveTeams, ...narcoticTeams];
 
-        const allDogIds = [...explosiveDogIds, ...narcoticDogIds];
-
-        const handlerNames = handlerIds
-          .map((id: string) => handlerMap.get(id))
-          .filter((name: string | undefined): name is string => !!name);
-
-        const dogNames = allDogIds
+        const explosiveDogs = (mission.explosive_dog_ids || [])
           .map((id: string) => dogMap.get(id))
-          .filter((name: string | undefined): name is string => !!name);
+          .filter(Boolean);
+        const narcoticDogs = (mission.narcotic_dog_ids || [])
+          .map((id: string) => dogMap.get(id))
+          .filter(Boolean);
+        const allDogs = [...explosiveDogs, ...narcoticDogs];
+
+        const handlers = (mission.handler_ids || [])
+          .map((id: string) => handlerMap.get(id))
+          .filter(Boolean);
+
+        const missionWithDetails: MissionWithDetails = {
+          ...mission,
+          mission_officer: mission.mission_officer_id ? officerMap.get(mission.mission_officer_id) : undefined,
+          team_leader: mission.team_leader_id ? handlerMap.get(mission.team_leader_id) : undefined,
+          explosive_dogs: explosiveDogs,
+          narcotic_dogs: narcoticDogs,
+          handlers: handlers,
+        };
+
+        const personnel = getMissionPersonnel(missionWithDetails);
+
+        const dogNames = allDogs.map(d => d.name);
 
         return {
           id: mission.id,
@@ -109,10 +118,12 @@ export function ReportsAnalytics() {
           date: mission.date,
           notes: mission.comments || '',
           location: locationMap.get(mission.mission_location_id) || 'Unknown',
-          officer_name: officerMap.get(mission.mission_officer_id) || 'Unknown',
-          handler_names: handlerNames,
+          officer_name: personnel.officer?.full_name || 'Unknown',
+          team_leader_name: personnel.teamLeader?.full_name || '',
+          handler_names: personnel.handlersWithDogs.map(h => h.name),
+          handlersWithDogs: personnel.handlersWithDogs,
           dog_names: dogNames,
-          handler_count: handlerNames.length,
+          handler_count: personnel.handlersWithDogs.length,
           dog_count: dogNames.length,
         };
       });

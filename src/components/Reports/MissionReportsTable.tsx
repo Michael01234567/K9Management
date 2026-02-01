@@ -3,6 +3,7 @@ import { Download, FileText, Printer } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { exportMissionsToPDF } from '../../utils/pdfExport';
 import { formatDate } from '../../utils/dateFormat';
+import { formatHandlersWithDogs, PersonnelWithDog } from '../../utils/missionPersonnel';
 import * as XLSX from 'xlsx';
 
 interface MissionReport {
@@ -12,7 +13,9 @@ interface MissionReport {
   location: string;
   date: string;
   officer_name: string;
+  team_leader_name: string;
   handler_names: string[];
+  handlersWithDogs: PersonnelWithDog[];
   dog_names: string[];
   notes: string;
 }
@@ -36,7 +39,8 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
       'Status': mission.status,
       'Location': mission.location,
       'Mission Officer': mission.officer_name,
-      'Handlers': mission.handler_names.join(', ') || 'None',
+      'Team Leader': mission.team_leader_name || '—',
+      'Handlers': formatHandlersWithDogs(mission.handlersWithDogs),
       'Dogs': mission.dog_names.join(', ') || 'None',
       'Date': formatDate(mission.date),
       'Notes': mission.notes || ''
@@ -51,7 +55,8 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
       { wch: 12 },
       { wch: 20 },
       { wch: 20 },
-      { wch: 25 },
+      { wch: 20 },
+      { wch: 35 },
       { wch: 25 },
       { wch: 20 },
       { wch: 40 }
@@ -139,6 +144,9 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
                 Officer
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                Team Leader
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
                 Handlers
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
@@ -152,7 +160,7 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
           <tbody className="bg-white divide-y divide-stone-200">
             {missions.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-stone-500">
+                <td colSpan={8} className="px-6 py-12 text-center text-stone-500">
                   No missions found matching the selected filters
                 </td>
               </tr>
@@ -173,10 +181,13 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
                   </td>
                   <td className="px-6 py-4 text-sm text-stone-900">{mission.location}</td>
                   <td className="px-6 py-4 text-sm text-stone-900">{mission.officer_name}</td>
+                  <td className="px-6 py-4 text-sm text-stone-900">
+                    {mission.team_leader_name || '—'}
+                  </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-stone-900">
-                      {mission.handler_names.length > 0 ? (
-                        <span>{mission.handler_names.join(', ')}</span>
+                      {mission.handlersWithDogs.length > 0 ? (
+                        <span>{formatHandlersWithDogs(mission.handlersWithDogs)}</span>
                       ) : (
                         <span className="text-stone-400">None</span>
                       )}

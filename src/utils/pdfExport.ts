@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { formatDate } from './dateFormat';
+import { formatHandlersWithDogs, PersonnelWithDog } from './missionPersonnel';
 
 declare module 'jspdf' {
   interface jsPDF {
@@ -15,7 +16,9 @@ interface MissionReportData {
   location: string;
   date: string;
   officer_name: string;
+  team_leader_name: string;
   handler_names: string[];
+  handlersWithDogs: PersonnelWithDog[];
   dog_names: string[];
   notes: string;
 }
@@ -60,19 +63,30 @@ export function exportMissionsToPDF(missions: MissionReportData[], filters?: {
     mission.status,
     mission.location,
     mission.officer_name,
-    mission.handler_names.join(', ') || 'None',
+    mission.team_leader_name || '—',
+    formatHandlersWithDogs(mission.handlersWithDogs),
     mission.dog_names.join(', ') || 'None',
     formatDate(mission.date)
   ]);
 
   doc.autoTable({
     startY: yPos,
-    head: [['Mission', 'Status', 'Location', 'Officer', 'Handlers', 'Dogs', 'Date']],
+    head: [['Mission', 'Status', 'Location', 'Officer', 'Team Leader', 'Handlers', 'Dogs', 'Date']],
     body: tableData,
-    styles: { fontSize: 8, cellPadding: 2 },
+    styles: { fontSize: 7, cellPadding: 1.5 },
     headStyles: { fillColor: [41, 128, 185], textColor: 255 },
     alternateRowStyles: { fillColor: [245, 245, 245] },
     margin: { top: 10 },
+    columnStyles: {
+      0: { cellWidth: 22 },
+      1: { cellWidth: 18 },
+      2: { cellWidth: 22 },
+      3: { cellWidth: 22 },
+      4: { cellWidth: 22 },
+      5: { cellWidth: 35 },
+      6: { cellWidth: 25 },
+      7: { cellWidth: 20 }
+    }
   });
 
   const filename = `mission-reports-${new Date().toISOString().split('T')[0]}.pdf`;
@@ -115,6 +129,12 @@ export function exportMissionDetailToPDF(mission: MissionReportData) {
   yPos += 10;
 
   doc.setFont('helvetica', 'bold');
+  doc.text('Team Leader:', 14, yPos);
+  doc.setFont('helvetica', 'normal');
+  doc.text(mission.team_leader_name || '—', 60, yPos);
+  yPos += 10;
+
+  doc.setFont('helvetica', 'bold');
   doc.text('Date:', 14, yPos);
   doc.setFont('helvetica', 'normal');
   doc.text(formatDate(mission.date), 60, yPos);
@@ -122,11 +142,12 @@ export function exportMissionDetailToPDF(mission: MissionReportData) {
 
   yPos += 5;
   doc.setFont('helvetica', 'bold');
-  doc.text('Handlers Assigned:', 14, yPos);
+  doc.text('Handlers with Dogs:', 14, yPos);
   yPos += 7;
   doc.setFont('helvetica', 'normal');
-  if (mission.handler_names.length > 0) {
-    mission.handler_names.forEach(handler => {
+  if (mission.handlersWithDogs.length > 0) {
+    const formattedHandlers = formatHandlersWithDogs(mission.handlersWithDogs).split(', ');
+    formattedHandlers.forEach(handler => {
       doc.text(`• ${handler}`, 20, yPos);
       yPos += 7;
     });
