@@ -75,15 +75,38 @@ export function Missions() {
 
           const dogsWithHandlers = await Promise.all(
             allDogs.map(async (dog) => {
+              let assignedHandler = undefined;
+              let assignedOfficer = undefined;
+
               if (dog.default_handler_id) {
                 const { data: handler } = await supabase
                   .from('handlers')
                   .select('*')
                   .eq('id', dog.default_handler_id)
                   .maybeSingle();
-                return { ...dog, assigned_handler: handler || undefined };
+                assignedHandler = handler || undefined;
               }
-              return { ...dog, assigned_handler: undefined };
+
+              const { data: officerAssignment } = await supabase
+                .from('dog_officer')
+                .select('officer_id')
+                .eq('dog_id', dog.id)
+                .maybeSingle();
+
+              if (officerAssignment?.officer_id) {
+                const { data: officer } = await supabase
+                  .from('mission_officers')
+                  .select('*')
+                  .eq('id', officerAssignment.officer_id)
+                  .maybeSingle();
+                assignedOfficer = officer || undefined;
+              }
+
+              return {
+                ...dog,
+                assigned_handler: assignedHandler,
+                assigned_officer: assignedOfficer
+              };
             })
           );
 

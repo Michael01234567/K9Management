@@ -81,13 +81,21 @@ export function ReportsAnalytics() {
 
       const dogMap = new Map(dogsData?.map(d => [d.id, d]) || []);
 
+      const { data: dogOfficerData } = await supabase
+        .from('dog_officer')
+        .select('*');
+
+      const dogOfficerMap = new Map(dogOfficerData?.map(d => [d.dog_id, d.officer_id]) || []);
+
       const enrichedMissions: MissionData[] = (missionsData || []).map(mission => {
         const explosiveDogs = (mission.explosive_dog_ids || [])
           .map((id: string) => {
             const dog = dogMap.get(id);
             if (!dog) return null;
             const handler = dog.default_handler_id ? handlerMap.get(dog.default_handler_id) : undefined;
-            return { ...dog, assigned_handler: handler };
+            const officerId = dogOfficerMap.get(id);
+            const officer = officerId ? officerMap.get(officerId) : undefined;
+            return { ...dog, assigned_handler: handler, assigned_officer: officer };
           })
           .filter(Boolean);
         const narcoticDogs = (mission.narcotic_dog_ids || [])
@@ -95,7 +103,9 @@ export function ReportsAnalytics() {
             const dog = dogMap.get(id);
             if (!dog) return null;
             const handler = dog.default_handler_id ? handlerMap.get(dog.default_handler_id) : undefined;
-            return { ...dog, assigned_handler: handler };
+            const officerId = dogOfficerMap.get(id);
+            const officer = officerId ? officerMap.get(officerId) : undefined;
+            return { ...dog, assigned_handler: handler, assigned_officer: officer };
           })
           .filter(Boolean);
         const allDogs = [...explosiveDogs, ...narcoticDogs];

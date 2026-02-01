@@ -164,6 +164,7 @@ export interface Mission {
 
 export interface DogWithHandler extends Dog {
   assigned_handler?: Handler;
+  assigned_officer?: MissionOfficer;
 }
 
 export interface MissionWithDetails extends Mission {

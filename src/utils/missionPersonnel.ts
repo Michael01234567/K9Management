@@ -20,9 +20,10 @@ export function getMissionPersonnel(mission: MissionWithDetails): MissionPersonn
   const handlerIdToDogsMap = new Map<string, string[]>();
 
   allDogs.forEach(dog => {
-    if (dog.assigned_handler) {
-      const existingDogs = handlerIdToDogsMap.get(dog.assigned_handler.id) || [];
-      handlerIdToDogsMap.set(dog.assigned_handler.id, [...existingDogs, dog.name]);
+    const person = dog.assigned_handler || dog.assigned_officer;
+    if (person) {
+      const existingDogs = handlerIdToDogsMap.get(person.id) || [];
+      handlerIdToDogsMap.set(person.id, [...existingDogs, dog.name]);
     }
   });
 
@@ -37,12 +38,16 @@ export function getMissionPersonnel(mission: MissionWithDetails): MissionPersonn
       return;
     }
 
-    const handler = allDogs.find(d => d.assigned_handler?.id === handlerId)?.assigned_handler;
-    if (handler) {
+    const dogWithPerson = allDogs.find(d =>
+      d.assigned_handler?.id === handlerId || d.assigned_officer?.id === handlerId
+    );
+    const person = dogWithPerson?.assigned_handler || dogWithPerson?.assigned_officer;
+
+    if (person) {
       dogNames.forEach(dogName => {
         handlersWithDogs.push({
-          id: handler.id,
-          name: handler.full_name,
+          id: person.id,
+          name: person.full_name,
           dogName: dogName
         });
       });

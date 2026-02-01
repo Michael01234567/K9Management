@@ -167,14 +167,15 @@ export function MissionDetailsModal({ mission, isOpen, onClose, onEdit, onDelete
             </div>
             <div className="space-y-2">
               {explosiveDogs.map((dog) => {
+                const handlerName = dog.assigned_handler?.full_name || dog.assigned_officer?.full_name;
                 return (
                   <div key={dog.id} className="flex items-center justify-between bg-white/80 rounded-md px-3 py-2 border border-red-100">
                     <div className="flex items-center gap-2">
                       <Users size={16} className="text-red-700" />
                       <span className="font-bold text-red-900">{dog.name}</span>
                     </div>
-                    {dog.assigned_handler && (
-                      <span className="text-sm text-red-700 font-medium">{dog.assigned_handler.full_name}</span>
+                    {handlerName && (
+                      <span className="text-sm text-red-700 font-medium">{handlerName}</span>
                     )}
                   </div>
                 );
@@ -191,14 +192,15 @@ export function MissionDetailsModal({ mission, isOpen, onClose, onEdit, onDelete
             </div>
             <div className="space-y-2">
               {narcoticDogs.map((dog) => {
+                const handlerName = dog.assigned_handler?.full_name || dog.assigned_officer?.full_name;
                 return (
                   <div key={dog.id} className="flex items-center justify-between bg-white/80 rounded-md px-3 py-2 border border-green-100">
                     <div className="flex items-center gap-2">
                       <Users size={16} className="text-green-700" />
                       <span className="font-bold text-green-900">{dog.name}</span>
                     </div>
-                    {dog.assigned_handler && (
-                      <span className="text-sm text-green-700 font-medium">{dog.assigned_handler.full_name}</span>
+                    {handlerName && (
+                      <span className="text-sm text-green-700 font-medium">{handlerName}</span>
                     )}
                   </div>
                 );

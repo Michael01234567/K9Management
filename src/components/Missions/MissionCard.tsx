@@ -123,14 +123,15 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
               </div>
               <div className="space-y-2">
                 {explosiveDogs.map((dog) => {
+                  const handlerName = dog.assigned_handler?.full_name || dog.assigned_officer?.full_name;
                   return (
                     <div key={dog.id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1.5">
                       <div className="flex items-center gap-2">
                         <Users size={14} className="text-red-700" />
                         <span className="text-sm font-semibold text-red-900">{dog.name}</span>
                       </div>
-                      {dog.assigned_handler && (
-                        <span className="text-xs text-red-700">{dog.assigned_handler.full_name}</span>
+                      {handlerName && (
+                        <span className="text-xs text-red-700">{handlerName}</span>
                       )}
                     </div>
                   );
@@ -147,14 +148,15 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
               </div>
               <div className="space-y-2">
                 {narcoticDogs.map((dog) => {
+                  const handlerName = dog.assigned_handler?.full_name || dog.assigned_officer?.full_name;
                   return (
                     <div key={dog.id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1.5">
                       <div className="flex items-center gap-2">
                         <Users size={14} className="text-green-700" />
                         <span className="text-sm font-semibold text-green-900">{dog.name}</span>
                       </div>
-                      {dog.assigned_handler && (
-                        <span className="text-xs text-green-700">{dog.assigned_handler.full_name}</span>
+                      {handlerName && (
+                        <span className="text-xs text-green-700">{handlerName}</span>
                       )}
                     </div>
                   );
