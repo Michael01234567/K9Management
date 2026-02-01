@@ -171,6 +171,12 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
             </div>
           )}
 
+          {explosiveDogs.length === 0 && narcoticDogs.length === 0 && (
+            <div className="p-3 bg-stone-50 rounded-lg border border-stone-200 text-center">
+              <p className="text-sm text-stone-600">No dogs assigned to this mission</p>
+            </div>
+          )}
+
           {(mission.indication || mission.confirmed_indication) && (
             <div className="flex gap-2">
               {mission.indication && (
