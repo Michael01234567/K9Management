@@ -1,7 +1,6 @@
 import { MapPin, User, Users, CheckCircle, AlertCircle } from 'lucide-react';
 import { Card } from '../UI/Card';
 import { MissionWithDetails } from '../../types/database';
-import { getDogsWithAllHandlers } from '../../utils/missionPersonnel';
 
 interface MissionCardProps {
   mission: MissionWithDetails;
@@ -43,9 +42,16 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
     }
   };
 
-  const dogsWithHandlers = getDogsWithAllHandlers(mission);
-  const explosiveDogs = dogsWithHandlers.filter(d => d.specialization === 'Explosive Detection');
-  const narcoticDogs = dogsWithHandlers.filter(d => d.specialization === 'Narcotics Detection');
+  const explosiveTeams = mission.explosive_teams || [];
+  const narcoticTeams = mission.narcotic_teams || [];
+
+  const getHandlerForTeam = (handlerId: string) => {
+    return mission.handlers?.find((h) => h.id === handlerId);
+  };
+
+  const getDogById = (dogId: string) => {
+    return [...(mission.explosive_dogs || []), ...(mission.narcotic_dogs || [])].find((d) => d.id === dogId);
+  };
 
   return (
     <Card
@@ -117,63 +123,55 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
             )}
           </div>
 
-          {explosiveDogs.length > 0 && (
+          {explosiveTeams.length > 0 && (
             <div className="p-3 bg-gradient-to-br from-red-50 to-pink-50 rounded-lg border border-red-100">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-red-500" />
                 <h4 className="text-xs font-bold text-red-900 uppercase tracking-wide">Explosive Teams</h4>
               </div>
               <div className="space-y-2">
-                {explosiveDogs.map((dogTeam) => (
-                  <div key={dogTeam.dogId} className="bg-white/60 rounded-md px-2 py-1.5">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Users size={14} className="text-red-700" />
-                      <span className="text-sm font-semibold text-red-900">{dogTeam.dogName}</span>
+                {explosiveTeams.map((team) => {
+                  const dog = getDogById(team.dog_id);
+                  const handler = getHandlerForTeam(team.handler_id);
+                  return (
+                    <div key={team.dog_id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1.5">
+                      <div className="flex items-center gap-2">
+                        <Users size={14} className="text-red-700" />
+                        <span className="text-sm font-semibold text-red-900">{dog?.name}</span>
+                      </div>
+                      {handler && (
+                        <span className="text-xs text-red-700">{handler.full_name}</span>
+                      )}
                     </div>
-                    <div className="ml-5 space-y-0.5">
-                      {dogTeam.handlers.map((handler) => (
-                        <div key={handler.id} className="text-xs text-red-700">
-                          {handler.name}
-                          {handler.role && <span className="ml-1 text-red-500">({handler.role})</span>}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {narcoticDogs.length > 0 && (
+          {narcoticTeams.length > 0 && (
             <div className="p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-100">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-green-500" />
                 <h4 className="text-xs font-bold text-green-900 uppercase tracking-wide">Narcotics Teams</h4>
               </div>
               <div className="space-y-2">
-                {narcoticDogs.map((dogTeam) => (
-                  <div key={dogTeam.dogId} className="bg-white/60 rounded-md px-2 py-1.5">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Users size={14} className="text-green-700" />
-                      <span className="text-sm font-semibold text-green-900">{dogTeam.dogName}</span>
+                {narcoticTeams.map((team) => {
+                  const dog = getDogById(team.dog_id);
+                  const handler = getHandlerForTeam(team.handler_id);
+                  return (
+                    <div key={team.dog_id} className="flex items-center justify-between bg-white/60 rounded-md px-2 py-1.5">
+                      <div className="flex items-center gap-2">
+                        <Users size={14} className="text-green-700" />
+                        <span className="text-sm font-semibold text-green-900">{dog?.name}</span>
+                      </div>
+                      {handler && (
+                        <span className="text-xs text-green-700">{handler.full_name}</span>
+                      )}
                     </div>
-                    <div className="ml-5 space-y-0.5">
-                      {dogTeam.handlers.map((handler) => (
-                        <div key={handler.id} className="text-xs text-green-700">
-                          {handler.name}
-                          {handler.role && <span className="ml-1 text-green-500">({handler.role})</span>}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            </div>
-          )}
-
-          {explosiveDogs.length === 0 && narcoticDogs.length === 0 && (
-            <div className="p-3 bg-stone-50 rounded-lg border border-stone-200 text-center">
-              <p className="text-sm text-stone-600">No dogs assigned to this mission</p>
             </div>
           )}
 
