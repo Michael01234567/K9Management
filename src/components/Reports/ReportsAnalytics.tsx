@@ -5,7 +5,7 @@ import { MissionReportsTable } from './MissionReportsTable';
 import { ReportFilters } from './ReportFilters';
 import { AppLoader } from '../UI/AppLoader';
 import { BarChart3 } from 'lucide-react';
-import { getMissionPersonnel, formatHandlersWithDogs, PersonnelWithDog } from '../../utils/missionPersonnel';
+import { getMissionPersonnel, PersonnelWithDog } from '../../utils/missionPersonnel';
 import { MissionWithDetails } from '../../types/database';
 import { getMissionScopedDogs } from '../../utils/missionDogHandlers';
 

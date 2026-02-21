@@ -16,7 +16,6 @@ export function getMissionScopedDogs(
   narcoticDogs: DogWithMissionHandlers[];
 } {
   const dogMap = new Map(allDogs.map(d => [d.id, d]));
-  const handlerMap = new Map(allHandlers.map(h => [h.id, h]));
 
   const allMissionPeople = new Map<string, Handler | MissionOfficer>();
 
