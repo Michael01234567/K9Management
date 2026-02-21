@@ -18,6 +18,7 @@ interface MissionReport {
   handlersWithDogs: PersonnelWithDog[];
   dog_names: string[];
   notes: string;
+  indication_status: 'Confirmed' | 'Unconfirmed' | 'None';
 }
 
 interface MissionReportsTableProps {
@@ -37,6 +38,7 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
     const exportData = missions.map(mission => ({
       'Mission Name': mission.name,
       'Status': mission.status,
+      'Indication': mission.indication_status,
       'Location': mission.location,
       'Mission Officer': mission.officer_name,
       'Team Leader': mission.team_leader_name || '—',
@@ -53,6 +55,7 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
     const colWidths = [
       { wch: 20 },
       { wch: 12 },
+      { wch: 14 },
       { wch: 20 },
       { wch: 20 },
       { wch: 20 },
@@ -72,6 +75,17 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const getIndicationStyle = (status: 'Confirmed' | 'Unconfirmed' | 'None') => {
+    switch (status) {
+      case 'Confirmed':
+        return 'bg-emerald-100 text-emerald-800';
+      case 'Unconfirmed':
+        return 'bg-orange-100 text-orange-800';
+      default:
+        return 'bg-stone-100 text-stone-500';
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -138,6 +152,9 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                Indication
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
                 Location
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
@@ -160,7 +177,7 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
           <tbody className="bg-white divide-y divide-stone-200">
             {missions.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-stone-500">
+                <td colSpan={9} className="px-6 py-12 text-center text-stone-500">
                   No missions found matching the selected filters
                 </td>
               </tr>
@@ -177,6 +194,11 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
                   <td className="px-6 py-4">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(mission.status)}`}>
                       {mission.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getIndicationStyle(mission.indication_status)}`}>
+                      {mission.indication_status}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-stone-900">{mission.location}</td>

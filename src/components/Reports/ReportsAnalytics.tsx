@@ -23,6 +23,7 @@ interface MissionData {
   dog_names: string[];
   handler_count: number;
   dog_count: number;
+  indication_status: 'Confirmed' | 'Unconfirmed' | 'None';
 }
 
 export function ReportsAnalytics() {
@@ -119,6 +120,11 @@ export function ReportsAnalytics() {
 
         const dogNames = allDogs.map(d => d.name);
 
+        const indication_status: 'Confirmed' | 'Unconfirmed' | 'None' =
+          mission.indication
+            ? (mission.confirmed_indication ? 'Confirmed' : 'Unconfirmed')
+            : 'None';
+
         return {
           id: mission.id,
           name: `Mission ${mission.date}`,
@@ -133,6 +139,7 @@ export function ReportsAnalytics() {
           dog_names: dogNames,
           handler_count: personnel.handlersWithDogs.length,
           dog_count: dogNames.length,
+          indication_status,
         };
       });
 

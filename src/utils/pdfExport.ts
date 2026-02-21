@@ -21,6 +21,7 @@ interface MissionReportData {
   handlersWithDogs: PersonnelWithDog[];
   dog_names: string[];
   notes: string;
+  indication_status?: 'Confirmed' | 'Unconfirmed' | 'None';
 }
 
 export function exportMissionsToPDF(missions: MissionReportData[], filters?: {
@@ -29,7 +30,7 @@ export function exportMissionsToPDF(missions: MissionReportData[], filters?: {
   location?: string;
   status?: string;
 }) {
-  const doc = new jsPDF();
+  const doc = new jsPDF({ orientation: 'landscape' });
 
   const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -61,6 +62,7 @@ export function exportMissionsToPDF(missions: MissionReportData[], filters?: {
   const tableData = missions.map(mission => [
     mission.name,
     mission.status,
+    mission.indication_status || 'None',
     mission.location,
     mission.officer_name,
     mission.team_leader_name || '—',
@@ -71,21 +73,22 @@ export function exportMissionsToPDF(missions: MissionReportData[], filters?: {
 
   doc.autoTable({
     startY: yPos,
-    head: [['Mission', 'Status', 'Location', 'Officer', 'Team Leader', 'Handlers', 'Dogs', 'Date']],
+    head: [['Mission', 'Status', 'Indication', 'Location', 'Officer', 'Team Leader', 'Handlers', 'Dogs', 'Date']],
     body: tableData,
     styles: { fontSize: 7, cellPadding: 1.5 },
     headStyles: { fillColor: [41, 128, 185], textColor: 255 },
     alternateRowStyles: { fillColor: [245, 245, 245] },
     margin: { top: 10 },
     columnStyles: {
-      0: { cellWidth: 22 },
+      0: { cellWidth: 28 },
       1: { cellWidth: 18 },
       2: { cellWidth: 22 },
-      3: { cellWidth: 22 },
-      4: { cellWidth: 22 },
-      5: { cellWidth: 35 },
-      6: { cellWidth: 25 },
-      7: { cellWidth: 20 }
+      3: { cellWidth: 28 },
+      4: { cellWidth: 28 },
+      5: { cellWidth: 28 },
+      6: { cellWidth: 45 },
+      7: { cellWidth: 30 },
+      8: { cellWidth: 22 }
     }
   });
 
@@ -138,6 +141,12 @@ export function exportMissionDetailToPDF(mission: MissionReportData) {
   doc.text('Date:', 14, yPos);
   doc.setFont('helvetica', 'normal');
   doc.text(formatDate(mission.date), 60, yPos);
+  yPos += 10;
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Indication:', 14, yPos);
+  doc.setFont('helvetica', 'normal');
+  doc.text(mission.indication_status || 'None', 60, yPos);
   yPos += 10;
 
   yPos += 5;
