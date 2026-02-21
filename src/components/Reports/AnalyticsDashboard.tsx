@@ -12,6 +12,7 @@ interface Mission {
   officer_name?: string;
   handler_names?: string[];
   dog_names?: string[];
+  indication_status?: 'Confirmed' | 'Unconfirmed' | 'None';
 }
 
 interface AnalyticsDashboardProps {
@@ -43,6 +44,12 @@ export function AnalyticsDashboard({ missions }: AnalyticsDashboardProps) {
   const totalHandlers = allHandlers.size;
   const totalDogs = allDogs.size;
   const uniqueOfficers = new Set(missions.map(m => m.officer_name).filter(Boolean)).size;
+
+  const confirmedIndications = missions.filter(m => m.indication_status === 'Confirmed').length;
+  const unconfirmedIndications = missions.filter(m => m.indication_status === 'Unconfirmed').length;
+  const totalIndications = confirmedIndications + unconfirmedIndications;
+  const confirmedPct = totalIndications > 0 ? Math.round((confirmedIndications / totalIndications) * 100) : 0;
+  const unconfirmedPct = totalIndications > 0 ? Math.round((unconfirmedIndications / totalIndications) * 100) : 0;
 
   const statusData = [
     { name: 'Planning', value: planningMissions, color: STATUS_COLORS.Planning },
@@ -95,7 +102,7 @@ export function AnalyticsDashboard({ missions }: AnalyticsDashboardProps) {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-6">
           <h3 className="text-sm font-medium text-stone-600 mb-2">Total K9 Teams</h3>
           <p className="text-3xl font-bold text-stone-900">{totalDogs}</p>
@@ -110,6 +117,50 @@ export function AnalyticsDashboard({ missions }: AnalyticsDashboardProps) {
           <h3 className="text-sm font-medium text-stone-600 mb-2">Mission Officers</h3>
           <p className="text-3xl font-bold text-stone-900">{uniqueOfficers}</p>
           <p className="text-xs text-stone-500 mt-1">Unique Officers</p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="text-sm font-medium text-stone-600 mb-3">Indications Status</h3>
+          {totalIndications > 0 ? (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="text-sm text-stone-700">Confirmed</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-lg font-bold text-emerald-600">{confirmedIndications}</span>
+                  <span className="text-xs text-stone-500 ml-1">({confirmedPct}%)</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 rounded-full bg-orange-400" />
+                  <span className="text-sm text-stone-700">Unconfirmed</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-lg font-bold text-orange-500">{unconfirmedIndications}</span>
+                  <span className="text-xs text-stone-500 ml-1">({unconfirmedPct}%)</span>
+                </div>
+              </div>
+              <div className="pt-2 border-t border-stone-100">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-stone-500">Total Indications</span>
+                  <span className="text-xs font-semibold text-stone-700">{totalIndications}</span>
+                </div>
+                <div className="mt-1.5 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500 rounded-full"
+                    style={{ width: `${confirmedPct}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-16 gap-1">
+              <p className="text-2xl font-bold text-stone-400">0</p>
+              <p className="text-xs text-stone-400">No indications recorded</p>
+            </div>
+          )}
         </Card>
       </div>
 
