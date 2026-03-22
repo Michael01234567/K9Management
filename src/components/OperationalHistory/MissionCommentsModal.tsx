@@ -41,7 +41,7 @@ export function MissionCommentsModal({ row, onClose }: MissionCommentsModalProps
             </div>
             <div>
               <h2 className="text-sm font-semibold text-stone-900">Mission Comments</h2>
-              <p className="text-xs text-stone-400 mt-0.5">{row.label} &middot; {formattedDate}</p>
+              <p className="text-xs text-stone-400 mt-0.5">{row.location} &middot; {formattedDate}</p>
             </div>
           </div>
           <button
