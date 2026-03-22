@@ -130,12 +130,14 @@ export async function validateAllAssignments(
 ): Promise<AssignmentValidationState> {
   const state: AssignmentValidationState = { handlerError: '', officerError: '' };
 
+  const validResult: FieldValidationResult = { isValid: true };
+
   const checks = await Promise.all([
-    handlerId ? checkDogHandlerUniqueness(handlerId, currentDogId) : Promise.resolve({ isValid: true }),
-    officerId ? checkDogOfficerUniqueness(officerId, currentDogId) : Promise.resolve({ isValid: true }),
+    handlerId ? checkDogHandlerUniqueness(handlerId, currentDogId) : Promise.resolve(validResult),
+    officerId ? checkDogOfficerUniqueness(officerId, currentDogId) : Promise.resolve(validResult),
     handlerId && officerId
       ? checkHandlerOfficerCombination(handlerId, officerId, currentDogId)
-      : Promise.resolve({ isValid: true }),
+      : Promise.resolve(validResult),
   ]);
 
   for (const result of checks) {
