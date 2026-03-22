@@ -8,10 +8,12 @@ import { KpiCards } from './KpiCards';
 import { IndicationBar } from './IndicationBar';
 import { LocationsTable } from './LocationsTable';
 import { MissionHistoryTable } from './MissionHistoryTable';
+import { MissionCommentsModal } from './MissionCommentsModal';
 import {
   computeDogHistory,
   computeHandlerHistory,
   computeOfficerHistory,
+  MissionHistoryRow,
 } from '../../utils/operationalHistory';
 
 type EntityTab = 'dogs' | 'handlers' | 'officers';
@@ -32,6 +34,7 @@ export function OperationalHistory() {
   const [selectedId, setSelectedId] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [commentRow, setCommentRow] = useState<MissionHistoryRow | null>(null);
 
   useEffect(() => {
     fetchAll();
@@ -223,8 +226,11 @@ export function OperationalHistory() {
             <div className="md:col-span-1" />
           </div>
 
-          <MissionHistoryTable rows={history.missionRows} />
+          <MissionHistoryTable rows={history.missionRows} onRowClick={setCommentRow} />
         </div>
+      )}
+      {commentRow && (
+        <MissionCommentsModal row={commentRow} onClose={() => setCommentRow(null)} />
       )}
     </div>
   );

@@ -27,6 +27,7 @@ export interface MissionHistoryRow {
   date: string;
   location: string;
   indicationStatus: 'Confirmed' | 'Unconfirmed' | 'None';
+  comments: string | null;
 }
 
 export interface EntityHistory {
@@ -93,6 +94,7 @@ function buildMissionRows(missions: Mission[], locationMap: Map<string, string>)
       indicationStatus: m.indication
         ? (m.confirmed_indication ? 'Confirmed' : 'Unconfirmed')
         : 'None',
+      comments: m.comments ?? null,
     }));
 }
 
