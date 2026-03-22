@@ -4,7 +4,7 @@ import { Button } from '../UI/Button';
 import { exportMissionsToPDF } from '../../utils/pdfExport';
 import { formatDate } from '../../utils/dateFormat';
 import { formatHandlersWithDogs, PersonnelWithDog } from '../../utils/missionPersonnel';
-import * as XLSX from 'xlsx';
+
 
 interface MissionReport {
   id: string;
@@ -34,7 +34,8 @@ interface MissionReportsTableProps {
 export function MissionReportsTable({ missions, filters }: MissionReportsTableProps) {
   const [selectedMission, setSelectedMission] = useState<string | null>(null);
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
+    const XLSX = await import('xlsx');
     const exportData = missions.map(mission => ({
       'Mission Name': mission.name,
       'Status': mission.status,
@@ -69,8 +70,8 @@ export function MissionReportsTable({ missions, filters }: MissionReportsTablePr
     XLSX.writeFile(wb, `mission-reports-${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
-  const handleExportPDF = () => {
-    exportMissionsToPDF(missions, filters);
+  const handleExportPDF = async () => {
+    await exportMissionsToPDF(missions, filters);
   };
 
   const handlePrint = () => {

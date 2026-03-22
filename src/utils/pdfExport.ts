@@ -1,13 +1,5 @@
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import { formatDate } from './dateFormat';
 import { formatHandlersWithDogs, PersonnelWithDog } from './missionPersonnel';
-
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
 
 interface MissionReportData {
   id: string;
@@ -24,13 +16,16 @@ interface MissionReportData {
   indication_status?: 'Confirmed' | 'Unconfirmed' | 'None';
 }
 
-export function exportMissionsToPDF(missions: MissionReportData[], filters?: {
+export async function exportMissionsToPDF(missions: MissionReportData[], filters?: {
   dateFrom?: string;
   dateTo?: string;
   location?: string;
   status?: string;
 }) {
-  const doc = new jsPDF({ orientation: 'landscape' });
+  const { default: jsPDF } = await import('jspdf');
+  await import('jspdf-autotable');
+
+  const doc = new (jsPDF as any)({ orientation: 'landscape' });
 
   const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -96,8 +91,11 @@ export function exportMissionsToPDF(missions: MissionReportData[], filters?: {
   doc.save(filename);
 }
 
-export function exportMissionDetailToPDF(mission: MissionReportData) {
-  const doc = new jsPDF();
+export async function exportMissionDetailToPDF(mission: MissionReportData) {
+  const { default: jsPDF } = await import('jspdf');
+  await import('jspdf-autotable');
+
+  const doc = new (jsPDF as any)();
 
   const pageWidth = doc.internal.pageSize.getWidth();
 
