@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Modal } from '../UI/Modal';
 import { Button } from '../UI/Button';
@@ -20,6 +20,7 @@ import {
   AssignmentValidationState,
   EMPTY_VALIDATION,
 } from '../../utils/assignmentValidation';
+import { logAssignmentChanges, AssignmentSnapshot } from '../../utils/auditLog';
 
 interface DogFormProps {
   isOpen: boolean;
@@ -38,6 +39,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
   const [selectedOfficer, setSelectedOfficer] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<AssignmentValidationState>(EMPTY_VALIDATION);
   const [submitError, setSubmitError] = useState<string>('');
+  const beforeSnapshotRef = useRef<AssignmentSnapshot>({ handlerId: '', handlerName: '', officerId: '', officerName: '' });
   const [formData, setFormData] = useState({
     name: '',
     breed: '',
@@ -91,6 +93,7 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
       });
       setSelectedHandler('');
       setSelectedOfficer('');
+      beforeSnapshotRef.current = { handlerId: '', handlerName: '', officerId: '', officerName: '' };
     }
     setFieldErrors(EMPTY_VALIDATION);
     setSubmitError('');
@@ -114,19 +117,25 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
   const loadDogHandlers = async (dogId: string) => {
     const { data } = await supabase
       .from('dog_handler')
-      .select('handler_id')
+      .select('handler_id, handlers(full_name)')
       .eq('dog_id', dogId)
       .maybeSingle();
-    setSelectedHandler(data?.handler_id || '');
+    const handlerId = (data as any)?.handler_id || '';
+    const handlerName = (data as any)?.handlers?.full_name || '';
+    setSelectedHandler(handlerId);
+    beforeSnapshotRef.current = { ...beforeSnapshotRef.current, handlerId, handlerName };
   };
 
   const loadDogOfficers = async (dogId: string) => {
     const { data } = await supabase
       .from('dog_officer')
-      .select('officer_id')
+      .select('officer_id, mission_officers(full_name)')
       .eq('dog_id', dogId)
       .maybeSingle();
-    setSelectedOfficer(data?.officer_id || '');
+    const officerId = (data as any)?.officer_id || '';
+    const officerName = (data as any)?.mission_officers?.full_name || '';
+    setSelectedOfficer(officerId);
+    beforeSnapshotRef.current = { ...beforeSnapshotRef.current, officerId, officerName };
   };
 
   const runRealtimeValidation = useCallback(
@@ -249,6 +258,15 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
             return;
           }
         }
+
+        const afterHandlerName = handlers.find((h) => h.id === selectedHandler)?.full_name || '';
+        const afterOfficerName = officers.find((o) => o.id === selectedOfficer)?.full_name || '';
+        await logAssignmentChanges({
+          dogId: dog.id,
+          dogName: finalName,
+          before: beforeSnapshotRef.current,
+          after: { handlerId: selectedHandler, handlerName: afterHandlerName, officerId: selectedOfficer, officerName: afterOfficerName },
+        });
       } else {
         const { data: newDog, error } = await supabase
           .from('dogs')
@@ -277,6 +295,17 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
             setLoading(false);
             return;
           }
+        }
+
+        if (newDog && (selectedHandler || selectedOfficer)) {
+          const afterHandlerName = handlers.find((h) => h.id === selectedHandler)?.full_name || '';
+          const afterOfficerName = officers.find((o) => o.id === selectedOfficer)?.full_name || '';
+          await logAssignmentChanges({
+            dogId: newDog.id,
+            dogName: finalName,
+            before: { handlerId: '', handlerName: '', officerId: '', officerName: '' },
+            after: { handlerId: selectedHandler, handlerName: afterHandlerName, officerId: selectedOfficer, officerName: afterOfficerName },
+          });
         }
       }
 
