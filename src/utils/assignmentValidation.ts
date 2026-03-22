@@ -151,6 +151,53 @@ export async function validateAllAssignments(
   return state;
 }
 
+/**
+ * Maps a raw Supabase / Postgres error into a user-friendly message.
+ * Returns null when the error is not assignment-related (caller may re-throw).
+ */
+export function mapDbError(
+  error: { code?: string; message?: string } | null | undefined,
+  field: 'handler' | 'officer'
+): string | null {
+  if (!error) return null;
+
+  const msg = (error.message || '').toLowerCase();
+  const code = error.code || '';
+
+  if (code === '23505' || msg.includes('unique') || msg.includes('duplicate')) {
+    if (field === 'handler') return 'This dog is already assigned to another handler.';
+    if (field === 'officer') return 'This officer already has a dog assigned.';
+  }
+
+  if (
+    msg.includes('handler') &&
+    (msg.includes('officer') || msg.includes('limit') || msg.includes('already'))
+  ) {
+    return 'This handler already has another dog with a mission officer assigned.';
+  }
+
+  if (code === '23503') {
+    if (field === 'handler') return 'The selected handler no longer exists. Please refresh and try again.';
+    if (field === 'officer') return 'The selected officer no longer exists. Please refresh and try again.';
+  }
+
+  return null;
+}
+
+/**
+ * Final pre-save conflict check — runs all rules fresh, right before DB writes.
+ * Excludes the current dog being edited so edit-mode saves are not self-blocked.
+ *
+ * Returns an AssignmentValidationState. Both fields are empty strings when safe to proceed.
+ */
+export async function preSaveConflictCheck(
+  handlerId: string,
+  officerId: string,
+  currentDogId?: string
+): Promise<AssignmentValidationState> {
+  return validateAllAssignments(handlerId, officerId, currentDogId);
+}
+
 export async function getHandlerInfo(handlerId: string) {
   const { data: dogs } = await supabase
     .from('dog_handler')

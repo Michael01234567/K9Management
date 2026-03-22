@@ -17,6 +17,8 @@ import {
 } from '../../types/database';
 import {
   validateAllAssignments,
+  preSaveConflictCheck,
+  mapDbError,
   AssignmentValidationState,
   EMPTY_VALIDATION,
 } from '../../utils/assignmentValidation';
@@ -214,6 +216,13 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
     setLoading(true);
 
     try {
+      const preSaveErrors = await preSaveConflictCheck(selectedHandler, selectedOfficer, dog?.id);
+      if (preSaveErrors.handlerError || preSaveErrors.officerError) {
+        setFieldErrors(preSaveErrors);
+        setLoading(false);
+        return;
+      }
+
       let finalName = formData.name.trim();
 
       if (dog) {
@@ -242,7 +251,8 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
             .from('dog_handler')
             .insert({ dog_id: dog.id, handler_id: selectedHandler });
           if (handlerError) {
-            setFieldErrors((prev) => ({ ...prev, handlerError: 'Failed to assign handler. Please try again.' }));
+            const friendly = mapDbError(handlerError, 'handler');
+            setFieldErrors((prev) => ({ ...prev, handlerError: friendly ?? 'Failed to assign handler. Please try again.' }));
             setLoading(false);
             return;
           }
@@ -253,7 +263,8 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
             .from('dog_officer')
             .insert({ dog_id: dog.id, officer_id: selectedOfficer });
           if (officerError) {
-            setFieldErrors((prev) => ({ ...prev, officerError: 'Failed to assign officer. Please try again.' }));
+            const friendly = mapDbError(officerError, 'officer');
+            setFieldErrors((prev) => ({ ...prev, officerError: friendly ?? 'Failed to assign officer. Please try again.' }));
             setLoading(false);
             return;
           }
@@ -280,7 +291,8 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
             .from('dog_handler')
             .insert({ dog_id: newDog.id, handler_id: selectedHandler });
           if (handlerError) {
-            setFieldErrors((prev) => ({ ...prev, handlerError: 'Failed to assign handler. Please try again.' }));
+            const friendly = mapDbError(handlerError, 'handler');
+            setFieldErrors((prev) => ({ ...prev, handlerError: friendly ?? 'Failed to assign handler. Please try again.' }));
             setLoading(false);
             return;
           }
@@ -291,7 +303,8 @@ export function DogForm({ isOpen, onClose, onSave, dog }: DogFormProps) {
             .from('dog_officer')
             .insert({ dog_id: newDog.id, officer_id: selectedOfficer });
           if (officerError) {
-            setFieldErrors((prev) => ({ ...prev, officerError: 'Failed to assign officer. Please try again.' }));
+            const friendly = mapDbError(officerError, 'officer');
+            setFieldErrors((prev) => ({ ...prev, officerError: friendly ?? 'Failed to assign officer. Please try again.' }));
             setLoading(false);
             return;
           }
