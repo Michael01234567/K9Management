@@ -24,6 +24,7 @@ const Missions = lazy(() => import('./Missions/Missions').then(m => ({ default: 
 const Locations = lazy(() => import('./Locations/Locations'));
 const MissionLocations = lazy(() => import('./MissionLocations/MissionLocations'));
 const ReportsAnalytics = lazy(() => import('./Reports/ReportsAnalytics').then(m => ({ default: m.ReportsAnalytics })));
+const OperationalHistory = lazy(() => import('./OperationalHistory/OperationalHistory').then(m => ({ default: m.OperationalHistory })));
 
 interface DogWithHandlers extends Dog {
   handlers?: Handler[];
@@ -199,6 +200,8 @@ export function MainApp() {
             {activeView === 'locations' && <Locations />}
 
             {activeView === 'mission-locations' && <MissionLocations />}
+
+            {activeView === 'operational-history' && <OperationalHistory />}
           </Suspense>
         </main>
       </div>
