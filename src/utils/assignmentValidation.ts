@@ -1,100 +1,154 @@
 import { supabase } from '../lib/supabase';
 
-export const ASSIGNMENT_ERROR_MESSAGE =
-  'Assignment Rule Violated: A dog cannot have multiple handlers or multiple mission officers, and a handler can only have one mission-officer-assigned dog globally at the same time.';
+export type AssignmentField = 'handler' | 'officer';
 
-interface ValidationResult {
+export interface FieldValidationResult {
   isValid: boolean;
+  field?: AssignmentField;
   error?: string;
 }
 
-export async function validateHandlerAssignment(
-  handlerId: string | null,
-  dogId?: string
-): Promise<ValidationResult> {
-  if (!handlerId) return { isValid: true };
+export interface AssignmentValidationState {
+  handlerError: string;
+  officerError: string;
+}
 
-  const { data, error } = await supabase
+export const EMPTY_VALIDATION: AssignmentValidationState = {
+  handlerError: '',
+  officerError: '',
+};
+
+/**
+ * Rule 1: One dog → one handler globally
+ * Check that no OTHER dog already has this handler.
+ */
+export async function checkDogHandlerUniqueness(
+  handlerId: string,
+  currentDogId?: string
+): Promise<FieldValidationResult> {
+  const query = supabase
     .from('dog_handler')
     .select('dog_id')
-    .eq('handler_id', handlerId)
-    .neq('dog_id', dogId || '');
+    .eq('handler_id', handlerId);
 
-  if (error) {
-    return { isValid: false, error: 'Failed to validate handler assignment.' };
-  }
+  const { data, error } = currentDogId
+    ? await query.neq('dog_id', currentDogId)
+    : await query;
+
+  if (error) return { isValid: false, field: 'handler', error: 'Unable to validate handler assignment.' };
 
   if (data && data.length > 0) {
     return {
       isValid: false,
-      error: 'This dog already has a different handler assigned globally.',
+      field: 'handler',
+      error: 'This dog is already assigned to another handler.',
     };
   }
 
   return { isValid: true };
 }
 
-export async function validateOfficerAssignment(
-  officerId: string | null,
-  dogId?: string
-): Promise<ValidationResult> {
-  if (!officerId) return { isValid: true };
-
-  const { data, error } = await supabase
+/**
+ * Rule 2: One dog → one officer globally
+ * Rule 3: One officer → one dog globally
+ * Check that no OTHER dog already has this officer.
+ */
+export async function checkDogOfficerUniqueness(
+  officerId: string,
+  currentDogId?: string
+): Promise<FieldValidationResult> {
+  const query = supabase
     .from('dog_officer')
     .select('dog_id')
-    .eq('officer_id', officerId)
-    .neq('dog_id', dogId || '');
+    .eq('officer_id', officerId);
 
-  if (error) {
-    return { isValid: false, error: 'Failed to validate officer assignment.' };
-  }
+  const { data, error } = currentDogId
+    ? await query.neq('dog_id', currentDogId)
+    : await query;
+
+  if (error) return { isValid: false, field: 'officer', error: 'Unable to validate officer assignment.' };
 
   if (data && data.length > 0) {
     return {
       isValid: false,
-      error: 'This officer already has a different dog assigned globally.',
+      field: 'officer',
+      error: 'This officer already has a dog assigned.',
     };
   }
 
   return { isValid: true };
 }
 
-export async function validateHandlerOfficerCombination(
-  handlerId: string | null,
-  officerId: string | null,
-  dogId?: string
-): Promise<ValidationResult> {
-  if (!handlerId || !officerId) return { isValid: true };
-
-  const { data, error } = await supabase
+/**
+ * Rule 4: One handler may have multiple dogs, but only ONE of those dogs
+ * may have a mission officer assigned globally.
+ * Validates when BOTH handler and officer are selected.
+ */
+export async function checkHandlerOfficerCombination(
+  handlerId: string,
+  officerId: string,
+  currentDogId?: string
+): Promise<FieldValidationResult> {
+  const query = supabase
     .from('dog_handler')
     .select(`
       dog_id,
       dogs!inner(
         id,
-        name,
-        dog_officer!inner(
-          officer_id
-        )
+        dog_officer!inner(officer_id)
       )
     `)
-    .eq('handler_id', handlerId)
-    .neq('dog_id', dogId || '');
+    .eq('handler_id', handlerId);
 
-  if (error) {
-    console.error('Validation error:', error);
-    return { isValid: false, error: 'Failed to validate assignment rules.' };
-  }
+  const { data, error } = currentDogId
+    ? await query.neq('dog_id', currentDogId)
+    : await query;
+
+  if (error) return { isValid: false, field: 'handler', error: 'Unable to validate handler assignment rules.' };
 
   if (data && data.length > 0) {
     return {
       isValid: false,
-      error: ASSIGNMENT_ERROR_MESSAGE,
+      field: 'handler',
+      error: 'This handler already has another dog with a mission officer assigned.',
     };
   }
 
+  void officerId;
   return { isValid: true };
+}
+
+/**
+ * Run all relevant assignment validations for a given combination of
+ * handlerId + officerId + currentDogId.
+ * Returns an AssignmentValidationState with per-field error strings.
+ */
+export async function validateAllAssignments(
+  handlerId: string,
+  officerId: string,
+  currentDogId?: string
+): Promise<AssignmentValidationState> {
+  const state: AssignmentValidationState = { handlerError: '', officerError: '' };
+
+  const checks = await Promise.all([
+    handlerId ? checkDogHandlerUniqueness(handlerId, currentDogId) : Promise.resolve({ isValid: true }),
+    officerId ? checkDogOfficerUniqueness(officerId, currentDogId) : Promise.resolve({ isValid: true }),
+    handlerId && officerId
+      ? checkHandlerOfficerCombination(handlerId, officerId, currentDogId)
+      : Promise.resolve({ isValid: true }),
+  ]);
+
+  for (const result of checks) {
+    if (!result.isValid && result.error) {
+      if (result.field === 'officer') {
+        if (!state.officerError) state.officerError = result.error;
+      } else {
+        if (!state.handlerError) state.handlerError = result.error;
+      }
+    }
+  }
+
+  return state;
 }
 
 export async function getHandlerInfo(handlerId: string) {
