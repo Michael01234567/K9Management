@@ -9,6 +9,7 @@ import { HandlerForm } from './Handlers/HandlerForm';
 import { MissionOfficerForm } from './MissionOfficers/MissionOfficerForm';
 import { VetRecordForm } from './Vet/VetRecordForm';
 import { AppLoader } from './UI/AppLoader';
+import { ErrorBoundary } from './UI/ErrorBoundary';
 import { PWAInstallPrompt } from './PWA/PWAInstallPrompt';
 import { Dog, Handler, MissionOfficer, VetRecord } from '../types/database';
 import { supabase } from '../lib/supabase';
@@ -151,58 +152,60 @@ export function MainApp() {
           />
         )}
         <main className={`flex-1 w-full ${activeView === 'home' ? 'p-4 md:p-8 lg:p-12' : 'p-4 md:p-6 lg:p-8'}`}>
-          <Suspense fallback={<AppLoader />}>
-            {activeView === 'home' && <Home onNavigate={setActiveView} />}
-            {activeView === 'dashboard' && <Dashboard onNavigate={setActiveView} />}
+          <ErrorBoundary onGoHome={() => setActiveView('home')}>
+            <Suspense fallback={<AppLoader />}>
+              {activeView === 'home' && <Home onNavigate={setActiveView} />}
+              {activeView === 'dashboard' && <Dashboard onNavigate={setActiveView} />}
 
-            {activeView === 'dogs' && (
-              <DogTable
-                onDogClick={handleDogClick}
-                onAddClick={handleAddDog}
-                refreshTrigger={refreshTrigger}
-                onReturn={() => setActiveView('dashboard')}
-              />
-            )}
+              {activeView === 'dogs' && (
+                <DogTable
+                  onDogClick={handleDogClick}
+                  onAddClick={handleAddDog}
+                  refreshTrigger={refreshTrigger}
+                  onReturn={() => setActiveView('dashboard')}
+                />
+              )}
 
-            {activeView === 'handlers' && (
-              <HandlersTable
-                onAddClick={handleAddHandler}
-                onEditClick={handleEditHandler}
-                refreshTrigger={refreshTrigger}
-                onReturn={() => setActiveView('dashboard')}
-              />
-            )}
+              {activeView === 'handlers' && (
+                <HandlersTable
+                  onAddClick={handleAddHandler}
+                  onEditClick={handleEditHandler}
+                  refreshTrigger={refreshTrigger}
+                  onReturn={() => setActiveView('dashboard')}
+                />
+              )}
 
-            {activeView === 'mission-officers' && (
-              <MissionOfficersTable
-                onAddClick={handleAddMissionOfficer}
-                onEditClick={handleEditMissionOfficer}
-                refreshTrigger={refreshTrigger}
-                onReturn={() => setActiveView('dashboard')}
-              />
-            )}
+              {activeView === 'mission-officers' && (
+                <MissionOfficersTable
+                  onAddClick={handleAddMissionOfficer}
+                  onEditClick={handleEditMissionOfficer}
+                  refreshTrigger={refreshTrigger}
+                  onReturn={() => setActiveView('dashboard')}
+                />
+              )}
 
-            {activeView === 'vet' && (
-              <VetRecordsTable
-                onAddClick={handleAddVetRecord}
-                onEditClick={handleEditVetRecord}
-                refreshTrigger={refreshTrigger}
-                onReturn={() => setActiveView('dashboard')}
-              />
-            )}
+              {activeView === 'vet' && (
+                <VetRecordsTable
+                  onAddClick={handleAddVetRecord}
+                  onEditClick={handleEditVetRecord}
+                  refreshTrigger={refreshTrigger}
+                  onReturn={() => setActiveView('dashboard')}
+                />
+              )}
 
-            {activeView === 'fitness' && <FitnessStatusTable onReturn={() => setActiveView('dashboard')} />}
+              {activeView === 'fitness' && <FitnessStatusTable onReturn={() => setActiveView('dashboard')} />}
 
-            {activeView === 'missions' && <Missions />}
+              {activeView === 'missions' && <Missions />}
 
-            {activeView === 'reports' && <ReportsAnalytics />}
+              {activeView === 'reports' && <ReportsAnalytics />}
 
-            {activeView === 'locations' && <Locations />}
+              {activeView === 'locations' && <Locations />}
 
-            {activeView === 'mission-locations' && <MissionLocations />}
+              {activeView === 'mission-locations' && <MissionLocations />}
 
-            {activeView === 'operational-history' && <OperationalHistory />}
-          </Suspense>
+              {activeView === 'operational-history' && <OperationalHistory />}
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
 
