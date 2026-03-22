@@ -10,7 +10,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ onMenuClick, onHomeClick }: NavbarProps) {
-  const { user, profile, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
   return (
@@ -51,10 +51,10 @@ export function Navbar({ onMenuClick, onHomeClick }: NavbarProps) {
           <div className="flex items-center space-x-2 md:space-x-4 flex-shrink-0">
             <div className="hidden md:flex flex-col items-end">
               <span className="text-sm font-bold text-white">
-                Hi {profile?.full_name || user?.user_metadata?.full_name || 'User'}
+                Hi {user?.user_metadata?.full_name || 'User'}
               </span>
               <span className="text-xs text-amber-200">
-                {profile?.role || user?.user_metadata?.role || 'Role Unknown'}
+                {user?.user_metadata?.role || 'Role Unknown'}
               </span>
             </div>
             <Button
