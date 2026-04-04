@@ -57,6 +57,7 @@ export function FitnessLogsTable({ onAddClick, onEditClick, refreshTrigger }: Fi
     const exportData = logs.map((log) => ({
       Dog: log.dog?.name || 'Unknown',
       Breed: log.dog?.breed || 'N/A',
+      Sex: log.dog?.sex || '—',
       Date: formatDate(log.log_date),
       'Activity Type': log.activity_type,
       'Duration (min)': log.duration_minutes || 'N/A',
@@ -99,6 +100,7 @@ export function FitnessLogsTable({ onAddClick, onEditClick, refreshTrigger }: Fi
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Dog</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Sex</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Date</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Activity</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-stone-900">Duration</th>
@@ -117,6 +119,9 @@ export function FitnessLogsTable({ onAddClick, onEditClick, refreshTrigger }: Fi
                     <td className="px-6 py-4">
                       <div className="font-medium text-stone-900">{log.dog?.name || 'Unknown'}</div>
                       <div className="text-xs text-stone-500">{log.dog?.breed}</div>
+                    </td>
+                    <td className="px-6 py-4 text-stone-700">
+                      {log.dog?.sex || '—'}
                     </td>
                     <td className="px-6 py-4 text-stone-700">
                       {formatDate(log.log_date)}
@@ -173,6 +178,10 @@ export function FitnessLogsTable({ onAddClick, onEditClick, refreshTrigger }: Fi
               </div>
 
               <div className="space-y-2 text-sm">
+                <div className="flex items-center text-stone-700">
+                  <span className="text-xs font-medium text-stone-500 w-14">Sex:</span>
+                  <span>{log.dog?.sex || '—'}</span>
+                </div>
                 <div className="flex items-center text-stone-700">
                   <Calendar size={14} className="mr-2 flex-shrink-0" />
                   <span>{formatDate(log.log_date)}</span>

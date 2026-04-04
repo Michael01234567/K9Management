@@ -165,6 +165,9 @@ export function FitnessStatusTable({ onReturn }: FitnessStatusTableProps = {}) {
                       Dog Name
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
+                      Sex
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
                       Handler
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
@@ -192,6 +195,9 @@ export function FitnessStatusTable({ onReturn }: FitnessStatusTableProps = {}) {
                     <tr key={status.id} className="hover:bg-stone-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-stone-900">{status.dog?.name || 'N/A'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-stone-900">{status.dog?.sex || '—'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-stone-900">{status.handler?.full_name || 'Unassigned'}</div>
@@ -261,6 +267,10 @@ export function FitnessStatusTable({ onReturn }: FitnessStatusTableProps = {}) {
               </div>
 
               <div className="space-y-2 text-sm">
+                <div className="flex items-center text-stone-700">
+                  <span className="text-xs font-medium text-stone-500 w-14">Sex:</span>
+                  <span>{status.dog?.sex || '—'}</span>
+                </div>
                 <div className="flex items-center text-stone-700">
                   <User size={14} className="mr-2 flex-shrink-0" />
                   <span>Handler: {status.handler?.full_name || 'Unassigned'}</span>
